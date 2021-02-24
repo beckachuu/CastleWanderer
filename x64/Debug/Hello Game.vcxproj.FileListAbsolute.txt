@@ -1,0 +1,2 @@
+C:\Users\ADMIN\Desktop\Hello Game\x64\Debug\Hello Game.exe
+C:\Users\ADMIN\Desktop\Hello Game\x64\Debug\Hello Game.pdb
