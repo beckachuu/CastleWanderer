@@ -1,2 +1,0 @@
-﻿  01_hello_SDL.cpp
-LINK : fatal error LNK1104: cannot open file 'SDL2.main.lib'
