@@ -1,0 +1,16 @@
+﻿  Source.cpp
+Source.obj : error LNK2019: unresolved external symbol _SDL_GetError referenced in function "void __cdecl logSDLError(class std::basic_ostream<char,struct std::char_traits<char> > &,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,bool)" (?logSDLError@@YAXAAV?$basic_ostream@DU?$char_traits@D@std@@@std@@ABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@_N@Z)
+Source.obj : error LNK2019: unresolved external symbol _SDL_CreateWindow referenced in function "void __cdecl initSDL(struct SDL_Window * &,struct SDL_Renderer * &)" (?initSDL@@YAXAAPAUSDL_Window@@AAPAUSDL_Renderer@@@Z)
+Source.obj : error LNK2019: unresolved external symbol _SDL_DestroyWindow referenced in function "void __cdecl quitSDL(struct SDL_Window *,struct SDL_Renderer *)" (?quitSDL@@YAXPAUSDL_Window@@PAUSDL_Renderer@@@Z)
+Source.obj : error LNK2019: unresolved external symbol _SDL_WaitEvent referenced in function "void __cdecl waitUntilKeyPressed(void)" (?waitUntilKeyPressed@@YAXXZ)
+Source.obj : error LNK2019: unresolved external symbol _SDL_SetHint referenced in function "void __cdecl initSDL(struct SDL_Window * &,struct SDL_Renderer * &)" (?initSDL@@YAXAAPAUSDL_Window@@AAPAUSDL_Renderer@@@Z)
+Source.obj : error LNK2019: unresolved external symbol _SDL_CreateRenderer referenced in function "void __cdecl initSDL(struct SDL_Window * &,struct SDL_Renderer * &)" (?initSDL@@YAXAAPAUSDL_Window@@AAPAUSDL_Renderer@@@Z)
+Source.obj : error LNK2019: unresolved external symbol _SDL_RenderSetLogicalSize referenced in function "void __cdecl initSDL(struct SDL_Window * &,struct SDL_Renderer * &)" (?initSDL@@YAXAAPAUSDL_Window@@AAPAUSDL_Renderer@@@Z)
+Source.obj : error LNK2019: unresolved external symbol _SDL_DestroyRenderer referenced in function "void __cdecl quitSDL(struct SDL_Window *,struct SDL_Renderer *)" (?quitSDL@@YAXPAUSDL_Window@@PAUSDL_Renderer@@@Z)
+Source.obj : error LNK2019: unresolved external symbol _SDL_Delay referenced in function "void __cdecl waitUntilKeyPressed(void)" (?waitUntilKeyPressed@@YAXXZ)
+Source.obj : error LNK2019: unresolved external symbol _SDL_Init referenced in function "void __cdecl initSDL(struct SDL_Window * &,struct SDL_Renderer * &)" (?initSDL@@YAXAAPAUSDL_Window@@AAPAUSDL_Renderer@@@Z)
+Source.obj : error LNK2019: unresolved external symbol _SDL_Quit referenced in function "void __cdecl logSDLError(class std::basic_ostream<char,struct std::char_traits<char> > &,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,bool)" (?logSDLError@@YAXAAV?$basic_ostream@DU?$char_traits@D@std@@@std@@ABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@_N@Z)
+MSVCRTD.lib(exe_main.obj) : error LNK2019: unresolved external symbol _main referenced in function "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ)
+C:\Users\ADMIN\Desktop\bigProject\lib\x64\SDL2.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ADMIN\Desktop\bigProject\lib\x64\SDL2main.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\Debug\Castle Wanderer.exe : fatal error LNK1120: 12 unresolved externals
