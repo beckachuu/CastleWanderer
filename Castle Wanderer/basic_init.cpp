@@ -4,8 +4,6 @@
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 
-myKnight* knight = NULL;
-
 
 SDL_Renderer* initSDL() {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -50,7 +48,7 @@ void logError(std::ostream& out, const std::string& ms, bool fatal) {
 
 
 void close() {
-    knight->free();
+    //knight->free();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

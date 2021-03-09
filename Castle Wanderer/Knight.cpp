@@ -28,7 +28,7 @@ bool myKnight::loadFromFile(std::string path, SDL_Renderer* renderer)
     SDL_Surface* loadedSurface = IMG_Load(path.c_str());
     if (loadedSurface == NULL)
     {
-        std::cerr << "Unable to load knight image! SDL_image Error:" << IMG_GetError();
+        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError();
     }
     else
     {
@@ -39,7 +39,7 @@ bool myKnight::loadFromFile(std::string path, SDL_Renderer* renderer)
         newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
         if (newTexture == NULL)
         {
-            std::cerr << "Unable to create texture from %s! SDL Error: %s\n" << path.c_str() << SDL_GetError();
+            std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError() << std::endl;
         }
         else
         {
@@ -116,8 +116,8 @@ void myKnight::setSpriteClips() {
 void myKnight::renderCurrentAction(int frame, SDL_Renderer* renderer) {
 
     // clear screen
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-    SDL_RenderClear(renderer);
+    //SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    //SDL_RenderClear(renderer);
 
     // Render pacman action
     // Do action 
