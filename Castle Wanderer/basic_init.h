@@ -1,107 +1,65 @@
 ﻿#ifndef BASIC_INIT_H
 #define BASIC_INIT_H
 
-
 #include <iostream>
+#include <cstring>
 #include <SDL.h>
 #include <SDL_image.h>
-#include <string>
-using namespace std;
+#include <SDL_ttf.h>
+
+const std::string title = "Castle Wanderer";
+const int SCREEN_HEIGHT = 540;
+const int SCREEN_WIDTH = 960;
+
+enum knightposes { jump1, jump2, jump3, punch1, punch2, walk1, walk2, walk3, walk4, walk5, stand, total };
 
 
-const int SCREEN_WIDTH = 1000;
-const int SCREEN_HEIGHT = 600;
-
-//The window we'll be rendering to
-SDL_Window* window = NULL;
-
-//The surface contained by the window
-SDL_Surface* screenSurface = NULL;
-
-//test surface
-SDL_Surface* CurrentSurface = NULL;
-
-SDL_Renderer* renderer;
-
-const string WINDOW_TITLE = "Castle Wanderer";
-
-
-
-void logSDLError(ostream& os, const string& msg, bool fatal = false);
-
-void initSDL(SDL_Window*& window, SDL_Renderer*& renderer);
-
-void waitUntilKeyPressed();
-
-void quitSDL(SDL_Window* window, SDL_Renderer* renderer);
-
-
-/// ////////////////////////////////////////////////////////////////////
-
-
-void logSDLError(ostream& os, const string& msg, bool fatal)
+//Texture wrapper class
+class MyTexture
 {
-    os << msg << " Error: " << SDL_GetError() << endl;
-    if (fatal) {
-        SDL_Quit();
-        exit(1);
-    }
-}
+public:
+	//Initializes variables
+	MyTexture();
 
-void initSDL(SDL_Window*& window, SDL_Renderer*& renderer)
-{
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-        logSDLError(cout, "SDL_Init", true);
+	//Deallocates memory
+	~MyTexture();
 
-    window = SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_CENTERED, 
-            SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	//Loads image at specified path
+	bool loadFromFile(std::string path);
 
-    if (window == NULL) {
-        logSDLError(cout, "CreateWindow", true);
-    }
+	//Deallocates texture
+	void free();
 
-    //Create renderer for window (chay vs may o nha)
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED |
-        SDL_RENDERER_PRESENTVSYNC);
+	//Set color modulation
+	void setColor(Uint8 red, Uint8 green, Uint8 blue);
 
-    if (renderer == NULL) {
-        logSDLError(cout, "CreateRenderer", true);
-    }
+	//Set blending
+	void setBlendMode(SDL_BlendMode blending);
 
-    //Initialize renderer color
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	//💘💘💘💘💘💘💘 Set alpha modulation 💘💘💘💘💘💘💘
+	void setAlpha(Uint8 alpha);
 
-    //Set texture filtering to linear
-    if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear")) // or "1"
-    {
-        printf("Warning: Linear texture filtering not enabled!");
-    }
+	//💘💘💘💘💘💘💘 Renders texture at given point 💘💘💘💘💘💘💘
+	void render(int x, int y, SDL_Rect* clip = NULL);
 
-    SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+	//Gets image dimensions
+	int getWidth();
+	int getHeight();
 
-    screenSurface = SDL_GetWindowSurface(window);
-}
+private:
+	//The actual hardware texture
+	SDL_Texture* mTexture[total];
 
-void waitUntilKeyPressed()
-{
-    SDL_Event e;
-    while (true) {
-        if (SDL_WaitEvent(&e) != 0 &&
-            (e.type == SDL_KEYDOWN || e.type == SDL_QUIT))
-            return;
-        SDL_Delay(200);
-    }
-}
+	//Image dimensions
+	int mWidth;
+	int mHeight;
+};
 
-void quitSDL(SDL_Window* window, SDL_Renderer* renderer)
-{
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    window = NULL;
-    renderer = NULL;
 
-    IMG_Quit();
-    SDL_Quit();
-}
+SDL_Renderer* initSDL();
+void logError(std::ostream& out, const std::string& ms, bool fatal);
+void close(SDL_Texture* screen);
+bool loadMedia(SDL_Texture* picture[]);
+SDL_Texture* loadIMG(const std::string& path);
 
 #endif

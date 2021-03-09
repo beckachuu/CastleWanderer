@@ -18,27 +18,12 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="basic_init.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="key_press.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="png.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="try_everything.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="basic_init.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stretch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bmp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
