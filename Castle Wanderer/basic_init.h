@@ -15,6 +15,8 @@ const int SCREEN_WIDTH = 1280;
 SDL_Renderer* initSDL();
 void logError(std::ostream& out, const std::string& ms, bool fatal);
 
+void waitUntilKeyPressed();
+
 void close();
 SDL_Texture* loadTexture(std::string path);
 

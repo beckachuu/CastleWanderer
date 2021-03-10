@@ -43,25 +43,9 @@ int main(int argc, char* argv[]) {
                 if (e.type == SDL_KEYDOWN) {
 
                     switch (e.key.keysym.sym) {
-
-                    case SDLK_RIGHT: {
-
-                        if (viewport.x < 1490) {
-                            viewport.x += 5;
-                        }
-                        SDL_RenderSetViewport(render, &viewport);
-
-                        break;
-                    }
-                    case SDLK_LEFT: {
-                        if (viewport.x > 10) {
-                            viewport.x -= 5;
-                        }
-                        SDL_RenderSetViewport(render, &viewport);
-                        break;
-                    }
                     case SDLK_SPACE: {
-                        
+                        waitUntilKeyPressed();
+                        break;
                     }
                     case SDLK_ESCAPE:
                         close();
@@ -71,11 +55,13 @@ int main(int argc, char* argv[]) {
                 else if (e.type == SDL_QUIT) {
                     quit = true;
                 }
+                knight.handleEvent(e);
             }
+
+            knight.move();
 
             knight.renderCurrentAction(frame, render);
 
-            //Update screen
             SDL_RenderPresent(render);
 
             //Go to next frame
@@ -86,7 +72,7 @@ int main(int argc, char* argv[]) {
             {
                 frame = 0;
             }
-            SDL_Delay(500);
+            SDL_Delay(200);
         }
     }
     close(); // not good enough, should destroy all pictures instead of one

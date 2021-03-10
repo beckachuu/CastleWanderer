@@ -1,2 +1,6 @@
 ﻿  Knight.cpp
+  basic_init.cpp
+  main.cpp
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\main.cpp(15,14): warning C4101: 'backgroundViewport': unreferenced local variable
+  Generating Code...
   Castle Wanderer.vcxproj -> C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\x64\Debug\Castle Wanderer.exe
