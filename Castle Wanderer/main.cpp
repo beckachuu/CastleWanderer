@@ -1,31 +1,19 @@
 ﻿#include "basic_init.h"
-#include "Knight.h"
+#include "wizard.h"
 
 
 int main(int argc, char* argv[]) {
     SDL_Event e;
     SDL_Renderer* render = initSDL();
-
-    SDL_Rect viewport;
-    viewport.x = 5;
-    viewport.y = SCREEN_HEIGHT-300;
-    viewport.w = 150;
-    viewport.h = 200;
-
-    SDL_Rect backgroundViewport;
-    viewport.x = 0;
-    viewport.y = 0;
-    viewport.w = 1280;
-    viewport.h = 720;
     
-    SDL_Texture* background = loadTexture ("image/background/jungle background.png");
+    SDL_Texture* background = loadTexture ("image/jungle background.png");
 
-    myKnight knight;
-    knight.setSpriteClips();
+    myWizard wizard;
+    wizard.setSpriteClips();
     int frame = 0;
 
-    if (!knight.loadFromFile("image/knight/knightSheet.png", render)) {
-        std::cerr << "Load knight error!";
+    if (!wizard.loadFromFile("image/wizardSheet.png", render)) {
+        std::cerr << "Load wizard sheet error!";
         return 0;
     }
 
@@ -43,10 +31,6 @@ int main(int argc, char* argv[]) {
                 if (e.type == SDL_KEYDOWN) {
 
                     switch (e.key.keysym.sym) {
-                    case SDLK_SPACE: {
-                        waitUntilKeyPressed();
-                        break;
-                    }
                     case SDLK_ESCAPE:
                         close();
                         return 0;
@@ -55,26 +39,28 @@ int main(int argc, char* argv[]) {
                 else if (e.type == SDL_QUIT) {
                     quit = true;
                 }
-                knight.handleEvent(e);
+
+                wizard.handleEvent(e);
             }
 
-            knight.move();
+            if (wizard.move() % 65 == 0 && wizard.getmPosX()!=0) {
+                
+                frame++;
+                if (frame >= 4)
+                {
+                    frame = 0;
+                }
+            }
+            else if (wizard.getmVelX() == 0) {
+                frame == stand;
+            }
 
-            knight.renderCurrentAction(frame, render);
-
+            wizard.renderCurrentAction(frame, render);
             SDL_RenderPresent(render);
-
-            //Go to next frame
-            frame++;
-
-            //Cycle animation
-            if (frame >= 4)
-            {
-                frame = 0;
-            }
-            SDL_Delay(200);
         }
     }
+
+    wizard.free();
     close(); // not good enough, should destroy all pictures instead of one
     return 0;
 }

@@ -1,5 +1,5 @@
 #include "basic_init.h"
-#include "Knight.h"
+#include "wizard.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -12,7 +12,7 @@ SDL_Renderer* initSDL() {
     }
     else {
         window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE);
+            SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (window == NULL) {
             logError(std::cerr, "Window", false);
             return nullptr;
@@ -59,7 +59,6 @@ void waitUntilKeyPressed()
 
 
 void close() {
-    //knight->free();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

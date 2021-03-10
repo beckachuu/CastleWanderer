@@ -20,4 +20,6 @@ void waitUntilKeyPressed();
 void close();
 SDL_Texture* loadTexture(std::string path);
 
+
+
 #endif

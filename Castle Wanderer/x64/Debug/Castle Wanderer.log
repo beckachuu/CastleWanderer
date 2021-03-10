@@ -1,6 +1,19 @@
-﻿  Knight.cpp
-  basic_init.cpp
+﻿  basic_init.cpp
   main.cpp
-C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\main.cpp(15,14): warning C4101: 'backgroundViewport': unreferenced local variable
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\main.cpp(55,23): warning C4553: '==': result of expression not used; did you intend '='?
+  wizard.cpp
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.cpp(85,1): error C2511: 'void myWizard::render(SDL_Renderer *,SDL_Rect *)': overloaded member function not found in 'myWizard'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.h(7): message : see declaration of 'myWizard'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.cpp(87,29): error C2597: illegal reference to non-static member 'myWizard::mPosX'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.h(64): message : see declaration of 'myWizard::mPosX'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.cpp(87,36): error C2597: illegal reference to non-static member 'myWizard::mPosY'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.h(64): message : see declaration of 'myWizard::mPosY'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.cpp(87,43): error C2597: illegal reference to non-static member 'myWizard::mWidth'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.h(70): message : see declaration of 'myWizard::mWidth'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.cpp(87,51): error C2597: illegal reference to non-static member 'myWizard::mHeight'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.h(71): message : see declaration of 'myWizard::mHeight'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.cpp(87,59): error C2440: 'initializing': cannot convert from 'unknown' to 'int'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.cpp(87,29): message : There is no context in which this conversion is possible
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.cpp(97,30): error C2597: illegal reference to non-static member 'myWizard::mTexture'
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\wizard.h(61): message : see declaration of 'myWizard::mTexture'
   Generating Code...
-  Castle Wanderer.vcxproj -> C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\x64\Debug\Castle Wanderer.exe
