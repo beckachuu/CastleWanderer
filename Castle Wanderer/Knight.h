@@ -2,6 +2,8 @@
 
 #include "basic_init.h"
 
+enum knightposes { kwalk1, kwalk2, kwalk3, kwalk4, kstand, kjump1, kjump2, kjump3, kpunch1, kpunch2, ktotal };
+
 //Texture wrapper class
 class myKnight
 {
@@ -35,8 +37,6 @@ public:
 	int getHeight();
 
 private:
-	//Walking animation
-	enum knightposes { kjump1, kjump2, kjump3, kpunch1, kpunch2, kwalk1, kwalk2, kwalk3, kwalk4, kwalk5, kstand, ktotal };
 
 	//Scene textures
 	SDL_Rect characterSpriteClips[ktotal];

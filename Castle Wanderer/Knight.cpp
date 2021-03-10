@@ -19,7 +19,7 @@ myKnight::~myKnight()
 bool myKnight::loadFromFile(std::string path, SDL_Renderer* renderer)
 {
     //Get rid of preexisting texture
-    free();
+    //free();
 
     //The final texture
     SDL_Texture* newTexture = NULL;
@@ -33,7 +33,7 @@ bool myKnight::loadFromFile(std::string path, SDL_Renderer* renderer)
     else
     {
         //Color key image
-        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 147, 193, 217));
+        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 77, 79, 86));
 
         //Create texture from surface pixels
         newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
@@ -99,17 +99,17 @@ void myKnight::setSpriteClips() {
 
     characterSpriteClips[kwalk2].x = 200;
     characterSpriteClips[kwalk2].y = 50;
-    characterSpriteClips[kwalk2].w = 100;
+    characterSpriteClips[kwalk2].w = 125;
     characterSpriteClips[kwalk2].h = 200;
 
-    characterSpriteClips[kwalk3].x = 300;
+    characterSpriteClips[kwalk3].x = 350;
     characterSpriteClips[kwalk3].y = 50;
     characterSpriteClips[kwalk3].w = 100;
     characterSpriteClips[kwalk3].h = 200;
 
-    characterSpriteClips[kwalk4].x = 400;
+    characterSpriteClips[kwalk4].x = 470;
     characterSpriteClips[kwalk4].y = 50;
-    characterSpriteClips[kwalk4].w = 100;
+    characterSpriteClips[kwalk4].w = 125;
     characterSpriteClips[kwalk4].h = 200;
 }
 
@@ -119,9 +119,7 @@ void myKnight::renderCurrentAction(int frame, SDL_Renderer* renderer) {
     //SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     //SDL_RenderClear(renderer);
 
-    // Render pacman action
-    // Do action 
-    SDL_Rect* currentClip = &characterSpriteClips[frame / 4];
+    SDL_Rect* currentClip = &characterSpriteClips[frame];
     render((SCREEN_WIDTH - currentClip->w) / 2, (SCREEN_HEIGHT - currentClip->h) / 2, renderer, currentClip);
 }
 

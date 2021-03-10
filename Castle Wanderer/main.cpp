@@ -4,14 +4,30 @@
 
 int main(int argc, char* argv[]) {
     SDL_Event e;
+    SDL_Renderer* render = initSDL();
 
     SDL_Rect viewport;
-    viewport.x = 20;
-    viewport.y = 400;
-    viewport.w = 100;
+    viewport.x = 5;
+    viewport.y = SCREEN_HEIGHT-300;
+    viewport.w = 150;
     viewport.h = 200;
 
-    SDL_Renderer* render = initSDL();
+    SDL_Rect backgroundViewport;
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.w = 1280;
+    viewport.h = 720;
+    
+    SDL_Texture* background = loadTexture ("image/background/jungle background.png");
+
+    myKnight knight;
+    knight.setSpriteClips();
+    int frame = 0;
+
+    if (!knight.loadFromFile("image/knight/knightSheet.png", render)) {
+        std::cerr << "Load knight error!";
+        return 0;
+    }
 
     if (render == nullptr) {
         std::cerr << "Failed to initialize!" << std::endl;
@@ -20,6 +36,9 @@ int main(int argc, char* argv[]) {
         bool quit = false;
 
         while (!quit) {
+            SDL_RenderClear(render);
+            SDL_RenderCopy(render, background, NULL, NULL);
+
             while (SDL_PollEvent(&e) != 0) {
                 if (e.type == SDL_KEYDOWN) {
 
@@ -41,6 +60,9 @@ int main(int argc, char* argv[]) {
                         SDL_RenderSetViewport(render, &viewport);
                         break;
                     }
+                    case SDLK_SPACE: {
+                        
+                    }
                     case SDLK_ESCAPE:
                         close();
                         return 0;
@@ -51,47 +73,20 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            //Clear screen
-            SDL_RenderClear(render);
-
-            //Render background to the screen
-            myKnight* background{};
-            background->loadFromFile("image/background/jungle background.png", render);
-            background->render(0, 0, render);
-            SDL_RenderPresent(render);
-
-            /*
-
-            //Render knight to the screen
-            myKnight* knight{};
-            if (!knight->loadFromFile("image/knight/knightSheet.png", render))
-            {
-                std::cerr << "Failed to load walking animation texture!\n";
-                return 0;
-            }
-            else
-            {
-                //Set sprite clips
-                knight->setSpriteClips();
-            }
-
-            int frame = 0;
-            knight->renderCurrentAction(frame, render);
+            knight.renderCurrentAction(frame, render);
 
             //Update screen
             SDL_RenderPresent(render);
 
             //Go to next frame
-            ++frame;
+            frame++;
 
             //Cycle animation
-            if (frame / 4 >= 4)
+            if (frame >= 4)
             {
                 frame = 0;
             }
-
-            */
-
+            SDL_Delay(500);
         }
     }
     close(); // not good enough, should destroy all pictures instead of one
