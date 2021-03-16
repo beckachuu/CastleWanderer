@@ -1,5 +1,4 @@
-﻿#include "basic_init.h"
-#include "wizard.h"
+﻿#include "character.h"
 
 
 int main(int argc, char* argv[]) {
@@ -8,7 +7,7 @@ int main(int argc, char* argv[]) {
     
     SDL_Texture* background = loadTexture ("image/jungle background.png");
 
-    myWizard wizard;
+    myCharacter wizard;
     wizard.setSpriteClips();
     int frame = 0;
 
@@ -43,7 +42,7 @@ int main(int argc, char* argv[]) {
                 wizard.handleEvent(e);
             }
 
-            if (wizard.move() % 65 == 0 && wizard.getmPosX()!=0) {
+            if (wizard.move() % 65 == 0 && wizard.getcPosX()!=0) {
                 
                 frame++;
                 if (frame >= 4)
@@ -51,7 +50,7 @@ int main(int argc, char* argv[]) {
                     frame = 0;
                 }
             }
-            else if (wizard.getmVelX() == 0) {
+            else if (wizard.getcVelX() == 0) {
                 frame == stand;
             }
 

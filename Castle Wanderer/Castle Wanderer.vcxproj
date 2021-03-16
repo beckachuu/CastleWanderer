@@ -145,13 +145,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="wizard.cpp" />
+    <ClCompile Include="character.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="basic_init.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basic_init.h" />
-    <ClInclude Include="wizard.h" />
+    <ClInclude Include="character.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
