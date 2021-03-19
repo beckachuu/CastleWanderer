@@ -10,11 +10,17 @@ myCharacter::myCharacter()
 
     //Initialize the offsets
     cPosX = 0;
-    cPosY = 475;
+    cPosY = 0;
+    ground = (SCREEN_HEIGHT - 188) * 19 / 20;
 
     //Initialize the velocity
     cVelX = 0;
     cVelY = 0;
+
+    frame = 0;
+
+    frameTime = 0;
+    moveTime = 0;
 }
 
 myCharacter::~myCharacter()
@@ -35,7 +41,7 @@ bool myCharacter::loadFromFile(std::string path, SDL_Renderer* renderer)
     SDL_Surface* loadedSurface = IMG_Load(path.c_str());
     if (loadedSurface == NULL)
     {
-        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError();
+        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError()<<std::endl;
     }
     else
     {
@@ -99,38 +105,77 @@ void myCharacter::render(SDL_Renderer* renderer, SDL_Rect* clip)
 void myCharacter::setSpriteClips() {
     //Set sprite clips
 
-    characterSpriteClips[walk1].x = 0;
-    characterSpriteClips[walk1].y = 225;
-    characterSpriteClips[walk1].w = 104;
-    characterSpriteClips[walk1].h = 188;
+    characterSpriteClips[walkR1].x = 0;
+    characterSpriteClips[walkR1].y = 225;
+    characterSpriteClips[walkR1].w = 104;
+    characterSpriteClips[walkR1].h = 188;
 
-    characterSpriteClips[walk2].x = 104;
-    characterSpriteClips[walk2].y = 225;
-    characterSpriteClips[walk2].w = 113;
-    characterSpriteClips[walk2].h = 188;
+    characterSpriteClips[walkR2].x = 104;
+    characterSpriteClips[walkR2].y = 225;
+    characterSpriteClips[walkR2].w = 113;
+    characterSpriteClips[walkR2].h = 188;
 
-    characterSpriteClips[walk3].x = 217;
-    characterSpriteClips[walk3].y = 225;
-    characterSpriteClips[walk3].w = 107;
-    characterSpriteClips[walk3].h = 188;
+    characterSpriteClips[walkR3].x = 217;
+    characterSpriteClips[walkR3].y = 225;
+    characterSpriteClips[walkR3].w = 107;
+    characterSpriteClips[walkR3].h = 188;
 
-    characterSpriteClips[walk4].x = 324;
-    characterSpriteClips[walk4].y = 225;
-    characterSpriteClips[walk4].w = 97;
-    characterSpriteClips[walk4].h = 188;
+    characterSpriteClips[walkR4].x = 324;
+    characterSpriteClips[walkR4].y = 225;
+    characterSpriteClips[walkR4].w = 97;
+    characterSpriteClips[walkR4].h = 188;
 
-    characterSpriteClips[stand].x = 0;
-    characterSpriteClips[stand].y = 50;
-    characterSpriteClips[stand].w = 100;
-    characterSpriteClips[stand].h = 225;
+    characterSpriteClips[walkL1].x = 0;
+    characterSpriteClips[walkL1].y = 427;
+    characterSpriteClips[walkL1].w = 99;
+    characterSpriteClips[walkL1].h = 188;
+
+    characterSpriteClips[walkL2].x = 99;
+    characterSpriteClips[walkL2].y = 427;
+    characterSpriteClips[walkL2].w = 107;
+    characterSpriteClips[walkL2].h = 188;
+
+    characterSpriteClips[walkL3].x = 208;
+    characterSpriteClips[walkL3].y = 427;
+    characterSpriteClips[walkL3].w = 115;
+    characterSpriteClips[walkL3].h = 188;
+
+    characterSpriteClips[walkL4].x = 323;
+    characterSpriteClips[walkL4].y = 427;
+    characterSpriteClips[walkL4].w = 100;
+    characterSpriteClips[walkL4].h = 188;
+
+    characterSpriteClips[stand].x = 3;
+    characterSpriteClips[stand].y = 15;
+    characterSpriteClips[stand].w = 115;
+    characterSpriteClips[stand].h = 192;
 
 }
 
-void myCharacter::renderCurrentAction(int frame, SDL_Renderer* renderer) {
+void myCharacter::renderCurrentAction(SDL_Renderer* renderer, SDL_Event e) {
+    int distance = this->move();
+    if (distance > 0  ) {
+        if (SDL_GetTicks() > frameTime + 300) {
+            frame++;
+            frameTime = SDL_GetTicks();
+        }
+        
+        if (frame > walkR4)
+        {
+            frame = walkR1;
+        }
+    }
+    else if (distance < 0 ) {
+        if (SDL_GetTicks() > frameTime + 300) {
+            frame++;
+            frameTime = SDL_GetTicks();
+        }
 
-    // clear screen
-    //SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-    //SDL_RenderClear(renderer);
+        if (frame > walkL4 || frame < walkL1)
+        {
+            frame = walkL1;
+        }
+    }
 
     SDL_Rect* currentClip = &characterSpriteClips[frame];
     render(renderer, currentClip);
@@ -148,7 +193,7 @@ void myCharacter::handleEvent(SDL_Event& e)
         {
         case SDLK_LEFT: cVelX -= cVelocity; break;
         case SDLK_RIGHT: cVelX += cVelocity; break;
-        case SDLK_UP: if (cPosY == 475) cVelY -= 2; break;
+        case SDLK_UP: if (cPosY == ground) cVelY -= cVelocity*3; break;
         }
     }
     //If a key was released
@@ -159,15 +204,20 @@ void myCharacter::handleEvent(SDL_Event& e)
         {
         case SDLK_LEFT: cVelX += cVelocity; break;
         case SDLK_RIGHT: cVelX -= cVelocity; break;
-        case SDLK_UP: if (cPosY == 475) cVelY -= 2; break;
         }
     }
 }
 
 int myCharacter::move()
 {
+    int firstPosX = cPosX;
+
     //Move the left or right
-    cPosX += cVelX;
+    if (SDL_GetTicks() > moveTime +1) {
+        cPosX += cVelX;
+        moveTime = SDL_GetTicks();
+    }
+    
 
     //If went too far to the left or right
     if ((cPosX < 0) || (cPosX > SCREEN_WIDTH - 10))
@@ -175,17 +225,19 @@ int myCharacter::move()
         //Move back
         cPosX -= cVelX;
     }
+
     //Move the up or down
     cPosY += cVelY;
-
+    
+    //If went too far up or down
     if (cPosY < 170) {
-        cVelY += 2;
+        cVelY += cVelocity*3;
     }
-    if (cPosY > 475) {
-        cPosY = 475;
+    if (cPosY > ground) {
+        cPosY = ground;
         cVelY = 0;
     }
-    return cPosX;
+    return (cPosX - firstPosX);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

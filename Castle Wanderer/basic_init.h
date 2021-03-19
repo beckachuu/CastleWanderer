@@ -5,6 +5,7 @@
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>
+#include "timer.h"
 
 const std::string title = "Castle Wanderer";
 const int SCREEN_HEIGHT = 720;

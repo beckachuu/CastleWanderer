@@ -1,7 +1,7 @@
 #pragma once
 #include "basic_init.h"
 
-enum poses { walk1, walk2, walk3, walk4, stand, attack, hide, total };
+enum poses { walkR1, walkR2, walkR3, walkR4, walkL1, walkL2, walkL3, walkL4, stand, attack, hide, total };
 
 //Texture wrapper class
 class myCharacter
@@ -30,7 +30,7 @@ public:
 	//Renders texture at given point
 	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void setSpriteClips();
-	void renderCurrentAction(int frame, SDL_Renderer* renderer);
+	void renderCurrentAction(SDL_Renderer* renderer, SDL_Event e);
 
 	//Move
 	void handleEvent(SDL_Event& e);
@@ -61,7 +61,7 @@ private:
 	SDL_Texture* cTexture;
 
 	//The X and Y offsets
-	int cPosX, cPosY;
+	int cPosX, cPosY, ground;
 
 	//velocity
 	int cVelX, cVelY;
@@ -69,5 +69,9 @@ private:
 	//Image dimensions
 	int cWidth;
 	int cHeight;
+	int frame;
+
+	int frameTime;
+	int moveTime;
 };
 
