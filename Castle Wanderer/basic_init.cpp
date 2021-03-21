@@ -11,7 +11,7 @@ SDL_Renderer* initSDL() {
     }
     else {
         window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+            SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE);
         if (window == NULL) {
             logError(std::cerr, "Window", false);
             return nullptr;

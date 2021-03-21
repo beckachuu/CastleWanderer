@@ -5,11 +5,10 @@
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>
-#include "timer.h"
 
 const std::string title = "Castle Wanderer";
-const int SCREEN_HEIGHT = 720;
-const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 700;
+const int SCREEN_WIDTH = 1500;
 
 
 //init

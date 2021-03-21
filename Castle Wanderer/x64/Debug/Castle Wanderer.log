@@ -1,5 +1,2 @@
 ﻿  character.cpp
-C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\character.cpp(158,28): warning C4018: '>': signed/unsigned mismatch
-C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\character.cpp(169,28): warning C4018: '>': signed/unsigned mismatch
-C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\character.cpp(216,24): warning C4018: '>': signed/unsigned mismatch
   Castle Wanderer.vcxproj -> C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\x64\Debug\Castle Wanderer.exe

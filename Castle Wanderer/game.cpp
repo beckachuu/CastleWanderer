@@ -1,5 +1,6 @@
 #include "game.h"
 #include "character.h"
+#include "spell_fire.h"
 
 Game::Game()
 {
@@ -15,13 +16,12 @@ void Game::run() {
     SDL_Renderer* render = initSDL();
     SDL_Texture* background = loadTexture("image/jungle background.png");
 
+    //Init character
     myCharacter wizard;
     wizard.setSpriteClips();
 
-    //The application timer
-    Timer timer;
-    timer.start();
 
+    //Load wizard and fire spell
     if (!wizard.loadFromFile("image/wizardSheet.png", render)) {
         std::cerr << "Load wizard sheet error!\n";
         return;
@@ -41,6 +41,7 @@ void Game::run() {
 
                 if (e.type == SDL_KEYDOWN) {
                     switch (e.key.keysym.sym) {
+
                     case SDLK_ESCAPE:                        
                         close();
                         return;
@@ -50,10 +51,10 @@ void Game::run() {
                     quit = true;
                 }
 
-                wizard.handleEvent(e);
+                wizard.handleEvent(e,render);
             }
 
-            wizard.renderCurrentAction(render, e);
+            wizard.renderCurrentAction(render);
             SDL_RenderPresent(render);
         }
     }

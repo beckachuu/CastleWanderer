@@ -1,7 +1,9 @@
 #pragma once
 #include "basic_init.h"
+#include "spell_fire.h"
 
-enum poses { walkR1, walkR2, walkR3, walkR4, walkL1, walkL2, walkL3, walkL4, stand, attack, hide, total };
+enum poses { walkR1, walkR2, walkR3, walkR4, walkR5, walkR6, walkL1, walkL2, walkL3, walkL4, walkL5, walkL6, stand, attack, hide, total };
+const int max_fire_spell = 7;
 
 //Texture wrapper class
 class myCharacter
@@ -17,9 +19,6 @@ public:
 	//Deallocates memory
 	~myCharacter();
 
-	//Loads image at specified path
-	bool loadFromFile(std::string path, SDL_Renderer* renderer);
-
 	//Set color modulation
 	void setColor(Uint8 red, Uint8 green, Uint8 blue);
 	//Set blending
@@ -27,15 +26,17 @@ public:
 	//Set alpha modulation
 	void setAlpha(Uint8 alpha);
 
+	//Loads image at specified path
+	bool loadFromFile(std::string path, SDL_Renderer* renderer);
+
 	//Renders texture at given point
-	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void setSpriteClips();
-	void renderCurrentAction(SDL_Renderer* renderer, SDL_Event e);
+	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
+	void renderCurrentAction(SDL_Renderer* renderer);
 
 	//Move
-	void handleEvent(SDL_Event& e);
+	void handleEvent(SDL_Event& e, SDL_Renderer* renderer);
 	int move();
-
 
 	//Deallocates texture
 	void free();
@@ -51,6 +52,8 @@ public:
 	//Gets image velocity
 	int getcVelX();
 	int getcVelY();
+
+	int getFrame();
 
 private:
 
@@ -71,7 +74,12 @@ private:
 	int cHeight;
 	int frame;
 
-	int frameTime;
-	int moveTime;
+	//fire spell
+	Fire* fire[max_fire_spell] = { nullptr };
+
+	Uint32 frameTime;
+	Uint32 moveTime;
+
+	bool gottaFlip = false;
 };
 

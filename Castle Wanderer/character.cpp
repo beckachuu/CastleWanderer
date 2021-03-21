@@ -1,6 +1,5 @@
 #include "character.h"
 
-
 myCharacter::myCharacter()
 {
     //Initialize
@@ -9,9 +8,9 @@ myCharacter::myCharacter()
     cHeight = 0;
 
     //Initialize the offsets
-    cPosX = 0;
+    cPosX = SCREEN_WIDTH/2;
     cPosY = 0;
-    ground = (SCREEN_HEIGHT - 188) * 19 / 20;
+    ground = (SCREEN_HEIGHT - 190) * 19 / 20;
 
     //Initialize the velocity
     cVelX = 0;
@@ -21,12 +20,30 @@ myCharacter::myCharacter()
 
     frameTime = 0;
     moveTime = 0;
+
 }
 
 myCharacter::~myCharacter()
 {
     //Deallocate
     free();
+}
+
+
+void myCharacter::setColor(Uint8 red, Uint8 green, Uint8 blue)
+{
+    //Modulate texture rgb
+    SDL_SetTextureColorMod(cTexture, red, green, blue);
+}
+void myCharacter::setBlendMode(SDL_BlendMode blending)
+{
+    //Set blending function
+    SDL_SetTextureBlendMode(cTexture, blending);
+}
+void myCharacter::setAlpha(Uint8 alpha)
+{
+    //Modulate texture alpha
+    SDL_SetTextureAlphaMod(cTexture, alpha);
 }
 
 bool myCharacter::loadFromFile(std::string path, SDL_Renderer* renderer)
@@ -67,23 +84,85 @@ bool myCharacter::loadFromFile(std::string path, SDL_Renderer* renderer)
 
     //Return success
     cTexture = newTexture;
+
     return (cTexture != NULL);
 }
 
-void myCharacter::setColor(Uint8 red, Uint8 green, Uint8 blue)
-{
-    //Modulate texture rgb
-    SDL_SetTextureColorMod(cTexture, red, green, blue);
-}
-void myCharacter::setBlendMode(SDL_BlendMode blending)
-{
-    //Set blending function
-    SDL_SetTextureBlendMode(cTexture, blending);
-}
-void myCharacter::setAlpha(Uint8 alpha)
-{
-    //Modulate texture alpha
-    SDL_SetTextureAlphaMod(cTexture, alpha);
+//////////////////////////////////// Render functions /////////////////////////////////////////////
+
+void myCharacter::setSpriteClips() {
+    //Set sprite clips
+
+    characterSpriteClips[walkR1].x = 24;
+    characterSpriteClips[walkR1].y = 218;
+    characterSpriteClips[walkR1].w = 99;
+    characterSpriteClips[walkR1].h = 190;
+
+    characterSpriteClips[walkR2].x = 126;
+    characterSpriteClips[walkR2].y = 218;
+    characterSpriteClips[walkR2].w = 104;
+    characterSpriteClips[walkR2].h = 190;
+
+    characterSpriteClips[walkR3].x = 238;
+    characterSpriteClips[walkR3].y = 218;
+    characterSpriteClips[walkR3].w = 113;
+    characterSpriteClips[walkR3].h = 190;
+
+    characterSpriteClips[walkR4].x = 360;
+    characterSpriteClips[walkR4].y = 218;
+    characterSpriteClips[walkR4].w = 121;
+    characterSpriteClips[walkR4].h = 190;
+
+    characterSpriteClips[walkR5].x = 482;
+    characterSpriteClips[walkR5].y = 218;
+    characterSpriteClips[walkR5].w = 107;
+    characterSpriteClips[walkR5].h = 190;
+
+    characterSpriteClips[walkR6].x = 589;
+    characterSpriteClips[walkR6].y = 218;
+    characterSpriteClips[walkR6].w = 97;
+    characterSpriteClips[walkR6].h = 190;
+
+    characterSpriteClips[walkL6].x = 15;
+    characterSpriteClips[walkL6].y = 420;
+    characterSpriteClips[walkL6].w = 99;
+    characterSpriteClips[walkL6].h = 190;
+
+    characterSpriteClips[walkL5].x = 113;
+    characterSpriteClips[walkL5].y = 420;
+    characterSpriteClips[walkL5].w = 107;
+    characterSpriteClips[walkL5].h = 190;
+
+    characterSpriteClips[walkL4].x = 224;
+    characterSpriteClips[walkL4].y = 420;
+    characterSpriteClips[walkL4].w = 115;
+    characterSpriteClips[walkL4].h = 190;
+
+    characterSpriteClips[walkL3].x = 358;
+    characterSpriteClips[walkL3].y = 420;
+    characterSpriteClips[walkL3].w = 100;
+    characterSpriteClips[walkL3].h = 190;
+
+    characterSpriteClips[walkL2].x = 482;
+    characterSpriteClips[walkL2].y = 420;
+    characterSpriteClips[walkL2].w = 100;
+    characterSpriteClips[walkL2].h = 190;
+
+    characterSpriteClips[walkL1].x = 600;
+    characterSpriteClips[walkL1].y = 420;
+    characterSpriteClips[walkL1].w = 100;
+    characterSpriteClips[walkL1].h = 190;
+
+    characterSpriteClips[stand].x = 3;
+    characterSpriteClips[stand].y = 15;
+    characterSpriteClips[stand].w = 115;
+    characterSpriteClips[stand].h = 192;
+
+    characterSpriteClips[attack].x = 280;
+    characterSpriteClips[attack].y = 622;
+    characterSpriteClips[attack].w = 190;
+    characterSpriteClips[attack].h = 190;
+
 }
 
 void myCharacter::render(SDL_Renderer* renderer, SDL_Rect* clip)
@@ -99,91 +178,55 @@ void myCharacter::render(SDL_Renderer* renderer, SDL_Rect* clip)
     }
 
     //Render to screen
-    SDL_RenderCopy(renderer, cTexture, clip, &renderQuad);
+    if (gottaFlip==true) {
+        SDL_RenderCopyEx(renderer, cTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
+    }
+    else {
+        SDL_RenderCopy(renderer, cTexture, clip, &renderQuad);
+    }
 }
 
-void myCharacter::setSpriteClips() {
-    //Set sprite clips
-
-    characterSpriteClips[walkR1].x = 0;
-    characterSpriteClips[walkR1].y = 225;
-    characterSpriteClips[walkR1].w = 104;
-    characterSpriteClips[walkR1].h = 188;
-
-    characterSpriteClips[walkR2].x = 104;
-    characterSpriteClips[walkR2].y = 225;
-    characterSpriteClips[walkR2].w = 113;
-    characterSpriteClips[walkR2].h = 188;
-
-    characterSpriteClips[walkR3].x = 217;
-    characterSpriteClips[walkR3].y = 225;
-    characterSpriteClips[walkR3].w = 107;
-    characterSpriteClips[walkR3].h = 188;
-
-    characterSpriteClips[walkR4].x = 324;
-    characterSpriteClips[walkR4].y = 225;
-    characterSpriteClips[walkR4].w = 97;
-    characterSpriteClips[walkR4].h = 188;
-
-    characterSpriteClips[walkL1].x = 0;
-    characterSpriteClips[walkL1].y = 427;
-    characterSpriteClips[walkL1].w = 99;
-    characterSpriteClips[walkL1].h = 188;
-
-    characterSpriteClips[walkL2].x = 99;
-    characterSpriteClips[walkL2].y = 427;
-    characterSpriteClips[walkL2].w = 107;
-    characterSpriteClips[walkL2].h = 188;
-
-    characterSpriteClips[walkL3].x = 208;
-    characterSpriteClips[walkL3].y = 427;
-    characterSpriteClips[walkL3].w = 115;
-    characterSpriteClips[walkL3].h = 188;
-
-    characterSpriteClips[walkL4].x = 323;
-    characterSpriteClips[walkL4].y = 427;
-    characterSpriteClips[walkL4].w = 100;
-    characterSpriteClips[walkL4].h = 188;
-
-    characterSpriteClips[stand].x = 3;
-    characterSpriteClips[stand].y = 15;
-    characterSpriteClips[stand].w = 115;
-    characterSpriteClips[stand].h = 192;
-
-}
-
-void myCharacter::renderCurrentAction(SDL_Renderer* renderer, SDL_Event e) {
+void myCharacter::renderCurrentAction(SDL_Renderer* renderer) {
     int distance = this->move();
     if (distance > 0  ) {
-        if (SDL_GetTicks() > frameTime + 300) {
+        if (SDL_GetTicks() > frameTime + 225) {
             frame++;
             frameTime = SDL_GetTicks();
-        }
-        
-        if (frame > walkR4)
-        {
-            frame = walkR1;
+
+            if (frame > walkR6)
+            {
+                frame = walkR1;
+            }
         }
     }
     else if (distance < 0 ) {
-        if (SDL_GetTicks() > frameTime + 300) {
+        if (SDL_GetTicks() > frameTime + 225) {
             frame++;
             frameTime = SDL_GetTicks();
-        }
 
-        if (frame > walkL4 || frame < walkL1)
-        {
-            frame = walkL1;
+            if (frame > walkL6 || frame < walkL1)
+            {
+                frame = walkL1;
+            }
         }
     }
 
     SDL_Rect* currentClip = &characterSpriteClips[frame];
     render(renderer, currentClip);
+
+    //render bullet
+    for (int i = 0; i < max_fire_spell; i++)
+    {
+        if (fire[i] != nullptr) {
+            fire[i]->renderBulletPosition(renderer);
+        }
+    }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void myCharacter::handleEvent(SDL_Event& e)
+//////////////////////////////////// Press and move functions /////////////////////////////////////////////////////
+
+void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
 {
     //If a key was pressed
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
@@ -191,9 +234,34 @@ void myCharacter::handleEvent(SDL_Event& e)
         //Adjust the velocity
         switch (e.key.keysym.sym)
         {
-        case SDLK_LEFT: cVelX -= cVelocity; break;
-        case SDLK_RIGHT: cVelX += cVelocity; break;
-        case SDLK_UP: if (cPosY == ground) cVelY -= cVelocity*3; break;
+        case SDLK_LEFT:
+            gottaFlip = true;
+            cVelX -= cVelocity;
+            break;
+        case SDLK_RIGHT:
+            gottaFlip = false;
+            cVelX += cVelocity;
+            break;
+        case SDLK_UP:
+            if (cPosY == ground) {
+                cVelY -= cVelocity * 3;
+            }
+            break;
+        case SDLK_f:
+
+            for (int i = 0; i < max_fire_spell; i++)
+            {
+                if (true) {
+                    fire[i] = new Fire(frame, cPosX, cPosY);
+                    fire[i]->loadFromFile("image/wizardSheet.png", render);
+                    break;
+                }
+            }
+
+            //change to attack frame for 400 millsecs
+            frame = attack;
+            frameTime = SDL_GetTicks() + 200;
+            break;
         }
     }
     //If a key was released
@@ -213,12 +281,11 @@ int myCharacter::move()
     int firstPosX = cPosX;
 
     //Move the left or right
-    if (SDL_GetTicks() > moveTime +1) {
+    if (SDL_GetTicks() > moveTime + 1) {
         cPosX += cVelX;
         moveTime = SDL_GetTicks();
     }
     
-
     //If went too far to the left or right
     if ((cPosX < 0) || (cPosX > SCREEN_WIDTH - 10))
     {
@@ -231,16 +298,25 @@ int myCharacter::move()
     
     //If went too far up or down
     if (cPosY < 170) {
-        cVelY += cVelocity*3;
+        cVelY += cVelocity;
     }
     if (cPosY > ground) {
         cPosY = ground;
         cVelY = 0;
     }
+
+    //delete bullet if out of range
+    for (int i = 0; i < max_fire_spell; i++)
+    {
+        if (fire[i]->okayToDelete()) {
+            fire[i]->free();
+            fire[i] = nullptr;
+            delete fire[i];
+        }
+    }
+
     return (cPosX - firstPosX);
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 void myCharacter::free()
@@ -277,4 +353,8 @@ int myCharacter::getWidth() {
 
 int myCharacter::getHeight() {
     return cHeight;
+}
+
+int myCharacter::getFrame() {
+    return frame;
 }
