@@ -1,6 +1,5 @@
 #include "spell_fire.h"
 
-
 Fire::Fire(int& wizFrame, int& wizPosX, int& wizPosY)
 {
     //Initialize
@@ -25,9 +24,25 @@ Fire::Fire(int& wizFrame, int& wizPosX, int& wizPosY)
     frameTime = 0;
     moveTime = 0;
 
-    std::cout << "FIRED at: (" << fPosX << " ," << fPosY << ").";
+    std::cout << "FIRED at: (" << fPosX << " ," << fPosY << ")\n";
 }
 
+
+void Fire::setColor(Uint8 red, Uint8 green, Uint8 blue)
+{
+    //Modulate texture rgb
+    SDL_SetTextureColorMod(fTexture, red, green, blue);
+}
+void Fire::setBlendMode(SDL_BlendMode blending)
+{
+    //Set blending function
+    SDL_SetTextureBlendMode(fTexture, blending);
+}
+void Fire::setAlpha(Uint8 alpha)
+{
+    //Modulate texture alpha
+    SDL_SetTextureAlphaMod(fTexture, alpha);
+}
 
 bool Fire::loadFromFile(std::string path, SDL_Renderer* renderer)
 {
@@ -70,37 +85,7 @@ bool Fire::loadFromFile(std::string path, SDL_Renderer* renderer)
     return (fTexture != NULL);
 }
 
-void Fire::setColor(Uint8 red, Uint8 green, Uint8 blue)
-{
-    //Modulate texture rgb
-    SDL_SetTextureColorMod(fTexture, red, green, blue);
-}
-void Fire::setBlendMode(SDL_BlendMode blending)
-{
-    //Set blending function
-    SDL_SetTextureBlendMode(fTexture, blending);
-}
-void Fire::setAlpha(Uint8 alpha)
-{
-    //Modulate texture alpha
-    SDL_SetTextureAlphaMod(fTexture, alpha);
-}
-
-void Fire::render(SDL_Renderer* renderer, SDL_Rect* clip)
-{
-    //Set rendering space and render to screen
-    SDL_Rect renderQuad = { fPosX, fPosY, fWidth, fHeight };
-
-    //Set clip rendering dimensions
-    if (clip != NULL)
-    {
-        renderQuad.w = clip->w;
-        renderQuad.h = clip->h;
-    }
-
-    //Render to screen
-    SDL_RenderCopy(renderer, fTexture, clip, &renderQuad);
-}
+//////////////////////////////////// Bullet rendering functions /////////////////////////////////////////////
 
 void Fire::setSpriteClips() {
     //Set sprite clips
@@ -122,6 +107,22 @@ void Fire::setSpriteClips() {
 
 }
 
+void Fire::render(SDL_Renderer* renderer, SDL_Rect* clip)
+{
+    //Set rendering space and render to screen
+    SDL_Rect renderQuad = { fPosX, fPosY, fWidth, fHeight };
+
+    //Set clip rendering dimensions
+    if (clip != NULL)
+    {
+        renderQuad.w = clip->w;
+        renderQuad.h = clip->h;
+    }
+
+    //Render to screen
+    SDL_RenderCopy(renderer, fTexture, clip, &renderQuad);
+}
+
 void Fire::renderBulletPosition(SDL_Renderer* renderer) {
 
     this->move();
@@ -141,7 +142,6 @@ void Fire::renderBulletPosition(SDL_Renderer* renderer) {
 }
 
 
-
 void Fire::move()
 {
     if (SDL_GetTicks() > moveTime +1000) {
@@ -149,28 +149,18 @@ void Fire::move()
         moveTime = SDL_GetTicks();
     }
     
-    if (okayToDelete()) {
+    if (outOfRange()) {
         this->free();
     }
 }
 
-bool Fire::okayToDelete() {
+bool Fire::outOfRange() {
     if (this!=nullptr&&(fPosX<-100 || fPosX>SCREEN_WIDTH)) {
-        return false;
+        return true;
     }
-    else return true;
+    else return false;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Fire::setTexture(SDL_Texture* cTexture) {
-    if (this != nullptr) {
-        fTexture = cTexture;
-    }
-    else if (this==nullptr || fTexture==NULL) {
-        std::cerr << "Fire texture is null.";
-    }
-}
 
 void Fire::free()
 {

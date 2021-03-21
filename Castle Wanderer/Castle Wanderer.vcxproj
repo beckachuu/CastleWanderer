@@ -150,7 +150,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="basic_init.cpp" />
     <ClCompile Include="spell_fire.cpp" />
-    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basic_init.h" />

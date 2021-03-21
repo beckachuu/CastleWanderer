@@ -88,7 +88,7 @@ bool myCharacter::loadFromFile(std::string path, SDL_Renderer* renderer)
     return (cTexture != NULL);
 }
 
-//////////////////////////////////// Render functions /////////////////////////////////////////////
+//////////////////////////////////// Character rendering functions /////////////////////////////////////////////
 
 void myCharacter::setSpriteClips() {
     //Set sprite clips
@@ -177,8 +177,8 @@ void myCharacter::render(SDL_Renderer* renderer, SDL_Rect* clip)
         renderQuad.h = clip->h;
     }
 
-    //Render to screen
-    if (gottaFlip==true) {
+    //Render character to screen
+    if (frame==attack && gottaFlip==true) {
         SDL_RenderCopyEx(renderer, cTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
     }
     else {
@@ -192,8 +192,7 @@ void myCharacter::renderCurrentAction(SDL_Renderer* renderer) {
         if (SDL_GetTicks() > frameTime + 225) {
             frame++;
             frameTime = SDL_GetTicks();
-
-            if (frame > walkR6)
+            if (frame>walkR6)
             {
                 frame = walkR1;
             }
@@ -203,8 +202,7 @@ void myCharacter::renderCurrentAction(SDL_Renderer* renderer) {
         if (SDL_GetTicks() > frameTime + 225) {
             frame++;
             frameTime = SDL_GetTicks();
-
-            if (frame > walkL6 || frame < walkL1)
+            if (frame<walkL1||frame>walkL6)
             {
                 frame = walkL1;
             }
@@ -234,19 +232,24 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
         //Adjust the velocity
         switch (e.key.keysym.sym)
         {
-        case SDLK_LEFT:
-            gottaFlip = true;
-            cVelX -= cVelocity;
-            break;
         case SDLK_RIGHT:
             gottaFlip = false;
+            toRight = true;
             cVelX += cVelocity;
             break;
+
+        case SDLK_LEFT:
+            gottaFlip = true;
+            toLeft = true;
+            cVelX -= cVelocity;
+            break;
+        
         case SDLK_UP:
             if (cPosY == ground) {
                 cVelY -= cVelocity * 3;
             }
             break;
+
         case SDLK_f:
 
             for (int i = 0; i < max_fire_spell; i++)
@@ -258,9 +261,17 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
                 }
             }
 
-            //change to attack frame for 400 millsecs
+            //Change to attack frame
             frame = attack;
-            frameTime = SDL_GetTicks() + 200;
+            frameTime = SDL_GetTicks() + 500;
+
+            //Move back a bit because of the spell's rebound
+            if (toRight) {
+                cPosX -= 4;
+            }
+            else if (toLeft) {
+                cPosX += 4;
+            }
             break;
         }
     }
@@ -270,8 +281,23 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
         //Adjust the velocity
         switch (e.key.keysym.sym)
         {
-        case SDLK_LEFT: cVelX += cVelocity; break;
-        case SDLK_RIGHT: cVelX -= cVelocity; break;
+        case SDLK_LEFT:
+            cVelX += cVelocity;
+            break;
+        case SDLK_RIGHT:
+            cVelX -= cVelocity;
+            break;
+        case SDLK_f:
+            //Move back a bit because of the spell's rebound
+            if (toRight) {
+                cPosX += 4;
+                moveTime = SDL_GetTicks() + 100;
+            }
+            else if (toLeft) {
+                cPosX -= 4;
+                moveTime = SDL_GetTicks() + 100;
+            }
+            break;
         }
     }
 }
@@ -305,10 +331,10 @@ int myCharacter::move()
         cVelY = 0;
     }
 
-    //delete bullet if out of range
+    //Delete bullet if out of range
     for (int i = 0; i < max_fire_spell; i++)
     {
-        if (fire[i]->okayToDelete()) {
+        if (fire[i]->outOfRange()) {
             fire[i]->free();
             fire[i] = nullptr;
             delete fire[i];

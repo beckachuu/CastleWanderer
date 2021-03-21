@@ -81,5 +81,7 @@ private:
 	Uint32 moveTime;
 
 	bool gottaFlip = false;
+	bool toLeft;
+	bool toRight;
 };
 

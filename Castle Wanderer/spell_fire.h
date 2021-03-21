@@ -11,11 +11,6 @@ public:
 	//Initializes variables
 	Fire(int& wizFrame, int& wizPosX, int& wizPosY);
 
-
-
-	//Loads image at specified path
-	bool loadFromFile(std::string path, SDL_Renderer* renderer);
-
 	//Set color modulation
 	void setColor(Uint8 red, Uint8 green, Uint8 blue);
 	//Set blending
@@ -23,17 +18,17 @@ public:
 	//Set alpha modulation
 	void setAlpha(Uint8 alpha);
 
+	//Loads image at specified path
+	bool loadFromFile(std::string path, SDL_Renderer* renderer);
+
 	//Renders texture at given point
-	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void setSpriteClips();
+	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void renderBulletPosition(SDL_Renderer* renderer);
 
 	void move();
 
-	bool okayToDelete();
-
-	void setTexture(SDL_Texture* cTexture);
-
+	bool outOfRange();
 
 	//Deallocates texture
 	void free();
