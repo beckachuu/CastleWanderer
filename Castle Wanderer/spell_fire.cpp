@@ -1,6 +1,6 @@
 #include "spell_fire.h"
 
-Fire::Fire(int& wizFrame, int& wizPosX, int& wizPosY)
+Fire::Fire(bool& toRight, int& wizPosX, int& wizPosY)
 {
     //Initialize
     fTexture = NULL;
@@ -8,23 +8,23 @@ Fire::Fire(int& wizFrame, int& wizPosX, int& wizPosY)
     fHeight = 0;
 
     //Initialize the offsets
-    if (wizFrame <= 3) {
-        fPosX = wizPosX + 180;
+    if (toRight) {
+        fPosX = wizPosX + 150;
         fVelX = fVelocity;
     }
     else {
-        fPosX = wizPosX - 40;
+        fPosX = wizPosX - 25;
         fVelX = -fVelocity;
     }
     
-    fPosY = wizPosY + 25;
+    fPosY = wizPosY + 100;
 
     frame = 0;
 
+    fired = true;
+
     frameTime = 0;
     moveTime = 0;
-
-    std::cout << "FIRED at: (" << fPosX << " ," << fPosY << ")\n";
 }
 
 
@@ -91,17 +91,17 @@ void Fire::setSpriteClips() {
     //Set sprite clips
 
     fireSpriteClips[0].x = 643;
-    fireSpriteClips[0].y = 6;
+    fireSpriteClips[0].y = 12;
     fireSpriteClips[0].w = 111;
     fireSpriteClips[0].h = 24;
 
     fireSpriteClips[1].x = 643;
-    fireSpriteClips[1].y = 36;
+    fireSpriteClips[1].y = 42;
     fireSpriteClips[1].w = 111;
     fireSpriteClips[1].h = 24;
 
     fireSpriteClips[2].x = 643;
-    fireSpriteClips[2].y = 70;
+    fireSpriteClips[2].y = 76;
     fireSpriteClips[2].w = 111;
     fireSpriteClips[2].h = 24;
 
@@ -119,15 +119,18 @@ void Fire::render(SDL_Renderer* renderer, SDL_Rect* clip)
         renderQuad.h = clip->h;
     }
 
-    //Render to screen
-    SDL_RenderCopy(renderer, fTexture, clip, &renderQuad);
+    //Render bullet to screen
+    if (fVelX < 0) {
+        SDL_RenderCopyEx(renderer, fTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
+    }
+    else {
+        SDL_RenderCopy(renderer, fTexture, clip, &renderQuad);
+    }
 }
 
 void Fire::renderBulletPosition(SDL_Renderer* renderer) {
 
-    this->move();
-
-    if (SDL_GetTicks() > frameTime + 50) {
+    if (SDL_GetTicks() > frameTime + 1) {
         frame++;
         frameTime = SDL_GetTicks();
     }
@@ -144,13 +147,9 @@ void Fire::renderBulletPosition(SDL_Renderer* renderer) {
 
 void Fire::move()
 {
-    if (SDL_GetTicks() > moveTime +1000) {
+    if (SDL_GetTicks() > moveTime + 1) {
         fPosX += fVelX;
         moveTime = SDL_GetTicks();
-    }
-    
-    if (outOfRange()) {
-        this->free();
     }
 }
 

@@ -9,7 +9,7 @@ public:
 	const int fVelocity = 4;
 
 	//Initializes variables
-	Fire(int& wizFrame, int& wizPosX, int& wizPosY);
+	Fire(bool& toRight, int& wizPosX, int& wizPosY);
 
 	//Set color modulation
 	void setColor(Uint8 red, Uint8 green, Uint8 blue);
@@ -29,6 +29,7 @@ public:
 	void move();
 
 	bool outOfRange();
+	bool fired;
 
 	//Deallocates texture
 	void free();

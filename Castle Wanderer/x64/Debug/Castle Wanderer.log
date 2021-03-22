@@ -1,2 +1,6 @@
 ﻿  character.cpp
+  game.cpp
+  main.cpp
+  spell_fire.cpp
+  Generating Code...
   Castle Wanderer.vcxproj -> C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\x64\Debug\Castle Wanderer.exe

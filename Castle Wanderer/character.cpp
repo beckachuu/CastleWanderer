@@ -16,7 +16,7 @@ myCharacter::myCharacter()
     cVelX = 0;
     cVelY = 0;
 
-    frame = 0;
+    frame = stand;
 
     frameTime = 0;
     moveTime = 0;
@@ -153,8 +153,8 @@ void myCharacter::setSpriteClips() {
     characterSpriteClips[walkL1].w = 100;
     characterSpriteClips[walkL1].h = 190;
 
-    characterSpriteClips[stand].x = 3;
-    characterSpriteClips[stand].y = 15;
+    characterSpriteClips[stand].x = 0;
+    characterSpriteClips[stand].y = 0;
     characterSpriteClips[stand].w = 115;
     characterSpriteClips[stand].h = 192;
 
@@ -189,7 +189,7 @@ void myCharacter::render(SDL_Renderer* renderer, SDL_Rect* clip)
 void myCharacter::renderCurrentAction(SDL_Renderer* renderer) {
     int distance = this->move();
     if (distance > 0  ) {
-        if (SDL_GetTicks() > frameTime + 225) {
+        if (SDL_GetTicks() > frameTime + nextFrame) {
             frame++;
             frameTime = SDL_GetTicks();
             if (frame>walkR6)
@@ -199,7 +199,7 @@ void myCharacter::renderCurrentAction(SDL_Renderer* renderer) {
         }
     }
     else if (distance < 0 ) {
-        if (SDL_GetTicks() > frameTime + 225) {
+        if (SDL_GetTicks() > frameTime + nextFrame) {
             frame++;
             frameTime = SDL_GetTicks();
             if (frame<walkL1||frame>walkL6)
@@ -215,7 +215,7 @@ void myCharacter::renderCurrentAction(SDL_Renderer* renderer) {
     //render bullet
     for (int i = 0; i < max_fire_spell; i++)
     {
-        if (fire[i] != nullptr) {
+        if (fire[i]!=nullptr) {
             fire[i]->renderBulletPosition(renderer);
         }
     }
@@ -235,12 +235,14 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
         case SDLK_RIGHT:
             gottaFlip = false;
             toRight = true;
+            toLeft = false;
             cVelX += cVelocity;
             break;
 
         case SDLK_LEFT:
             gottaFlip = true;
             toLeft = true;
+            toRight = false;
             cVelX -= cVelocity;
             break;
         
@@ -254,16 +256,20 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
 
             for (int i = 0; i < max_fire_spell; i++)
             {
-                if (true) {
-                    fire[i] = new Fire(frame, cPosX, cPosY);
+                if (fire[i] == nullptr) {
+                    fire[i] = new Fire(toRight, cPosX, cPosY);
+
+                    //Try to merge into constructor
+                    fire[i]->setSpriteClips();
                     fire[i]->loadFromFile("image/wizardSheet.png", render);
                     break;
                 }
+                else continue;
             }
 
             //Change to attack frame
             frame = attack;
-            frameTime = SDL_GetTicks() + 500;
+            frameTime = SDL_GetTicks() + 750;
 
             //Move back a bit because of the spell's rebound
             if (toRight) {
@@ -283,9 +289,11 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
         {
         case SDLK_LEFT:
             cVelX += cVelocity;
+            frame = walkL3;
             break;
         case SDLK_RIGHT:
             cVelX -= cVelocity;
+            frame = walkR3;
             break;
         case SDLK_f:
             //Move back a bit because of the spell's rebound
@@ -334,10 +342,12 @@ int myCharacter::move()
     //Delete bullet if out of range
     for (int i = 0; i < max_fire_spell; i++)
     {
-        if (fire[i]->outOfRange()) {
+        if (fire[i]!=nullptr && fire[i]->outOfRange()) {
             fire[i]->free();
             fire[i] = nullptr;
-            delete fire[i];
+        }
+        else if (fire[i] != nullptr) {
+            fire[i]->move();
         }
     }
 

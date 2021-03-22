@@ -13,6 +13,8 @@ public:
 	//Maximum axis velocity of knight
 	const int cVelocity = 1;
 
+	const int nextFrame = 200;
+
 	//Initializes variables
 	myCharacter();
 
