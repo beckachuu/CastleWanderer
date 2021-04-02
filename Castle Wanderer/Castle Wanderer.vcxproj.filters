@@ -30,6 +30,12 @@
     <ClCompile Include="spell_fire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="background.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="guard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basic_init.h">
@@ -42,6 +48,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="spell_fire.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="background.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="guard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

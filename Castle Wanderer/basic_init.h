@@ -4,22 +4,22 @@
 #include <iostream>
 #include <string>
 #include <SDL.h>
-#include <SDL_image.h>
+#include <SDL_ttf.h>
 
 const std::string title = "Castle Wanderer";
 const int SCREEN_HEIGHT = 700;
-const int SCREEN_WIDTH = 1500;
-
+const int SCREEN_WIDTH = 1280;
 
 //init
 SDL_Renderer* initSDL();
+TTF_Font* initTTF();
+
+SDL_Texture* loadFromRenderedText(std::string textureText, SDL_Color textColor);
+void loadText(SDL_Texture* text, std::string sentence);
+
 void logError(std::ostream& out, const std::string& ms, bool fatal);
 
-void waitUntilKeyPressed();
-
+void freeTexture(SDL_Texture* texture);
 void close();
-SDL_Texture* loadTexture(std::string path);
-
-
 
 #endif

@@ -2,7 +2,9 @@
 #include "basic_init.h"
 #include "spell_fire.h"
 
-enum poses { walkR1, walkR2, walkR3, walkR4, walkR5, walkR6, walkL1, walkL2, walkL3, walkL4, walkL5, walkL6, stand, attack, hide, total };
+enum characterPoses { walkR1, walkR2, walkR3, walkR4, walkR5, walkR6,
+	walkL1, walkL2, walkL3, walkL4, walkL5, walkL6, stand, attack, totalCharacterPoses};
+
 const int max_fire_spell = 7;
 
 //Texture wrapper class
@@ -10,23 +12,22 @@ class myCharacter
 {
 public:
 
-	//Maximum axis velocity of knight
-	const int cVelocity = 1;
+	//Maximum axis velocity
+	const int cVelocity = 5;
+	const int cVelocityJump = 24;
+	//Time to change to next frame
+	const int nextFrame = 170;
 
-	const int nextFrame = 200;
+	//Limit for position
+	const int walkLimit = 350;
+	const int baseGround = SCREEN_HEIGHT - 200;
+	const int jumpHeight = 210;
 
 	//Initializes variables
 	myCharacter();
 
 	//Deallocates memory
 	~myCharacter();
-
-	//Set color modulation
-	void setColor(Uint8 red, Uint8 green, Uint8 blue);
-	//Set blending
-	void setBlendMode(SDL_BlendMode blending);
-	//Set alpha modulation
-	void setAlpha(Uint8 alpha);
 
 	//Loads image at specified path
 	bool loadFromFile(std::string path, SDL_Renderer* renderer);
@@ -38,7 +39,7 @@ public:
 
 	//Move
 	void handleEvent(SDL_Event& e, SDL_Renderer* renderer);
-	int move();
+	void move();
 
 	//Deallocates texture
 	void free();
@@ -55,35 +56,40 @@ public:
 	int getcVelX();
 	int getcVelY();
 
-	int getFrame();
+	//Check if need to stop
+	bool gotToFar;
 
 private:
 
 	//Scene textures
-	SDL_Rect characterSpriteClips[total];
+	SDL_Rect characterSpriteClips[totalCharacterPoses];
 
 	//The actual hardware texture
 	SDL_Texture* cTexture;
 
 	//The X and Y offsets
 	int cPosX, cPosY, ground;
-
-	//velocity
+	const int leftmostCharacterPos = 300;
+	const int rightmostCharacterPos = 900;
+	//Velocity
 	int cVelX, cVelY;
-
 	//Image dimensions
 	int cWidth;
 	int cHeight;
+
 	int frame;
 
-	//fire spell
+	//Fire spell
 	Fire* fire[max_fire_spell] = { nullptr };
 
 	Uint32 frameTime;
-	Uint32 moveTime;
 
-	bool gottaFlip = false;
 	bool toLeft;
 	bool toRight;
+	bool walking;
+	bool jumped;
+	bool falling;
+
+	int health;
 };
 

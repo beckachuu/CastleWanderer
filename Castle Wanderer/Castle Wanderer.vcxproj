@@ -145,16 +145,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="background.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="guard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="basic_init.cpp" />
     <ClCompile Include="spell_fire.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="background.h" />
     <ClInclude Include="basic_init.h" />
     <ClInclude Include="character.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="guard.h" />
     <ClInclude Include="spell_fire.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

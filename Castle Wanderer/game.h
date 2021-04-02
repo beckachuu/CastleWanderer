@@ -1,9 +1,12 @@
 #pragma once
-#include "basic_init.h"
+#include <SDL.h>
+#include <SDL_ttf.h>
 
 class Game
 {
 public:
+	const uint32_t nextFrameTime = 20;
+
 	Game();
 	~Game();
 
@@ -11,6 +14,9 @@ public:
 private:
 
 	SDL_Event e;
+	uint32_t gameTime;
 
+	SDL_Renderer* render = nullptr;
+	TTF_Font* font = nullptr;
 };
 

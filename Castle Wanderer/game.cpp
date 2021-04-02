@@ -1,48 +1,54 @@
 #include "game.h"
 #include "character.h"
-#include "spell_fire.h"
+#include "background.h"
+#include "guard.h"
+#include <ctime>
+#include <SDL_ttf.h>
 
 Game::Game()
 {
-    std::cout << "init game...\n";
+    std::cout << "Init game...\n";
+    gameTime = 0;
+
+    render = initSDL();
+    font = initTTF();
 }
 
 Game::~Game()
 {
-    std::cout << "finished. :>";
+    std::cout << "Finished. :>";
 }
 
 void Game::run() {
-    SDL_Renderer* render = initSDL();
-    SDL_Texture* background = loadTexture("image/jungle background.png");
+    srand(time(0));
+
+    //Init background
+    Background background(render);
+
+    //Init guards
+    Guard g(render);
+    g.setRightLimit(background.getFurthestLeftPoint());
 
     //Init character
     myCharacter wizard;
     wizard.setSpriteClips();
-
-
-    //Load wizard and fire spell
+    //Load wizard
     if (!wizard.loadFromFile("image/wizardSheet.png", render)) {
         std::cerr << "Load wizard sheet error!\n";
         return;
     }
 
-    if (render == nullptr) {
+    if (render == nullptr || font == nullptr) {
         std::cerr << "Failed to initialize!\n";
+        return;
     }
     else {
         bool quit = false;
         while (!quit) {
-
-            SDL_RenderClear(render);
-            SDL_RenderCopy(render, background, NULL, NULL);
-
             while (SDL_PollEvent(&e) != 0) {
-
                 if (e.type == SDL_KEYDOWN) {
                     switch (e.key.keysym.sym) {
-
-                    case SDLK_ESCAPE:                        
+                    case SDLK_ESCAPE:
                         close();
                         return;
                     }
@@ -50,15 +56,35 @@ void Game::run() {
                 else if (e.type == SDL_QUIT) {
                     quit = true;
                 }
-
-                wizard.handleEvent(e,render);
+                //Control character by keyboard events
+                wizard.handleEvent(e, render);
+                background.handledEvent(e, render);
             }
 
-            wizard.renderCurrentAction(render);
-            SDL_RenderPresent(render);
+            if (SDL_GetTicks() > gameTime + nextFrameTime) {
+                wizard.move();
+                if (wizard.gotToFar) {
+                    background.move();
+                    if (!background.toFurthestLeftX() || !background.toFurthestRightX()) {
+                        g.setPlusVelocity(background.getBGVelX());
+                    }
+                }
+                if (background.toFurthestLeftX() || background.toFurthestRightX() || !wizard.gotToFar) {
+                    g.setPlusVelocity(0);
+                }
+                g.move();
+
+                SDL_RenderClear(render);
+
+                background.renderCurrentFrame(render);
+                g.renderCurrentAction(render);
+                wizard.renderCurrentAction(render);
+
+                SDL_RenderPresent(render);
+
+                gameTime = SDL_GetTicks();
+            }
+
         }
     }
-
-    std::cout << "SDL_GetTicks(): " << SDL_GetTicks() << std::endl;
-    wizard.free();
 }

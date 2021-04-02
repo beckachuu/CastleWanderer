@@ -1,12 +1,17 @@
 #pragma once
-#include "basic_init.h"
+#include <SDL.h>
+#include <iostream>
+#include <string>
+
+const int leftMostFirePos = -100;
+const int rightMostFirePos = 1400;
 
 class Fire
 {
 public:
 
-	//Maximum axis velocity of knight
-	const int fVelocity = 4;
+	//Maximum axis velocity
+	const int fVelocity = 32;
 
 	//Initializes variables
 	Fire(bool& toRight, int& wizPosX, int& wizPosY);
@@ -24,12 +29,11 @@ public:
 	//Renders texture at given point
 	void setSpriteClips();
 	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
-	void renderBulletPosition(SDL_Renderer* renderer);
+	void renderSpellPosition(SDL_Renderer* renderer);
 
 	void move();
-
+	//Check if out of screen
 	bool outOfRange();
-	bool fired;
 
 	//Deallocates texture
 	void free();
@@ -42,6 +46,7 @@ public:
 	int getPosX();
 	int getPosY();
 
+	int getFireDamage();
 
 private:
 
@@ -53,14 +58,14 @@ private:
 
 	//The X and Y offsets
 	int fPosX, fPosY;
-
+	//Velocity
 	int fVelX;
 
 	//Image dimensions
 	int fWidth;
 	int fHeight;
+
 	int frame;
 
-	Uint32 frameTime;
-	Uint32 moveTime;
+	int fireDamage;
 };

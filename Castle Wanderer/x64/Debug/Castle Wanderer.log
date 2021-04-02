@@ -1,6 +1,4 @@
-﻿  character.cpp
-  game.cpp
-  main.cpp
-  spell_fire.cpp
-  Generating Code...
+﻿  guard.cpp
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\guard.cpp(7,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\guard.cpp(197,24): warning C4018: '>': signed/unsigned mismatch
   Castle Wanderer.vcxproj -> C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\x64\Debug\Castle Wanderer.exe

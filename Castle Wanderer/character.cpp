@@ -1,4 +1,5 @@
 #include "character.h"
+#include <SDL_image.h>
 
 myCharacter::myCharacter()
 {
@@ -8,9 +9,9 @@ myCharacter::myCharacter()
     cHeight = 0;
 
     //Initialize the offsets
-    cPosX = SCREEN_WIDTH/2;
-    cPosY = 0;
-    ground = (SCREEN_HEIGHT - 190) * 19 / 20;
+    ground = baseGround;
+    cPosX = SCREEN_WIDTH / 2;
+    cPosY = baseGround-1;
 
     //Initialize the velocity
     cVelX = 0;
@@ -19,8 +20,16 @@ myCharacter::myCharacter()
     frame = stand;
 
     frameTime = 0;
-    moveTime = 0;
 
+    toRight = false;
+    //Default attack left
+    toLeft = true;
+    walking = false;
+    jumped = false;
+
+    gotToFar = false;
+
+    health = 120;
 }
 
 myCharacter::~myCharacter()
@@ -29,27 +38,10 @@ myCharacter::~myCharacter()
     free();
 }
 
-
-void myCharacter::setColor(Uint8 red, Uint8 green, Uint8 blue)
-{
-    //Modulate texture rgb
-    SDL_SetTextureColorMod(cTexture, red, green, blue);
-}
-void myCharacter::setBlendMode(SDL_BlendMode blending)
-{
-    //Set blending function
-    SDL_SetTextureBlendMode(cTexture, blending);
-}
-void myCharacter::setAlpha(Uint8 alpha)
-{
-    //Modulate texture alpha
-    SDL_SetTextureAlphaMod(cTexture, alpha);
-}
-
 bool myCharacter::loadFromFile(std::string path, SDL_Renderer* renderer)
 {
     //Get rid of preexisting texture
-    //free();
+    free();
 
     //The final texture
     SDL_Texture* newTexture = NULL;
@@ -58,7 +50,7 @@ bool myCharacter::loadFromFile(std::string path, SDL_Renderer* renderer)
     SDL_Surface* loadedSurface = IMG_Load(path.c_str());
     if (loadedSurface == NULL)
     {
-        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError()<<std::endl;
+        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError() << std::endl;
     }
     else
     {
@@ -96,72 +88,72 @@ void myCharacter::setSpriteClips() {
     characterSpriteClips[walkR1].x = 24;
     characterSpriteClips[walkR1].y = 218;
     characterSpriteClips[walkR1].w = 99;
-    characterSpriteClips[walkR1].h = 190;
+    characterSpriteClips[walkR1].h = 195;
 
     characterSpriteClips[walkR2].x = 126;
     characterSpriteClips[walkR2].y = 218;
     characterSpriteClips[walkR2].w = 104;
-    characterSpriteClips[walkR2].h = 190;
+    characterSpriteClips[walkR2].h = 195;
 
     characterSpriteClips[walkR3].x = 238;
     characterSpriteClips[walkR3].y = 218;
     characterSpriteClips[walkR3].w = 113;
-    characterSpriteClips[walkR3].h = 190;
+    characterSpriteClips[walkR3].h = 195;
 
     characterSpriteClips[walkR4].x = 360;
     characterSpriteClips[walkR4].y = 218;
     characterSpriteClips[walkR4].w = 121;
-    characterSpriteClips[walkR4].h = 190;
+    characterSpriteClips[walkR4].h = 195;
 
     characterSpriteClips[walkR5].x = 482;
     characterSpriteClips[walkR5].y = 218;
     characterSpriteClips[walkR5].w = 107;
-    characterSpriteClips[walkR5].h = 190;
+    characterSpriteClips[walkR5].h = 195;
 
     characterSpriteClips[walkR6].x = 589;
     characterSpriteClips[walkR6].y = 218;
     characterSpriteClips[walkR6].w = 97;
-    characterSpriteClips[walkR6].h = 190;
+    characterSpriteClips[walkR6].h = 195;
 
     characterSpriteClips[walkL6].x = 15;
     characterSpriteClips[walkL6].y = 420;
     characterSpriteClips[walkL6].w = 99;
-    characterSpriteClips[walkL6].h = 190;
+    characterSpriteClips[walkL6].h = 195;
 
     characterSpriteClips[walkL5].x = 113;
     characterSpriteClips[walkL5].y = 420;
     characterSpriteClips[walkL5].w = 107;
-    characterSpriteClips[walkL5].h = 190;
+    characterSpriteClips[walkL5].h = 195;
 
     characterSpriteClips[walkL4].x = 224;
     characterSpriteClips[walkL4].y = 420;
     characterSpriteClips[walkL4].w = 115;
-    characterSpriteClips[walkL4].h = 190;
+    characterSpriteClips[walkL4].h = 195;
 
     characterSpriteClips[walkL3].x = 358;
     characterSpriteClips[walkL3].y = 420;
     characterSpriteClips[walkL3].w = 100;
-    characterSpriteClips[walkL3].h = 190;
+    characterSpriteClips[walkL3].h = 195;
 
     characterSpriteClips[walkL2].x = 482;
     characterSpriteClips[walkL2].y = 420;
     characterSpriteClips[walkL2].w = 100;
-    characterSpriteClips[walkL2].h = 190;
+    characterSpriteClips[walkL2].h = 195;
 
     characterSpriteClips[walkL1].x = 600;
     characterSpriteClips[walkL1].y = 420;
     characterSpriteClips[walkL1].w = 100;
-    characterSpriteClips[walkL1].h = 190;
+    characterSpriteClips[walkL1].h = 195;
 
     characterSpriteClips[stand].x = 0;
     characterSpriteClips[stand].y = 0;
-    characterSpriteClips[stand].w = 115;
-    characterSpriteClips[stand].h = 192;
+    characterSpriteClips[stand].w = 110;
+    characterSpriteClips[stand].h = 195;
 
     characterSpriteClips[attack].x = 280;
     characterSpriteClips[attack].y = 622;
-    characterSpriteClips[attack].w = 190;
-    characterSpriteClips[attack].h = 190;
+    characterSpriteClips[attack].w = 195;
+    characterSpriteClips[attack].h = 195;
 
 }
 
@@ -178,7 +170,7 @@ void myCharacter::render(SDL_Renderer* renderer, SDL_Rect* clip)
     }
 
     //Render character to screen
-    if (frame==attack && gottaFlip==true) {
+    if (frame == attack && toLeft == true) {
         SDL_RenderCopyEx(renderer, cTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
     }
     else {
@@ -187,36 +179,47 @@ void myCharacter::render(SDL_Renderer* renderer, SDL_Rect* clip)
 }
 
 void myCharacter::renderCurrentAction(SDL_Renderer* renderer) {
-    int distance = this->move();
-    if (distance > 0  ) {
+    if (walking && toRight) {
         if (SDL_GetTicks() > frameTime + nextFrame) {
             frame++;
             frameTime = SDL_GetTicks();
-            if (frame>walkR6)
+            if (frame > walkR6)
             {
                 frame = walkR1;
             }
         }
     }
-    else if (distance < 0 ) {
+    else if (walking && toLeft) {
         if (SDL_GetTicks() > frameTime + nextFrame) {
             frame++;
             frameTime = SDL_GetTicks();
-            if (frame<walkL1||frame>walkL6)
+            if (frame<walkL1 || frame>walkL6)
             {
                 frame = walkL1;
             }
+        }
+    }
+    else if (!walking && toLeft) {
+        if (SDL_GetTicks() > frameTime + nextFrame) {
+            frame = walkL3;
+            frameTime = SDL_GetTicks();
+        }
+    }
+    else if (!walking && toRight) {
+        if (SDL_GetTicks() > frameTime + nextFrame) {
+            frame = walkR3;
+            frameTime = SDL_GetTicks();
         }
     }
 
     SDL_Rect* currentClip = &characterSpriteClips[frame];
     render(renderer, currentClip);
 
-    //render bullet
+    //Render spell
     for (int i = 0; i < max_fire_spell; i++)
     {
-        if (fire[i]!=nullptr) {
-            fire[i]->renderBulletPosition(renderer);
+        if (fire[i] != nullptr) {
+            fire[i]->renderSpellPosition(renderer);
         }
     }
 }
@@ -230,38 +233,45 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
     {
         //Adjust the velocity
-        switch (e.key.keysym.sym)
-        {
-        case SDLK_RIGHT:
-            gottaFlip = false;
+        switch (e.key.keysym.sym) {
+
+        case SDLK_d:
             toRight = true;
             toLeft = false;
             cVelX += cVelocity;
             break;
 
-        case SDLK_LEFT:
-            gottaFlip = true;
-            toLeft = true;
+        case SDLK_a:
             toRight = false;
+            toLeft = true;
             cVelX -= cVelocity;
             break;
-        
-        case SDLK_UP:
-            if (cPosY == ground) {
-                cVelY -= cVelocity * 3;
+
+        case SDLK_w:
+            cVelY -= cVelocity;
+            break;
+        case SDLK_s:
+            cVelY += cVelocity;
+            break;
+
+        case SDLK_SPACE:
+            if (!jumped) {
+                cVelY -= cVelocityJump;
+                ground = cPosY;
+                jumped = true;
             }
             break;
 
         case SDLK_f:
-
+            //Init fire attack
             for (int i = 0; i < max_fire_spell; i++)
             {
                 if (fire[i] == nullptr) {
                     fire[i] = new Fire(toRight, cPosX, cPosY);
-
-                    //Try to merge into constructor
                     fire[i]->setSpriteClips();
-                    fire[i]->loadFromFile("image/wizardSheet.png", render);
+                    if (!fire[i]->loadFromFile("image/wizardSheet.png", render)) {
+                        std::cout << "Failed to load bullet" << std::endl;
+                    }
                     break;
                 }
                 else continue;
@@ -269,80 +279,107 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
 
             //Change to attack frame
             frame = attack;
-            frameTime = SDL_GetTicks() + 750;
+            frameTime = SDL_GetTicks() + nextFrame;
 
             //Move back a bit because of the spell's rebound
             if (toRight) {
-                cPosX -= 4;
+                cPosX -=3;
             }
             else if (toLeft) {
-                cPosX += 4;
+                cPosX +=3;
             }
             break;
         }
     }
+
     //If a key was released
     else if (e.type == SDL_KEYUP && e.key.repeat == 0)
     {
         //Adjust the velocity
-        switch (e.key.keysym.sym)
-        {
-        case SDLK_LEFT:
-            cVelX += cVelocity;
-            frame = walkL3;
-            break;
-        case SDLK_RIGHT:
+        switch (e.key.keysym.sym) {
+
+        case SDLK_d:
             cVelX -= cVelocity;
-            frame = walkR3;
             break;
+
+        case SDLK_a:
+            cVelX += cVelocity;
+            break;
+
+        case SDLK_w:
+            cVelY += cVelocity;
+            break;
+
+        case SDLK_s:
+            cVelY -= cVelocity;
+            break;
+
         case SDLK_f:
             //Move back a bit because of the spell's rebound
             if (toRight) {
-                cPosX += 4;
-                moveTime = SDL_GetTicks() + 100;
+                cPosX ++;
             }
             else if (toLeft) {
-                cPosX -= 4;
-                moveTime = SDL_GetTicks() + 100;
+                cPosX --;
             }
             break;
         }
     }
 }
 
-int myCharacter::move()
+void myCharacter::move()
 {
-    int firstPosX = cPosX;
-
-    //Move the left or right
-    if (SDL_GetTicks() > moveTime + 1) {
+    //Move right or left
+    if (cVelX != 0) {
         cPosX += cVelX;
-        moveTime = SDL_GetTicks();
+        walking = true;
     }
-    
-    //If went too far to the left or right
-    if ((cPosX < 0) || (cPosX > SCREEN_WIDTH - 10))
+    //If went too far to the right or left
+    if (cPosX < leftmostCharacterPos)
     {
-        //Move back
-        cPosX -= cVelX;
+        cPosX += cVelocity;
+        gotToFar = true;
+    }
+    else if (cPosX > rightmostCharacterPos) {
+        cPosX -= cVelocity;
+        gotToFar = true;
+    }
+    else gotToFar = false;
+
+    //Move up or down
+    if (cVelY != 0) {
+        cPosY += cVelY;
+        walking = true;
     }
 
-    //Move the up or down
-    cPosY += cVelY;
-    
-    //If went too far up or down
-    if (cPosY < 170) {
-        cVelY += cVelocity;
+    //If jumped too far up
+    if (jumped && cPosY < ground - jumpHeight) {
+        cVelY += cVelocityJump;
     }
-    if (cPosY > ground) {
-        cPosY = ground;
+    //If jumped and fell back to where standing
+    if (jumped && cPosY > ground) {
         cVelY = 0;
+        jumped = false;
     }
 
-    //Delete bullet if out of range
+    //If walked too far up
+    if (walking && !jumped && cPosY < walkLimit) {
+        cPosY = walkLimit;
+    }
+    //If got too far down
+    if (cPosY > baseGround) {
+        cPosY = baseGround-1;
+    }
+
+    //If not walking anywhere
+    if (cVelX == 0 && cVelY != cVelocity) {
+        walking = false;
+    }
+
+    //Delete spell if out of range
     for (int i = 0; i < max_fire_spell; i++)
     {
-        if (fire[i]!=nullptr && fire[i]->outOfRange()) {
+        if (fire[i] != nullptr && fire[i]->outOfRange()) {
             fire[i]->free();
             fire[i] = nullptr;
         }
@@ -350,8 +387,6 @@ int myCharacter::move()
             fire[i]->move();
         }
     }
-
-    return (cPosX - firstPosX);
 }
 
 
@@ -389,8 +424,4 @@ int myCharacter::getWidth() {
 
 int myCharacter::getHeight() {
     return cHeight;
-}
-
-int myCharacter::getFrame() {
-    return frame;
 }
