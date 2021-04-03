@@ -1,7 +1,7 @@
 #include "character.h"
 #include <SDL_image.h>
 
-myCharacter::myCharacter()
+myCharacter::myCharacter(SDL_Renderer* renderer)
 {
     //Initialize
     cTexture = NULL;
@@ -30,54 +30,15 @@ myCharacter::myCharacter()
     gotToFar = false;
 
     health = 120;
+
+    cTexture = loadFromFile("image/wizardSheet.png", renderer);
+    setSpriteClips();
 }
 
 myCharacter::~myCharacter()
 {
     //Deallocate
     free();
-}
-
-bool myCharacter::loadFromFile(std::string path, SDL_Renderer* renderer)
-{
-    //Get rid of preexisting texture
-    free();
-
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-    if (loadedSurface == NULL)
-    {
-        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError() << std::endl;
-    }
-    else
-    {
-        //Color key image
-        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 77, 79, 86));
-
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-        if (newTexture == NULL)
-        {
-            std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError() << std::endl;
-        }
-        else
-        {
-            //Get image dimensions
-            cWidth = loadedSurface->w;
-            cHeight = loadedSurface->h;
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface);
-    }
-
-    //Return success
-    cTexture = newTexture;
-
-    return (cTexture != NULL);
 }
 
 //////////////////////////////////// Character rendering functions /////////////////////////////////////////////
@@ -267,11 +228,7 @@ void myCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
             for (int i = 0; i < max_fire_spell; i++)
             {
                 if (fire[i] == nullptr) {
-                    fire[i] = new Fire(toRight, cPosX, cPosY);
-                    fire[i]->setSpriteClips();
-                    if (!fire[i]->loadFromFile("image/wizardSheet.png", render)) {
-                        std::cout << "Failed to load bullet" << std::endl;
-                    }
+                    fire[i] = new Fire(toRight, cPosX, cPosY,render);
                     break;
                 }
                 else continue;

@@ -14,7 +14,7 @@ public:
 	const int fVelocity = 32;
 
 	//Initializes variables
-	Fire(bool& toRight, int& wizPosX, int& wizPosY);
+	Fire(bool& toRight, int& wizPosX, int& wizPosY, SDL_Renderer* renderer);
 
 	//Set color modulation
 	void setColor(Uint8 red, Uint8 green, Uint8 blue);
@@ -22,9 +22,6 @@ public:
 	void setBlendMode(SDL_BlendMode blending);
 	//Set alpha modulation
 	void setAlpha(Uint8 alpha);
-
-	//Loads image at specified path
-	bool loadFromFile(std::string path, SDL_Renderer* renderer);
 
 	//Renders texture at given point
 	void setSpriteClips();
@@ -51,7 +48,7 @@ public:
 private:
 
 	//Scene textures
-	SDL_Rect fireSpriteClips[3];
+	SDL_Rect fireSpriteClips[3] = { NULL };
 
 	//The actual hardware texture
 	SDL_Texture* fTexture;

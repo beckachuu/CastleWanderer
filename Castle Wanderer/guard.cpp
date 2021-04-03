@@ -1,4 +1,5 @@
 #include "guard.h"
+#include "speech_data.h"
 #include <SDL_image.h>
 #include <ctime>
 
@@ -12,6 +13,7 @@ Guard::Guard(SDL_Renderer* renderer)
 
     //Initialize the offsets
     ground = baseGround;
+    rightmostGuardPos = SCREEN_WIDTH;
     guardPosX = rand() % (rightmostGuardPos - leftMostGuardPos) + leftMostGuardPos;
     guardPosY = rand() % (baseGround - walkLimit) + walkLimit;
 
@@ -20,10 +22,11 @@ Guard::Guard(SDL_Renderer* renderer)
     guardVelY = 0;
 
     frame = walk0;
-    frameTime = 0;
     nextOrBackFrame = -1;
+
+    frameTime = 0;
     moveTime = 0;
-    tempTime = 0;
+    speakTime = 0;
 
     toRight = false;
     //Default attack left
@@ -36,62 +39,25 @@ Guard::Guard(SDL_Renderer* renderer)
     }
     else righteous = true;
 
-    loadText(speechTexture, "string here");
+    //Assume righteous
+    righteous = true;
+
+    renderSpeech = { NULL };
+    speechTexture = NULL;
 
     health = rand() % 20 + 50;
 
-    if (!loadFromFile("image/guardSheet.png", renderer)) {
-        std::cout << "Failed to load guard." << std::endl;
-    }
-    else setSpriteClips();
+    //Load textures
+    guardTexture = loadFromFile("image/guardSheet.png", renderer);
+    setSpriteClips();
+
+    bubbleSpeechTexture = loadFromFile("image/speechBubble.jpg", renderer);
 }
 
 Guard::~Guard()
 {
     //Deallocate
     free();
-}
-
-bool Guard::loadFromFile(std::string path, SDL_Renderer* renderer)
-{
-    //Get rid of preexisting texture
-    free();
-
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-    if (loadedSurface == NULL)
-    {
-        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError() << std::endl;
-    }
-    else
-    {
-        //Color key image
-        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 77, 79, 86));
-
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-        if (newTexture == NULL)
-        {
-            std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError() << std::endl;
-        }
-        else
-        {
-            //Get image dimensions
-            gWidth = loadedSurface->w;
-            gHeight = loadedSurface->h;
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface);
-    }
-
-    //Return success
-    guardTexture = newTexture;
-
-    return (guardTexture != NULL);
 }
 
 //////////////////////////////////// Character rendering functions /////////////////////////////////////////////
@@ -138,26 +104,27 @@ void Guard::setSpriteClips() {
 void Guard::render(SDL_Renderer* renderer, SDL_Rect* clip)
 {
     //Set rendering space and render to screen
-    SDL_Rect renderQuad = { guardPosX, guardPosY, gWidth, gHeight };
+    SDL_Rect renderGuard = { guardPosX, guardPosY, gWidth, gHeight };
 
     //Set clip rendering dimensions
     if (clip != NULL)
     {
-        renderQuad.w = clip->w;
-        renderQuad.h = clip->h;
+        renderGuard.w = clip->w;
+        renderGuard.h = clip->h;
     }
 
     //Render character to screen
     if (toLeft == true) {
-        SDL_RenderCopyEx(renderer, guardTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
+        SDL_RenderCopyEx(renderer, guardTexture, clip, &renderGuard, 0, NULL, SDL_FLIP_HORIZONTAL);
     }
     else {
-        SDL_RenderCopy(renderer, guardTexture, clip, &renderQuad);
+        SDL_RenderCopy(renderer, guardTexture, clip, &renderGuard);
     }
 
     //Render speech
-    SDL_Rect renderSpeech = { guardPosX, guardPosY - 50, 150, 50 };
-    SDL_RenderCopy(renderer, speechTexture, NULL, NULL);
+    renderSpeech.x = guardPosX + renderGuard.w / 2 - renderSpeech.w / 2;
+    renderSpeech.y = guardPosY - renderSpeech.h - speechOffset;
+    SDL_RenderCopy(renderer, speechTexture, NULL, &renderSpeech);
 }
 
 void Guard::renderCurrentAction(SDL_Renderer* renderer) {
@@ -183,54 +150,69 @@ void Guard::renderCurrentAction(SDL_Renderer* renderer) {
     render(renderer, currentClip);
 }
 
-//////////////////////////////////// Auto control NPC character functions /////////////////////////////////////////////
+//////////////////////////////////////////// Auto control NPC character functions /////////////////////////////////////////////////////
 
 void Guard::randomSpeech() {
-    std::string speech = "Heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy";
-    loadText(speechTexture, speech);
-    if (speechTexture == nullptr) {
-        std::cerr << "Dude the speechTexture is NULL" << std::endl;
+    std::string speech = "";
+
+    if (righteous) {
+        if (rand() % 2 == 0) {
+            speech += good_call[rand() % speechCount];
+        }
+        if (rand() % 2 == 0) {
+            speech += (good_s13[rand() % speechCount] + good_v13[rand() % speechCount] + good_o13[rand() % speechCount]);
+        }
+        else {
+            speech += (good_s2[rand() % speechCount] + good_v2[rand() % speechCount] + good_o2[rand() % speechCount]);
+        }
     }
+    
+
+    speechTexture = loadFromRenderedText(speech, &renderSpeech, textWrapLength);
 }
 
 void Guard::moveRandom() {
-    if (SDL_GetTicks() > moveTime + rand() % maxNextMovetime + minNextMovetime) {
-        
-        //Random right or left or neither (stand still)
-        int moveX = rand() % 4; //Guard has 50% to stand still on X-axis
-        if (moveX == 0) {
-            guardVelX = gVelocity;
-            toLeft = false;
-            toRight = true;
-        }
-        else if (moveX == 1) {
-            guardVelX = -gVelocity;
-            toLeft = true;
-            toRight = false;
-        }
-        else {
-            guardVelX = 0;
-        }
-
-        //Random up or down or neither
-        int moveY = rand() % 4; //Guard has 50% to stand still on Y-axis
-        if (moveY == 0) {
-            guardVelY = gVelocity;
-        }
-        else if (moveY == 1) {
-            guardVelY = -gVelocity;
-        }
-        else {
-            guardVelY = 0;
-        }
-
-        moveTime = SDL_GetTicks();
+    
+    //Random right or left or neither (stand still)
+    int moveX = rand() % 4; //Guard has 50% to stand still on X-axis
+    if (moveX == 0) {
+        guardVelX = gVelocity;
+        toLeft = false;
+        toRight = true;
     }
+    else if (moveX == 1) {
+        guardVelX = -gVelocity;
+        toLeft = true;
+        toRight = false;
+    }
+    else {
+        guardVelX = 0;
+    }
+
+    //Random up or down or neither
+    int moveY = rand() % 4; //Guard has 50% to stand still on Y-axis
+    if (moveY == 0) {
+        guardVelY = gVelocity;
+    }
+    else if (moveY == 1) {
+        guardVelY = -gVelocity;
+    }
+    else {
+        guardVelY = 0;
+    }
+
+    moveTime = SDL_GetTicks();
 }
 
 void Guard::move()
 {
-    moveRandom();
+    if (SDL_GetTicks() > speakTime + nextSpeakTime) {
+        randomSpeech();
+        speakTime = SDL_GetTicks();
+    }
+    if (SDL_GetTicks() > moveTime + rand() % maxNextMovetime + minNextMovetime) {
+        //moveRandom();
+    }
 
     //Move right or left
     guardPosX += (guardVelX + plusVelocity);
@@ -272,7 +254,6 @@ void Guard::move()
         frame = walk0;
     }
 
-    std::cout << leftMostGuardPos << " " << rightmostGuardPos << std::endl;
 }
 
 

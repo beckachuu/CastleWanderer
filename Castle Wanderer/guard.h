@@ -14,26 +14,28 @@ public:
 
 	//Time to change to next frame
 	const int nextFrameTime = 200;
-	const int maxNextMovetime = 2000; //3000 millisecs actually
-	const int minNextMovetime = 1000;
+	const int maxNextMovetime = 4000; //6000 millisecs actually
+	const int minNextMovetime = 2000;
 
 	//Limit for position
 	const int walkLimit = 350;
 	const int baseGround = SCREEN_HEIGHT - 200;
-	const int leftMostGuardPos = -200;
+	const int leftMostGuardPos = 0;
 	const int jumpHeight = 210;
 
 	//Attack strength
 	const int attackStrength = 10;
+
+	//Speech settings
+	const int speechOffset = 10;
+	const int nextSpeakTime = 7000;
+	const Uint32 textWrapLength = 250;
 
 	//Initializes variables
 	Guard(SDL_Renderer* renderer);
 
 	//Deallocates memory
 	~Guard();
-
-	//Loads image at specified path
-	bool loadFromFile(std::string path, SDL_Renderer* renderer);
 
 	//Renders texture at given point
 	void setSpriteClips();
@@ -66,37 +68,48 @@ public:
 
 private:
 
-	//Scene textures
+	//Guard and speech render spaces
 	SDL_Rect guardSpriteClips[totalGuardPoses];
+	SDL_Rect renderSpeech;
 
 	//The actual hardware texture
 	SDL_Texture* guardTexture;
+	SDL_Texture* speechTexture;
+	SDL_Texture* bubbleSpeechTexture;
 
 	//The X and Y offsets
-	int guardPosX, guardPosY, ground;
+	int guardPosX, guardPosY;
+	int ground;
 	int rightmostGuardPos;
+
 	//Velocity
 	int plusVelocity;
 	int guardVelX, guardVelY;
+
 	//Image dimensions
 	int gWidth;
 	int gHeight;
 
+	//Frame order and time
 	int frame;
-	Uint32 frameTime;
 	int nextOrBackFrame;
-	int moveTime;
-	int tempTime;
 
+	Uint32 frameTime;
+	Uint32 moveTime;
+	Uint32 speakTime;
+
+	//Moving status
 	bool toLeft;
 	bool toRight;
 	bool walking;
 	bool jumped;
 	bool falling;
 
+	//Act as good or bad
 	bool righteous;
-	SDL_Texture* speechTexture;
 
+	//Initial health
 	int health;
+
 };
 

@@ -1,8 +1,6 @@
 + Nguồn code tham khảo:
 
-https://lazyfoo.net/tutorials/SDL/index.php
-
-https://github.com/PhamQuang-TocXanh/SDL/commit/f0675c0ba650005501779ea3ef781d70a0685b48
+https://lazyfoo.net/tutorials/SDL/index.php (lesson 4, 7, 10, 14, 15, 16, 17, 26,...)
 
 
 --------------------------------------------------------------------------------------------------------------------
@@ -10,4 +8,5 @@ https://github.com/PhamQuang-TocXanh/SDL/commit/f0675c0ba650005501779ea3ef781d70
 
 + Đồ họa:
 
-https://blog.indiumgames.fi/
+Nhân vật: https://blog.indiumgames.fi/
+Background: vẽ trên app IbisPaint

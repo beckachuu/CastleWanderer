@@ -24,13 +24,10 @@ public:
 	const int jumpHeight = 210;
 
 	//Initializes variables
-	myCharacter();
+	myCharacter(SDL_Renderer* renderer);
 
 	//Deallocates memory
 	~myCharacter();
-
-	//Loads image at specified path
-	bool loadFromFile(std::string path, SDL_Renderer* renderer);
 
 	//Renders texture at given point
 	void setSpriteClips();

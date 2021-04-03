@@ -30,13 +30,7 @@ void Game::run() {
     g.setRightLimit(background.getFurthestLeftPoint());
 
     //Init character
-    myCharacter wizard;
-    wizard.setSpriteClips();
-    //Load wizard
-    if (!wizard.loadFromFile("image/wizardSheet.png", render)) {
-        std::cerr << "Load wizard sheet error!\n";
-        return;
-    }
+    myCharacter wizard(render);
 
     if (render == nullptr || font == nullptr) {
         std::cerr << "Failed to initialize!\n";

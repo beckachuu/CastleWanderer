@@ -159,6 +159,7 @@
     <ClInclude Include="character.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="guard.h" />
+    <ClInclude Include="speech_data.h" />
     <ClInclude Include="spell_fire.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -51,7 +51,7 @@ TTF_Font* initTTF() {
     }
     else {
         //Open the font
-        font = TTF_OpenFont("FRSCRIPT.ttf", 60);
+        font = TTF_OpenFont(fontName.c_str(), fontSize);
         if (font == NULL)
         {
             std::cerr << "Failed to load lazy font! SDL_ttf Error: " << TTF_GetError() << std::endl;
@@ -61,13 +61,43 @@ TTF_Font* initTTF() {
     return font;
 }
 
-
-SDL_Texture* loadFromRenderedText(std::string textureText, SDL_Color textColor)
+SDL_Texture* loadFromFile(std::string path, SDL_Renderer* renderer)
 {
+    //The final texture
+    SDL_Texture* newTexture = NULL;
+
+    //Load image at specified path
+    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+    if (loadedSurface == NULL)
+    {
+        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError() << std::endl;
+    }
+    else
+    {
+        //Color key image
+        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 77, 79, 86));
+
+        //Create texture from surface pixels
+        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        if (newTexture == NULL)
+        {
+            std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError() << std::endl;
+        }
+
+        //Get rid of old loaded surface
+        SDL_FreeSurface(loadedSurface);
+    }
+
+    return newTexture;
+}
+
+SDL_Texture* loadFromRenderedText(std::string textureText, SDL_Rect* renderText, Uint32 textWrapLength)
+{
+    SDL_Color textColor = { 255, 255, 255 };
     SDL_Texture* text = nullptr;
 
     //Render text surface
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, textureText.c_str(), textColor);
+    SDL_Surface* textSurface = TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), textColor, textWrapLength);
     if (textSurface == NULL)
     {
         std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
@@ -80,6 +110,12 @@ SDL_Texture* loadFromRenderedText(std::string textureText, SDL_Color textColor)
         {
             std::cerr << "Unable to create texture from rendered text! SDL Error: " << SDL_GetError() << std::endl;
         }
+        else
+        {
+            //Get image dimensions
+            renderText->w = textSurface->w;
+            renderText->h = textSurface->h;
+        }
 
         //Get rid of old surface
         SDL_FreeSurface(textSurface);
@@ -87,17 +123,6 @@ SDL_Texture* loadFromRenderedText(std::string textureText, SDL_Color textColor)
 
     //Return success
     return text;
-}
-
-void loadText(SDL_Texture* text, std::string sentence)
-{
-    SDL_Color textColor = { 255, 255, 255 };
-    //Render text
-    text = loadFromRenderedText(sentence, textColor);
-    if (text == NULL)
-    {
-        std::cerr << "Failed to render text texture!" << std::endl;
-    }
 }
 
 

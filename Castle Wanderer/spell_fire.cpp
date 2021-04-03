@@ -1,7 +1,8 @@
 #include "spell_fire.h"
+#include "basic_init.h"
 #include <SDL_image.h>
 
-Fire::Fire(bool& toRight, int& wizPosX, int& wizPosY)
+Fire::Fire(bool& toRight, int& wizPosX, int& wizPosY, SDL_Renderer* renderer)
 {
     //Initialize
     fTexture = NULL;
@@ -22,6 +23,10 @@ Fire::Fire(bool& toRight, int& wizPosX, int& wizPosY)
     frame = 0;
 
     fireDamage = rand() % 15 + 15;
+
+    fTexture = loadFromFile("image/wizardSheet.png", renderer);
+    setSpriteClips();
+
 }
 
 
@@ -39,46 +44,6 @@ void Fire::setAlpha(Uint8 alpha)
 {
     //Modulate texture alpha
     SDL_SetTextureAlphaMod(fTexture, alpha);
-}
-
-bool Fire::loadFromFile(std::string path, SDL_Renderer* renderer)
-{
-    free();
-
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-    if (loadedSurface == NULL)
-    {
-        std::cerr << "Unable to load image! SDL_image Error:" << IMG_GetError() << std::endl;
-    }
-    else
-    {
-        //Color key image
-        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 77, 79, 86));
-
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-        if (newTexture == NULL)
-        {
-            std::cerr << "Unable to create texture! SDL Error: " << SDL_GetError() << std::endl;
-        }
-        else
-        {
-            //Get image dimensions
-            fWidth = loadedSurface->w;
-            fHeight = loadedSurface->h;
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface);
-    }
-
-    //Return success
-    fTexture = newTexture;
-    return (fTexture != NULL);
 }
 
 //////////////////////////////////// Spell rendering functions /////////////////////////////////////////////

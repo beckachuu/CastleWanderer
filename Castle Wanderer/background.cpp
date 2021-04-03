@@ -16,48 +16,24 @@ Background::Background(SDL_Renderer* renderer)
     bgForest_X = 0;
     foreBG_X = 0;
     road_Y = SCREEN_HEIGHT - roadWidth;
-    //clouds_Y = 0, castle_Y = 0, bgForest_Y = 0, foreBG_Y = 0;
 
     //Velocity
     clouds_VelX = 0;
     castle_VelX = 0;
     bgForest_VelX = 0;
     foreBG_VelX = 0;
-    //clouds_VelY = 0, castle_VelY = 0, bgForest_VelY = 0, foreBG_VelY = 0;
-
+    
+    renderClouds = { NULL };
+    renderCastle = { NULL };
+    renderbgForest = { NULL };
+    renderBushes = { NULL };
+    renderTavern = { NULL };
+    renderRoad = { NULL };
 }
 
 Background::~Background()
 {
 	free();
-}
-
-SDL_Texture* Background::loadFromFile(std::string path, SDL_Renderer* renderer) {
-
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-    if (loadedSurface == NULL)
-    {
-        std::cerr << "Unable to load background image! SDL_image Error:" << IMG_GetError() << std::endl;
-    }
-    else
-    {
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-        if (newTexture == NULL)
-        {
-            std::cerr << "Unable to create background texture! " << "Path: " << path << std::endl;
-            std::cerr << " SDL Error: " << SDL_GetError() << std::endl;
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface);
-    }
-
-    return newTexture;
 }
 
 void Background::render(SDL_Renderer* renderer) {

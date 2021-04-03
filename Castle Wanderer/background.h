@@ -20,9 +20,6 @@ public:
 	//Deallocates memory
 	~Background();
 
-	//Loads image at specified path
-	SDL_Texture* loadFromFile(std::string path, SDL_Renderer* renderer);
-
 	//Renders texture at given point
 	void render(SDL_Renderer* renderer);
 	void renderCurrentFrame(SDL_Renderer* renderer);

@@ -56,5 +56,8 @@
     <ClInclude Include="guard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="speech_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
