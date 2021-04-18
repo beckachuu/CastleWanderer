@@ -2,12 +2,16 @@
 #include "basic_init.h"
 #include <SDL_image.h>
 
-Fire::Fire(bool& toRight, int& wizPosX, int& wizPosY, SDL_Renderer* renderer)
+Fire::Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity)
 {
     //Initialize
     fTexture = NULL;
     fWidth = 0;
     fHeight = 0;
+
+    fVelocity = 0;
+
+    setVelocity(characterVelocity);
 
     //Set fire flying direction and initial position at the end of wizard's staff
     if (toRight) {
@@ -24,7 +28,7 @@ Fire::Fire(bool& toRight, int& wizPosX, int& wizPosY, SDL_Renderer* renderer)
 
     fireDamage = rand() % 15 + 15;
 
-    fTexture = loadFromFile("image/wizardSheet.png", renderer);
+    fTexture = loadFromFile("image/wizardSheet.png");
     setSpriteClips();
 
 }
@@ -115,17 +119,8 @@ bool Fire::outOfRange() {
     else return false;
 }
 
-
-void Fire::free()
-{
-    //Free texture if it exists
-    if (this != nullptr && fTexture != NULL)
-    {
-        SDL_DestroyTexture(fTexture);
-        fTexture = NULL;
-        fWidth = 0;
-        fHeight = 0;
-    }
+void Fire::setVelocity(int charactervelocity) {
+    fVelocity = charactervelocity * 6;
 }
 
 int Fire::getWidth() {
@@ -144,4 +139,16 @@ int Fire::getPosY() {
 
 int Fire::getFireDamage() {
     return fireDamage;
+}
+
+void Fire::free()
+{
+    //Free texture if it exists
+    if (this != nullptr && fTexture != NULL)
+    {
+        SDL_DestroyTexture(fTexture);
+        fTexture = NULL;
+        fWidth = 0;
+        fHeight = 0;
+    }
 }

@@ -1,32 +1,36 @@
 #include "guard.h"
-#include "speech_data.h"
+#include "guard_speech.h"
 #include <SDL_image.h>
-#include <ctime>
 
-Guard::Guard(SDL_Renderer* renderer)
+Guard::Guard()
 {
-    srand(time(0));
     //Initialize
     guardTexture = NULL;
-    gWidth = 0;
-    gHeight = 0;
+    guardWidth = 0;
+    guardHeight = 0;
 
     //Initialize the offsets
     ground = baseGround;
-    rightmostGuardPos = SCREEN_WIDTH;
-    guardPosX = rand() % (rightmostGuardPos - leftMostGuardPos) + leftMostGuardPos;
+    rightmostGuardPos = SCREEN_WIDTH * 4;
+    leftmostGuardPos = 0;
+    guardPosX = rand() % (rightmostGuardPos - leftmostGuardPos) + leftmostGuardPos;
     guardPosY = rand() % (baseGround - walkLimit) + walkLimit;
 
     //Initialize the velocity
+    guardWalkVelocity = 7;
+    guardJumpVelocity = 28;
     guardVelX = 0;
     guardVelY = 0;
 
-    frame = walk0;
+    frame = guardWalk0;
     nextOrBackFrame = -1;
 
     frameTime = 0;
     moveTime = 0;
+    nextMoveTime = rand() % maxNextMovetime + minNextMovetime;
+
     speakTime = 0;
+    okayToSpeak = false;
 
     toRight = false;
     //Default attack left
@@ -39,19 +43,16 @@ Guard::Guard(SDL_Renderer* renderer)
     }
     else righteous = true;
 
-    //Assume righteous
-    righteous = true;
-
     renderSpeech = { NULL };
     speechTexture = NULL;
 
     health = rand() % 20 + 50;
 
     //Load textures
-    guardTexture = loadFromFile("image/guardSheet.png", renderer);
+    guardTexture = loadFromFile("image/guardSheet.png");
     setSpriteClips();
 
-    bubbleSpeechTexture = loadFromFile("image/speechBubble.jpg", renderer);
+    bubbleSpeechTexture = loadFromFile("image/speechBubble.png");
 }
 
 Guard::~Guard()
@@ -64,30 +65,30 @@ Guard::~Guard()
 
 void Guard::setSpriteClips() {
     //Set sprite clips
-    guardSpriteClips[walk0].x = 4;
-    guardSpriteClips[walk0].y = 47;
-    guardSpriteClips[walk0].w = 85;
-    guardSpriteClips[walk0].h = 195;
+    guardSpriteClips[guardWalk0].x = 4;
+    guardSpriteClips[guardWalk0].y = 47;
+    guardSpriteClips[guardWalk0].w = 85;
+    guardSpriteClips[guardWalk0].h = 195;
 
-    guardSpriteClips[walk1].x = 112;
-    guardSpriteClips[walk1].y = 47;
-    guardSpriteClips[walk1].w = 85;
-    guardSpriteClips[walk1].h = 195;
+    guardSpriteClips[guardWalk1].x = 112;
+    guardSpriteClips[guardWalk1].y = 47;
+    guardSpriteClips[guardWalk1].w = 85;
+    guardSpriteClips[guardWalk1].h = 195;
 
-    guardSpriteClips[walk2].x = 229;
-    guardSpriteClips[walk2].y = 47;
-    guardSpriteClips[walk2].w = 101;
-    guardSpriteClips[walk2].h = 195;
+    guardSpriteClips[guardWalk2].x = 229;
+    guardSpriteClips[guardWalk2].y = 47;
+    guardSpriteClips[guardWalk2].w = 101;
+    guardSpriteClips[guardWalk2].h = 195;
 
-    guardSpriteClips[walk3].x = 347;
-    guardSpriteClips[walk3].y = 47;
-    guardSpriteClips[walk3].w = 86;
-    guardSpriteClips[walk3].h = 195;
+    guardSpriteClips[guardWalk3].x = 347;
+    guardSpriteClips[guardWalk3].y = 47;
+    guardSpriteClips[guardWalk3].w = 86;
+    guardSpriteClips[guardWalk3].h = 195;
 
-    guardSpriteClips[walk4].x = 456;
-    guardSpriteClips[walk4].y = 47;
-    guardSpriteClips[walk4].w = 102;
-    guardSpriteClips[walk4].h = 195;
+    guardSpriteClips[guardWalk4].x = 456;
+    guardSpriteClips[guardWalk4].y = 47;
+    guardSpriteClips[guardWalk4].w = 102;
+    guardSpriteClips[guardWalk4].h = 195;
 
     guardSpriteClips[attack1].x = 331;
     guardSpriteClips[attack1].y = 263;
@@ -104,7 +105,7 @@ void Guard::setSpriteClips() {
 void Guard::render(SDL_Renderer* renderer, SDL_Rect* clip)
 {
     //Set rendering space and render to screen
-    SDL_Rect renderGuard = { guardPosX, guardPosY, gWidth, gHeight };
+    SDL_Rect renderGuard = { guardPosX, guardPosY, guardWidth, guardHeight };
 
     //Set clip rendering dimensions
     if (clip != NULL)
@@ -121,20 +122,28 @@ void Guard::render(SDL_Renderer* renderer, SDL_Rect* clip)
         SDL_RenderCopy(renderer, guardTexture, clip, &renderGuard);
     }
 
-    //Render speech
-    renderSpeech.x = guardPosX + renderGuard.w / 2 - renderSpeech.w / 2;
-    renderSpeech.y = guardPosY - renderSpeech.h - speechOffset;
-    SDL_RenderCopy(renderer, speechTexture, NULL, &renderSpeech);
+    if (speechTexture != NULL) {
+        //Render speech and bubble speech
+        renderSpeech.x = guardPosX - renderSpeech.w / 7;
+        renderSpeech.y = guardPosY - renderSpeech.h - 45;
+        SDL_Rect bubbleSpeechSpace = { NULL };
+        bubbleSpeechSpace.x = renderSpeech.x - 15;
+        bubbleSpeechSpace.y = renderSpeech.y - 20;
+        bubbleSpeechSpace.w = renderSpeech.w + 35;
+        bubbleSpeechSpace.h = renderSpeech.h + 70;
+        SDL_RenderCopy(renderer, bubbleSpeechTexture, NULL, &bubbleSpeechSpace);
+        SDL_RenderCopy(renderer, speechTexture, NULL, &renderSpeech);
+    }
 }
 
 void Guard::renderCurrentAction(SDL_Renderer* renderer) {
     if (walking) {
         if (SDL_GetTicks() > frameTime + nextFrameTime) {
-            if (frame >= walk4)
+            if (frame >= guardWalk4)
             {
                 nextOrBackFrame = -1;
             }
-            else if (frame <= walk0) {
+            else if (frame <= guardWalk0) {
                 nextOrBackFrame = 1;
             }
             frame += nextOrBackFrame;
@@ -142,7 +151,7 @@ void Guard::renderCurrentAction(SDL_Renderer* renderer) {
         }
     }
     else {
-        frame = walk0;
+        frame = guardWalk0;
         frameTime = SDL_GetTicks();
     }
 
@@ -157,31 +166,40 @@ void Guard::randomSpeech() {
 
     if (righteous) {
         if (rand() % 2 == 0) {
-            speech += good_call[rand() % speechCount];
+            speech = goodCall[rand() % goodCall.size()];
         }
         if (rand() % 2 == 0) {
-            speech += (good_s13[rand() % speechCount] + good_v13[rand() % speechCount] + good_o13[rand() % speechCount]);
+            speech += goodSentence[rand() % goodSentence.size()];
         }
         else {
-            speech += (good_s2[rand() % speechCount] + good_v2[rand() % speechCount] + good_o2[rand() % speechCount]);
+            speech += goodQuestion[rand() % goodQuestion.size()];
         }
     }
-    
-
-    speechTexture = loadFromRenderedText(speech, &renderSpeech, textWrapLength);
+    else {
+        if (rand() % 2 == 0) {
+            speech = notgoodCall[rand() % notgoodCall.size()];
+        }
+        if (rand() % 2 == 0) {
+            speech += notgoodSentence[rand() % notgoodSentence.size()];
+        }
+        else {
+            speech += notgoodQuestion[rand() % notgoodQuestion.size()];
+        }
+    }
+    speechTexture = loadFromText(speech, &renderSpeech, textWrapLength);
 }
 
 void Guard::moveRandom() {
     
     //Random right or left or neither (stand still)
-    int moveX = rand() % 4; //Guard has 50% to stand still on X-axis
+    int moveX = rand() % 3;
     if (moveX == 0) {
-        guardVelX = gVelocity;
+        guardVelX = guardWalkVelocity;
         toLeft = false;
         toRight = true;
     }
     else if (moveX == 1) {
-        guardVelX = -gVelocity;
+        guardVelX = -guardWalkVelocity;
         toLeft = true;
         toRight = false;
     }
@@ -190,12 +208,12 @@ void Guard::moveRandom() {
     }
 
     //Random up or down or neither
-    int moveY = rand() % 4; //Guard has 50% to stand still on Y-axis
+    int moveY = rand() % 3;
     if (moveY == 0) {
-        guardVelY = gVelocity;
+        guardVelY = guardWalkVelocity;
     }
     else if (moveY == 1) {
-        guardVelY = -gVelocity;
+        guardVelY = -guardWalkVelocity;
     }
     else {
         guardVelY = 0;
@@ -206,20 +224,32 @@ void Guard::moveRandom() {
 
 void Guard::move()
 {
-    if (SDL_GetTicks() > speakTime + nextSpeakTime) {
+    if (okayToSpeak && SDL_GetTicks() > speakTime + nextSpeakTime) {
         randomSpeech();
+        guardVelX = 0;
+        guardVelY = 0;
+        moveTime = SDL_GetTicks() + nextSpeakTime;
         speakTime = SDL_GetTicks();
     }
-    if (SDL_GetTicks() > moveTime + rand() % maxNextMovetime + minNextMovetime) {
-        //moveRandom();
+    
+    if (SDL_GetTicks() > moveTime + nextMoveTime) {
+        moveRandom();
+        speechTexture = NULL;
+        nextMoveTime = rand() % maxNextMovetime + minNextMovetime;
     }
+
+    //If not walking anywhere
+    if (guardVelX == 0 && guardVelY == 0) {
+        walking = false;
+        frame = guardWalk0;
+    }
+    else walking = true;
 
     //Move right or left
     guardPosX += (guardVelX + plusVelocity);
-    walking = true;
 
     //If went too far to the right or left
-    if ((guardPosX < leftMostGuardPos) || (guardPosX > rightmostGuardPos))
+    if ((guardPosX < leftmostGuardPos) || (guardPosX > rightmostGuardPos))
     {
         guardPosX -= guardVelX;
     }
@@ -231,7 +261,7 @@ void Guard::move()
 
     //If jumped too far up
     if (jumped && guardPosY < ground - jumpHeight) {
-        guardVelY += gVelocityJump;
+        guardVelY += guardJumpVelocity;
     }
     //If jumped and fell back to where standing
     if (jumped && guardPosY > ground) {
@@ -248,48 +278,67 @@ void Guard::move()
         guardPosY = baseGround - 1;
     }
 
-    //If not walking anywhere
-    if (guardVelX == 0 && guardVelY == 0) {
-        walking = false;
-        frame = walk0;
-    }
-
 }
 
+void Guard::moveBackX(int vel) {
+    if (guardVelX > 0) {
+        guardPosX -= vel;
+    }
+    else if (guardVelX < 0) {
+        guardPosX += vel;
+    }
+}
+
+void Guard::moveBackY(int vel) {
+    if (guardVelY > 0) {
+        guardPosY -= vel;
+    }
+    else if (guardVelY < 0) {
+        guardPosY += vel;
+    }
+}
 
 void Guard::free()
 {
     freeTexture(guardTexture);
 }
 
-int Guard::getguardPosX() {
+int Guard::getGuardPosX() {
     return guardPosX;
 }
 
-int Guard::getguardPosY() {
+int Guard::getGuardPosY() {
     return guardPosY;
 }
 
 void Guard::setPlusVelocity(int bgVelocity) {
     plusVelocity = bgVelocity;
+    leftmostGuardPos += plusVelocity;
+    rightmostGuardPos += plusVelocity;
 }
 
 void Guard::setRightLimit(int bgLeftMostPos) {
     rightmostGuardPos = -bgLeftMostPos;
+    //leftmostGuardPos=
 }
 
-int Guard::getguardVelX() {
+int Guard::getGuardVelX() {
     return guardVelX;
 }
 
-int Guard::getguardVelY() {
+int Guard::getGuardVelY() {
     return guardVelY;
 }
 
-int Guard::getgWidth() {
-    return gWidth;
+void Guard::setVelocity(int BguardWalkVelocity) {
+    guardWalkVelocity = BguardWalkVelocity + 1;
+    guardJumpVelocity = guardWalkVelocity * 4;
 }
 
-int Guard::getgHeight() {
-    return gHeight;
+int Guard::getGuardWidth() {
+    return guardSpriteClips[frame].w;
+}
+
+int Guard::getGuardHeight() {
+    return guardSpriteClips[frame].h;
 }

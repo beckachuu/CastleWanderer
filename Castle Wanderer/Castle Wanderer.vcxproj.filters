@@ -36,6 +36,9 @@
     <ClCompile Include="guard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="goblin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basic_init.h">
@@ -56,7 +59,10 @@
     <ClInclude Include="guard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="speech_data.h">
+    <ClInclude Include="goblin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="guard_speech.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

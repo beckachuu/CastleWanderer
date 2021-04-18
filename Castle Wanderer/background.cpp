@@ -2,14 +2,14 @@
 #include "basic_init.h"
 #include <SDL_image.h>
 
-Background::Background(SDL_Renderer* renderer)
+Background::Background()
 {
-	cloudsTexture = loadFromFile("image/clouds.png",renderer);
-    castleTexture = loadFromFile("image/castle.png", renderer);
-	backgroundForestTexture = loadFromFile("image/background forest.png", renderer);
-	treeAndBushesTexture = loadFromFile("image/tree and bushes.png", renderer);
-	tavernTexture = loadFromFile("image/tavern.png", renderer);
-	roadTexture = loadFromFile("image/road.png", renderer);
+	cloudsTexture = loadFromFile("image/clouds.png");
+    castleTexture = loadFromFile("image/castle.png");
+	backgroundForestTexture = loadFromFile("image/background forest.png");
+	treeAndBushesTexture = loadFromFile("image/tree and bushes.png");
+	tavernTexture = loadFromFile("image/tavern.png");
+	roadTexture = loadFromFile("image/road.png");
 
     clouds_X = 0;
     castle_X = 0;
@@ -17,7 +17,12 @@ Background::Background(SDL_Renderer* renderer)
     foreBG_X = 0;
     road_Y = SCREEN_HEIGHT - roadWidth;
 
+    atFurthestLeftX = false;
+    atFurthestRightX = true;
+
     //Velocity
+    foreBG_Velocity = 6, bgForest_velocity = 5, castle_velocity = 2, clouds_Velocity = 1;
+
     clouds_VelX = 0;
     castle_VelX = 0;
     bgForest_VelX = 0;
@@ -201,11 +206,11 @@ void Background::free()
     freeTexture(roadTexture);
 }
 
-bool Background::toFurthestLeftX() {
+bool Background::isAtFurthestLeftX() {
     return atFurthestLeftX;
 }
 
-bool Background::toFurthestRightX() {
+bool Background::isAtFurthestRightX() {
     return atFurthestRightX;
 }
 
@@ -213,10 +218,36 @@ int Background::getBGVelX() {
     return foreBG_VelX;
 }
 
-int Background::getforeBG_X() {
-    return foreBG_X;
+int Background::getBGspeed() {
+    return foreBG_Velocity;
 }
 
 int Background::getFurthestLeftPoint() {
     return BGleftMostX;
+}
+
+void Background::speedUp() {
+    foreBG_Velocity++;
+    bgForest_velocity++;
+    castle_velocity++;
+    clouds_Velocity++;
+}
+
+void Background::speedDown() {
+
+    if (foreBG_Velocity >= 2) {
+        foreBG_Velocity--;
+    }
+
+    if (bgForest_velocity >= 2) {
+        bgForest_velocity--;
+    }
+
+    if (castle_velocity >= 2) {
+        castle_velocity--;
+    }
+
+    if (clouds_Velocity >= 2) {
+        clouds_Velocity--;
+    }
 }

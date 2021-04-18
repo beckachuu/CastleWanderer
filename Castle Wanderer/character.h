@@ -1,6 +1,5 @@
 #pragma once
 #include "basic_init.h"
-#include "spell_fire.h"
 
 enum characterPoses { walkR1, walkR2, walkR3, walkR4, walkR5, walkR6,
 	walkL1, walkL2, walkL3, walkL4, walkL5, walkL6, stand, attack, totalCharacterPoses};
@@ -8,13 +7,10 @@ enum characterPoses { walkR1, walkR2, walkR3, walkR4, walkR5, walkR6,
 const int max_fire_spell = 7;
 
 //Texture wrapper class
-class myCharacter
+class MyCharacter
 {
 public:
 
-	//Maximum axis velocity
-	const int cVelocity = 5;
-	const int cVelocityJump = 24;
 	//Time to change to next frame
 	const int nextFrame = 170;
 
@@ -24,10 +20,10 @@ public:
 	const int jumpHeight = 210;
 
 	//Initializes variables
-	myCharacter(SDL_Renderer* renderer);
+	MyCharacter();
 
 	//Deallocates memory
-	~myCharacter();
+	~MyCharacter();
 
 	//Renders texture at given point
 	void setSpriteClips();
@@ -37,26 +33,33 @@ public:
 	//Move
 	void handleEvent(SDL_Event& e, SDL_Renderer* renderer);
 	void move();
+	void moveBackX(int vel);
+	void moveBackY(int vel);
+	void setFurthestPoints(int furthestLeftPoint, int furthestRightPoint);
 
-	//Deallocates texture
-	void free();
+	bool isAtEdgeOfScreen();
+	bool isToRight();
+	
+	//Gets image offsets
+	int getcharPosX();
+	int getcharPosY();
+
+	//Gets image velocity
+	void setVelocity(int BguardWalkVelocity);
+	int getcharVelX();
+	int getcharVelY();
 
 	//Gets image dimensions
 	int getWidth();
 	int getHeight();
 
-	//Gets image offsets
-	int getcPosX();
-	int getcPosY();
-
-	//Gets image velocity
-	int getcVelX();
-	int getcVelY();
-
-	//Check if need to stop
-	bool gotToFar;
+	//Deallocates texture
+	void free();
 
 private:
+	//Axis velocity
+	int charVelocity;
+	int charVelocityJump;
 
 	//Scene textures
 	SDL_Rect characterSpriteClips[totalCharacterPoses];
@@ -65,19 +68,16 @@ private:
 	SDL_Texture* cTexture;
 
 	//The X and Y offsets
-	int cPosX, cPosY, ground;
-	const int leftmostCharacterPos = 300;
-	const int rightmostCharacterPos = 900;
+	int charPosX, charPosY, ground;
+	int leftmostCharacterPos;
+	int rightmostCharacterPos;
 	//Velocity
-	int cVelX, cVelY;
+	int charVelX, charVelY;
 	//Image dimensions
 	int cWidth;
 	int cHeight;
 
 	int frame;
-
-	//Fire spell
-	Fire* fire[max_fire_spell] = { nullptr };
 
 	Uint32 frameTime;
 
@@ -85,7 +85,7 @@ private:
 	bool toRight;
 	bool walking;
 	bool jumped;
-	bool falling;
+	bool atEdgeOfScreen;
 
 	int health;
 };

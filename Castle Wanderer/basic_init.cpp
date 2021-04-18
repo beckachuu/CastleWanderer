@@ -1,9 +1,12 @@
 #include "basic_init.h"
+#include "game.h"
 #include <SDL_image.h>
+#include <ctime>
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 TTF_Font* font = NULL;
+
 
 SDL_Renderer* initSDL() {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -61,7 +64,7 @@ TTF_Font* initTTF() {
     return font;
 }
 
-SDL_Texture* loadFromFile(std::string path, SDL_Renderer* renderer)
+SDL_Texture* loadFromFile(std::string path)
 {
     //The final texture
     SDL_Texture* newTexture = NULL;
@@ -91,9 +94,9 @@ SDL_Texture* loadFromFile(std::string path, SDL_Renderer* renderer)
     return newTexture;
 }
 
-SDL_Texture* loadFromRenderedText(std::string textureText, SDL_Rect* renderText, Uint32 textWrapLength)
+SDL_Texture* loadFromText(std::string textureText, SDL_Rect* renderText, Uint32 textWrapLength)
 {
-    SDL_Color textColor = { 255, 255, 255 };
+    SDL_Color textColor = { 0, 0, 0 };
     SDL_Texture* text = nullptr;
 
     //Render text surface

@@ -148,6 +148,7 @@
     <ClCompile Include="background.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="goblin.cpp" />
     <ClCompile Include="guard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="basic_init.cpp" />
@@ -158,8 +159,9 @@
     <ClInclude Include="basic_init.h" />
     <ClInclude Include="character.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="goblin.h" />
     <ClInclude Include="guard.h" />
-    <ClInclude Include="speech_data.h" />
+    <ClInclude Include="guard_speech.h" />
     <ClInclude Include="spell_fire.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

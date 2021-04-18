@@ -10,11 +10,8 @@ class Fire
 {
 public:
 
-	//Maximum axis velocity
-	const int fVelocity = 32;
-
 	//Initializes variables
-	Fire(bool& toRight, int& wizPosX, int& wizPosY, SDL_Renderer* renderer);
+	Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity);
 
 	//Set color modulation
 	void setColor(Uint8 red, Uint8 green, Uint8 blue);
@@ -32,8 +29,7 @@ public:
 	//Check if out of screen
 	bool outOfRange();
 
-	//Deallocates texture
-	void free();
+	void setVelocity(int characterVelocity);
 
 	//Gets image dimensions
 	int getWidth();
@@ -45,7 +41,11 @@ public:
 
 	int getFireDamage();
 
+	void free();
+
 private:
+	//Axis velocity
+	int fVelocity;
 
 	//Scene textures
 	SDL_Rect fireSpriteClips[3] = { NULL };

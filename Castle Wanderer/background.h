@@ -6,8 +6,6 @@
 class Background {
 public:
 
-	//Axis velocity
-	const int foreBG_Velocity = 6, bgForest_velocity = 5, castle_velocity = 4, clouds_Velocity = 2;
 	const int roadWidth = 190;
 
 	//Map length = four road scenes
@@ -15,7 +13,7 @@ public:
 	const int BGrightMostX = 0;
 
 	//Initializes variables
-	Background(SDL_Renderer* renderer);
+	Background();
 
 	//Deallocates memory
 	~Background();
@@ -31,14 +29,19 @@ public:
 	//Deallocates texture
 	void free();
 
-	bool toFurthestLeftX();
-	bool toFurthestRightX();
+	bool isAtFurthestLeftX();
+	bool isAtFurthestRightX();
 
 	int getBGVelX();
-	int getforeBG_X();
+	int getBGspeed();
 	int getFurthestLeftPoint();
 
+	void speedUp();
+	void speedDown();
+
 private:
+	//Axis velocity
+	int foreBG_Velocity, bgForest_velocity, castle_velocity, clouds_Velocity;
 
 	//The actual hardware texture
 	SDL_Texture* cloudsTexture, *castleTexture, *backgroundForestTexture, *treeAndBushesTexture, *tavernTexture, *roadTexture;

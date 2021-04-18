@@ -1,16 +1,12 @@
 #pragma once
 #include "basic_init.h"
 
-enum guardPoses { walk0, walk1, walk2, walk3, walk4, attack1, attack2, totalGuardPoses };
+enum guardPoses { guardWalk0, guardWalk1, guardWalk2, guardWalk3, guardWalk4, attack1, attack2, totalGuardPoses };
 
 //Texture wrapper class
 class Guard
 {
 public:
-
-	//Maximum axis velocity
-	const int gVelocity = 6;
-	const int gVelocityJump = 24;
 
 	//Time to change to next frame
 	const int nextFrameTime = 200;
@@ -20,19 +16,17 @@ public:
 	//Limit for position
 	const int walkLimit = 350;
 	const int baseGround = SCREEN_HEIGHT - 200;
-	const int leftMostGuardPos = 0;
 	const int jumpHeight = 210;
 
 	//Attack strength
 	const int attackStrength = 10;
 
 	//Speech settings
-	const int speechOffset = 10;
-	const int nextSpeakTime = 7000;
+	const int nextSpeakTime = 4000;
 	const Uint32 textWrapLength = 250;
 
 	//Initializes variables
-	Guard(SDL_Renderer* renderer);
+	Guard();
 
 	//Deallocates memory
 	~Guard();
@@ -44,8 +38,13 @@ public:
 
 	//Auto control NPC character
 	void randomSpeech();
+	bool okayToSpeak;
+
 	void moveRandom();
 	void move();
+	void moveBackX(int vel);
+	void moveBackY(int vel);
+
 	void attack();
 	void avoidAttack();
 
@@ -53,20 +52,24 @@ public:
 	void free();
 
 	//Gets image dimensions
-	int getgWidth();
-	int getgHeight();
+	int getGuardWidth();
+	int getGuardHeight();
 
 	//Gets image offsets
-	int getguardPosX();
-	int getguardPosY();
+	int getGuardPosX();
+	int getGuardPosY();
 
 	//Gets image velocity
 	void setPlusVelocity(int bgVelocity);
 	void setRightLimit(int bgLeftMostPos);
-	int getguardVelX();
-	int getguardVelY();
+	int getGuardVelX();
+	int getGuardVelY();
+	void setVelocity(int bgVelocity);
 
 private:
+	//Maximum axis velocity
+	int guardWalkVelocity;
+	int guardJumpVelocity;
 
 	//Guard and speech render spaces
 	SDL_Rect guardSpriteClips[totalGuardPoses];
@@ -80,15 +83,15 @@ private:
 	//The X and Y offsets
 	int guardPosX, guardPosY;
 	int ground;
-	int rightmostGuardPos;
+	int rightmostGuardPos, leftmostGuardPos;
 
 	//Velocity
 	int plusVelocity;
 	int guardVelX, guardVelY;
 
 	//Image dimensions
-	int gWidth;
-	int gHeight;
+	int guardWidth;
+	int guardHeight;
 
 	//Frame order and time
 	int frame;
@@ -96,6 +99,7 @@ private:
 
 	Uint32 frameTime;
 	Uint32 moveTime;
+	Uint32 nextMoveTime;
 	Uint32 speakTime;
 
 	//Moving status
@@ -103,7 +107,6 @@ private:
 	bool toRight;
 	bool walking;
 	bool jumped;
-	bool falling;
 
 	//Act as good or bad
 	bool righteous;
