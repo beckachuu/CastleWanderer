@@ -10,16 +10,21 @@ const std::string title = "Castle Wanderer";
 const int SCREEN_HEIGHT = 700;
 const int SCREEN_WIDTH = 1280;
 
+const std::string fontName = "fonts/MaliMedium.ttf";
 const int fontSize = 20;
-const std::string fontName = "fonts/comic.ttf";
+const int timeToReadOneCharacter = 45;
 
+const SDL_Color white = { 255,255,255 };
+const SDL_Color black = { 0, 0, 0 };
+
+const int approxDistant = 20;
 
 //init
 SDL_Renderer* initSDL();
 TTF_Font* initTTF();
 
 SDL_Texture* loadFromFile(std::string path);
-SDL_Texture* loadFromText(std::string textureText, SDL_Rect* renderText, Uint32 textWrapLength);
+SDL_Texture* loadFromText(std::string textureText, SDL_Rect* renderText, SDL_Color textColor, Uint32 textWrapLength = 0);
 
 void logError(std::ostream& out, const std::string& ms, bool fatal);
 

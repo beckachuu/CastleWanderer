@@ -4,16 +4,16 @@
 MyCharacter::MyCharacter()
 {
     //Initialize
-    cTexture = NULL;
-    cWidth = 0;
-    cHeight = 0;
+    charTexture = NULL;
+    charWidth = 0;
+    charHeight = 0;
 
     //Initialize the offsets
-    charPosX = SCREEN_WIDTH / 2;
-    charPosY = baseGround-1;
-    ground = baseGround;
     leftmostCharacterPos = 0;
     rightmostCharacterPos = 0;
+    charPosX = rand() % SCREEN_WIDTH;
+    charPosY = baseGround-1;
+    ground = baseGround;
 
     //Initialize the velocity
     charVelocity = 0;
@@ -33,10 +33,26 @@ MyCharacter::MyCharacter()
 
     atEdgeOfScreen = false;
 
-    health = 120;
+    charNameTexture = loadFromText("Weedsycorn", &charNameRect, white);
+    charNameRect.x = 82;
+    charNameRect.y = 17;
 
-    cTexture = loadFromFile("image/wizardSheet.png");
+    charTexture = loadFromFile("image/wizardSheet.png");
     setSpriteClips();
+
+    healthTexture = loadFromFile("image/health.png");
+    healthRect.x = 10;
+    healthRect.y = 10;
+    healthRect.h = 70;
+
+    healthBarTexture = loadFromFile("image/wizard health bar.png");
+    healthBarRect.x = healthRect.x;
+    healthBarRect.y = healthRect.y;
+    healthBarRect.w = 420;
+    healthBarRect.h = 70;
+
+    damageReceived = 0;
+    die = false;
 }
 
 MyCharacter::~MyCharacter()
@@ -80,7 +96,7 @@ void MyCharacter::setSpriteClips() {
     characterSpriteClips[walkR6].w = 97;
     characterSpriteClips[walkR6].h = 195;
 
-    characterSpriteClips[walkL6].x = 15;
+    characterSpriteClips[walkL6].x = 10;
     characterSpriteClips[walkL6].y = 420;
     characterSpriteClips[walkL6].w = 99;
     characterSpriteClips[walkL6].h = 195;
@@ -90,14 +106,14 @@ void MyCharacter::setSpriteClips() {
     characterSpriteClips[walkL5].w = 107;
     characterSpriteClips[walkL5].h = 195;
 
-    characterSpriteClips[walkL4].x = 224;
+    characterSpriteClips[walkL4].x = 235;
     characterSpriteClips[walkL4].y = 420;
     characterSpriteClips[walkL4].w = 115;
     characterSpriteClips[walkL4].h = 195;
 
     characterSpriteClips[walkL3].x = 358;
     characterSpriteClips[walkL3].y = 420;
-    characterSpriteClips[walkL3].w = 100;
+    characterSpriteClips[walkL3].w = 105;
     characterSpriteClips[walkL3].h = 195;
 
     characterSpriteClips[walkL2].x = 482;
@@ -122,25 +138,33 @@ void MyCharacter::setSpriteClips() {
 
 }
 
-void MyCharacter::render(SDL_Renderer* renderer, SDL_Rect* clip)
+void MyCharacter::renderCharacter(SDL_Renderer* renderer, SDL_Rect* clip)
 {
-    //Set rendering space and render to screen
-    SDL_Rect renderQuad = { charPosX, charPosY, cWidth, cHeight };
-
-    //Set clip rendering dimensions
     if (clip != NULL)
     {
-        renderQuad.w = clip->w;
-        renderQuad.h = clip->h;
+        charWidth = clip->w;
+        charHeight = clip->h;
     }
+
+    SDL_Rect renderQuad = { charPosX, charPosY, charWidth, charHeight };
 
     //Render character to screen
     if (frame == attack && toLeft == true) {
-        SDL_RenderCopyEx(renderer, cTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
+        SDL_RenderCopyEx(renderer, charTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
     }
     else {
-        SDL_RenderCopy(renderer, cTexture, clip, &renderQuad);
+        SDL_RenderCopy(renderer, charTexture, clip, &renderQuad);
     }
+}
+
+void MyCharacter::renderHealthBar(SDL_Renderer* renderer)
+{
+    SDL_RenderCopy(renderer, charNameTexture, NULL, &charNameRect);
+
+    healthRect.w = healthBarRect.w - damageReceived * healthBarRect.w / health;
+    SDL_RenderCopy(renderer, healthTexture, NULL, &healthRect);
+
+    SDL_RenderCopy(renderer, healthBarTexture, NULL, &healthBarRect);
 }
 
 void MyCharacter::renderCurrentAction(SDL_Renderer* renderer) {
@@ -166,20 +190,21 @@ void MyCharacter::renderCurrentAction(SDL_Renderer* renderer) {
     }
     else if (!walking && toLeft) {
         if (SDL_GetTicks() > frameTime + nextFrame) {
-            frame = walkL3;
+            frame = walkL6;
             frameTime = SDL_GetTicks();
         }
     }
     else if (!walking && toRight) {
         if (SDL_GetTicks() > frameTime + nextFrame) {
-            frame = walkR3;
+            frame = walkR6;
             frameTime = SDL_GetTicks();
         }
     }
 
     SDL_Rect* currentClip = &characterSpriteClips[frame];
-    render(renderer, currentClip);
+    renderCharacter(renderer, currentClip);
 
+    renderHealthBar(renderer);
 }
 
 
@@ -305,7 +330,7 @@ void MyCharacter::move()
     }
     //If jumped and fell back to where standing
     if (jumped && charPosY > ground) {
-        charVelY = 0;
+        charVelY -= charVelocityJump;
         jumped = false;
     }
 
@@ -355,11 +380,16 @@ bool MyCharacter::isToRight() {
     return toRight;
 }
 
-int MyCharacter::getcharPosX() {
+void MyCharacter::receiveDamage(int damage) {
+    damageReceived += damage;
+}
+
+
+int MyCharacter::getCharPosX() {
     return charPosX;
 }
 
-int MyCharacter::getcharPosY() {
+int MyCharacter::getCharPosY() {
     return charPosY;
 }
 
@@ -369,23 +399,23 @@ void MyCharacter::setVelocity(int BguardWalkVelocity) {
     charVelocityJump = charVelocity * 4;
 }
 
-int MyCharacter::getcharVelX() {
+int MyCharacter::getCharVelX() {
     return charVelX;
 }
 
-int MyCharacter::getcharVelY() {
+int MyCharacter::getCharVelY() {
     return charVelY;
 }
 
 int MyCharacter::getWidth() {
-    return characterSpriteClips[frame].w;
+    return charWidth;
 }
 
 int MyCharacter::getHeight() {
-    return characterSpriteClips[frame].h;
+    return charHeight;
 }
 
 void MyCharacter::free()
 {
-    freeTexture(cTexture);
+    freeTexture(charTexture);
 }

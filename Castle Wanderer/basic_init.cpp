@@ -94,13 +94,20 @@ SDL_Texture* loadFromFile(std::string path)
     return newTexture;
 }
 
-SDL_Texture* loadFromText(std::string textureText, SDL_Rect* renderText, Uint32 textWrapLength)
+SDL_Texture* loadFromText(std::string textureText, SDL_Rect* renderText, SDL_Color textColor, Uint32 textWrapLength)
 {
-    SDL_Color textColor = { 0, 0, 0 };
     SDL_Texture* text = nullptr;
 
     //Render text surface
-    SDL_Surface* textSurface = TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), textColor, textWrapLength);
+    SDL_Surface* textSurface;
+    if (textWrapLength > 0) {
+        textSurface = TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), textColor, textWrapLength);
+    }
+    else {
+        textSurface = TTF_RenderText_Blended(font, textureText.c_str(), textColor);
+    }
+
+
     if (textSurface == NULL)
     {
         std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;

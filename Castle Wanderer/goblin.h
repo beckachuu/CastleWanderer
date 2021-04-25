@@ -8,21 +8,24 @@ class Goblin
 {
 public:
 
-	//Time to change to next frame
-	const int nextFrameTime = 200;
-	const int maxNextMovetime = 4000; //6000 millisecs actually
-	const int minNextMovetime = 2000;
-
 	//Limit for position
 	const int walkLimit = SCREEN_HEIGHT - 170 - 125;
 	const int baseGround = SCREEN_HEIGHT - 125;
 	const int jumpHeight = 180;
 
+	//Time to change to next frame
+	const int nextFrameTime = 200;
+
+	const int maxNextMoveTime = 4000; //5 secs actually
+	const int minNextMoveTime = 1000;
+
+	const int maxNextSpeakTime = 15000; //25 secs actually
+	const int minNextSpeakTime = 10000;
+
 	//Attack strength
 	const int attackStrength = 10;
 
 	//Speech settings
-	const int nextSpeakTime = 4000;
 	const Uint32 textWrapLength = 250;
 
 	//Initializes variables
@@ -38,15 +41,11 @@ public:
 
 	//Auto control NPC character
 	void randomSpeech();
-	bool okayToSpeak;
 
 	void moveRandom();
 	void move();
 	void moveBackX(int vel);
 	void moveBackY(int vel);
-
-	void attack();
-	void avoidAttack();
 
 	//Deallocates texture
 	void free();
@@ -61,7 +60,6 @@ public:
 
 	//Gets image velocity
 	void setPlusVelocity(int bgVelocity);
-	void setRightLimit(int bgLeftMostPos);
 	int getGoblinVelX();
 	int getGoblinVelY();
 	void setVelocity(int bgVelocity);
@@ -101,6 +99,8 @@ private:
 	Uint32 moveTime;
 	Uint32 nextMoveTime;
 	Uint32 speakTime;
+	Uint32 nextSpeakTime;
+	Uint32 eraseSpeechTime;
 
 	//Moving status
 	bool toLeft;

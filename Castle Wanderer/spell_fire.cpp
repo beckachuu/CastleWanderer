@@ -26,11 +26,10 @@ Fire::Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity)
 
     frame = 0;
 
-    fireDamage = rand() % 15 + 15;
-
     fTexture = loadFromFile("image/wizardSheet.png");
     setSpriteClips();
 
+    fireDamage = rand() % (maxFireDamage - minFireDamage) + minFireDamage;
 }
 
 
@@ -102,8 +101,8 @@ void Fire::renderSpellPosition(SDL_Renderer* renderer) {
         frame = 0;
     }
 
-    SDL_Rect* currentClip = &fireSpriteClips[frame];
-    render(renderer, currentClip);
+    SDL_Rect currentClip = fireSpriteClips[frame];
+    render(renderer, &currentClip);
 }
 
 
@@ -124,10 +123,10 @@ void Fire::setVelocity(int charactervelocity) {
 }
 
 int Fire::getWidth() {
-    return fWidth;
+    return fireSpriteClips[frame].w;
 }
 int Fire::getHeight() {
-    return fHeight;
+    return fireSpriteClips[frame].h;
 }
 
 int Fire::getPosX() {
@@ -143,12 +142,7 @@ int Fire::getFireDamage() {
 
 void Fire::free()
 {
-    //Free texture if it exists
-    if (this != nullptr && fTexture != NULL)
-    {
-        SDL_DestroyTexture(fTexture);
-        fTexture = NULL;
-        fWidth = 0;
-        fHeight = 0;
-    }
+    freeTexture(fTexture);
+    fWidth = 0;
+    fHeight = 0;
 }

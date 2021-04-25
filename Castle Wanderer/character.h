@@ -4,8 +4,6 @@
 enum characterPoses { walkR1, walkR2, walkR3, walkR4, walkR5, walkR6,
 	walkL1, walkL2, walkL3, walkL4, walkL5, walkL6, stand, attack, totalCharacterPoses};
 
-const int max_fire_spell = 7;
-
 //Texture wrapper class
 class MyCharacter
 {
@@ -19,6 +17,8 @@ public:
 	const int baseGround = SCREEN_HEIGHT - 200;
 	const int jumpHeight = 210;
 
+	const int health = 210;
+
 	//Initializes variables
 	MyCharacter();
 
@@ -27,7 +27,8 @@ public:
 
 	//Renders texture at given point
 	void setSpriteClips();
-	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
+	void renderCharacter(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
+	void renderHealthBar(SDL_Renderer* renderer);
 	void renderCurrentAction(SDL_Renderer* renderer);
 
 	//Move
@@ -39,15 +40,17 @@ public:
 
 	bool isAtEdgeOfScreen();
 	bool isToRight();
+
+	void receiveDamage(int damage);
 	
 	//Gets image offsets
-	int getcharPosX();
-	int getcharPosY();
+	int getCharPosX();
+	int getCharPosY();
 
 	//Gets image velocity
 	void setVelocity(int BguardWalkVelocity);
-	int getcharVelX();
-	int getcharVelY();
+	int getCharVelX();
+	int getCharVelY();
 
 	//Gets image dimensions
 	int getWidth();
@@ -62,10 +65,16 @@ private:
 	int charVelocityJump;
 
 	//Scene textures
+	SDL_Rect charNameRect;
 	SDL_Rect characterSpriteClips[totalCharacterPoses];
+	SDL_Rect healthBarRect;
+	SDL_Rect healthRect;
 
 	//The actual hardware texture
-	SDL_Texture* cTexture;
+	SDL_Texture* charNameTexture;
+	SDL_Texture* charTexture;
+	SDL_Texture* healthBarTexture;
+	SDL_Texture* healthTexture;
 
 	//The X and Y offsets
 	int charPosX, charPosY, ground;
@@ -74,8 +83,8 @@ private:
 	//Velocity
 	int charVelX, charVelY;
 	//Image dimensions
-	int cWidth;
-	int cHeight;
+	int charWidth;
+	int charHeight;
 
 	int frame;
 
@@ -87,6 +96,7 @@ private:
 	bool jumped;
 	bool atEdgeOfScreen;
 
-	int health;
+	int damageReceived;
+	bool die;
 };
 

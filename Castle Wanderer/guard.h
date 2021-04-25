@@ -7,46 +7,50 @@ enum guardPoses { guardWalk0, guardWalk1, guardWalk2, guardWalk3, guardWalk4, at
 class Guard
 {
 public:
-
-	//Time to change to next frame
-	const int nextFrameTime = 200;
-	const int maxNextMovetime = 4000; //6000 millisecs actually
-	const int minNextMovetime = 2000;
-
 	//Limit for position
 	const int walkLimit = 350;
 	const int baseGround = SCREEN_HEIGHT - 200;
 	const int jumpHeight = 210;
 
-	//Attack strength
-	const int attackStrength = 10;
+	const int maxVelocity = 8;
+	const int minVelocity = 4;
 
-	//Speech settings
-	const int nextSpeakTime = 4000;
+	//Frame settings
+	const Uint32 nextFrameTime = 400;
+	const Uint32 maxNextMovetime = 6000;
+	const Uint32 minNextMovetime = 2000;
+
 	const Uint32 textWrapLength = 250;
 
-	//Initializes variables
-	Guard();
+	const int maxHealth = 150;
+	const int minHealth = 100;
 
-	//Deallocates memory
+	const int maxAttackStrength = 7;
+	const int minAttackStrength = 1;
+	const Uint32 nextAttackTime = 700;
+
+	Guard(int* guardNameCount);
 	~Guard();
 
-	//Renders texture at given point
 	void setSpriteClips();
-	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
+	void renderGuard(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
+	void renderSpeechBubble(SDL_Renderer* renderer);
+	void renderHealthBar(SDL_Renderer* renderer);
 	void renderCurrentAction(SDL_Renderer* renderer);
 
-	//Auto control NPC character
-	void randomSpeech();
 	bool okayToSpeak;
-
+	void randomSpeech();
 	void moveRandom();
-	void move();
-	void moveBackX(int vel);
-	void moveBackY(int vel);
 
+	void move(int targetPosX, int targetPosY, int targetWidth);
+	void checkGuardLimits();
+
+	void receiveAttack(int damage);
+	bool isDead();
+	void chaseTarget(int targetPosX, int targetPosY, int targetWidth);
 	void attack();
-	void avoidAttack();
+	bool isAttacking();
+	int getAttackDamage();
 
 	//Deallocates texture
 	void free();
@@ -61,28 +65,31 @@ public:
 
 	//Gets image velocity
 	void setPlusVelocity(int bgVelocity);
-	void setRightLimit(int bgLeftMostPos);
 	int getGuardVelX();
 	int getGuardVelY();
-	void setVelocity(int bgVelocity);
 
 private:
-	//Maximum axis velocity
+	std::string guardName;
+
 	int guardWalkVelocity;
-	int guardJumpVelocity;
 
 	//Guard and speech render spaces
+	SDL_Rect guardNameRect;
 	SDL_Rect guardSpriteClips[totalGuardPoses];
-	SDL_Rect renderSpeech;
+	SDL_Rect speechBubbleRect;
+	SDL_Rect healthBarRect;
+	SDL_Rect healthRect;
 
 	//The actual hardware texture
+	SDL_Texture* guardNameTexture;
 	SDL_Texture* guardTexture;
 	SDL_Texture* speechTexture;
 	SDL_Texture* bubbleSpeechTexture;
+	SDL_Texture* healthBarTexture;
+	SDL_Texture* healthTexture;
 
 	//The X and Y offsets
 	int guardPosX, guardPosY;
-	int ground;
 	int rightmostGuardPos, leftmostGuardPos;
 
 	//Velocity
@@ -98,21 +105,29 @@ private:
 	int nextOrBackFrame;
 
 	Uint32 frameTime;
+
 	Uint32 moveTime;
 	Uint32 nextMoveTime;
+
 	Uint32 speakTime;
+	Uint32 nextSpeakTime;
+	Uint32 speechLeftToSay;
 
 	//Moving status
 	bool toLeft;
 	bool toRight;
 	bool walking;
-	bool jumped;
 
 	//Act as good or bad
 	bool righteous;
 
-	//Initial health
+	//Health control
 	int health;
+	int damageReceived;
+	bool die;
 
+	//Attack control
+	int attackStrength;
+	Uint32 attackTime;
+	bool attacking;
 };
-

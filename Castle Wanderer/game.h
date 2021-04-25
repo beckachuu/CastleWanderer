@@ -7,14 +7,14 @@
 #include "character.h"
 #include "spell_fire.h"
 
+const int fireSpellNum = 4;
 const int guardNum = 7;
-const int goblinNum = 9;
+const int goblinNum = 5;
 
 class Game
 {
 public:
-	const int minDistantY = 15;
-	const uint32_t nextFrameTime = 20;
+	const unsigned int nextFrameTime = 20;
 
 	const int characterFurthestLeft = 300;
 	const int characterFurthestRight = 900;
@@ -31,7 +31,7 @@ public:
 private:
 
 	SDL_Event e = { NULL };
-	uint32_t gameTime;
+	unsigned int gameTime;
 
 	SDL_Renderer* render = nullptr;
 	TTF_Font* font = nullptr;
@@ -40,13 +40,16 @@ private:
 	Background* background;
 
 	Guard* guard[guardNum];
+	int tempGuardPosX[guardNum], tempGuardPosY[guardNum], tempGuardWidth[guardNum], tempGuardHeight[guardNum];
+	int guardNameCount;
+
 	Goblin* goblin[goblinNum];
+	int tempGoblinPosX[goblinNum], tempGoblinPosY[goblinNum], tempGoblinWidth[goblinNum], tempGoblinHeight[goblinNum];
 
 	MyCharacter* wizard;
+	int tempCharPosX, tempCharPosY, tempCharWidth, tempCharHeight;
 
-	Fire* fire[max_fire_spell] = { nullptr };
-
-	bool touchingX;
-	bool touchingY;
+	Fire* fire[fireSpellNum] = { nullptr };
+	int tempFirePosX[fireSpellNum], tempFirePosY[fireSpellNum], tempFireWidth[fireSpellNum], tempFireHeight[fireSpellNum];
 };
 

@@ -1,4 +1,5 @@
 #include "goblin.h"
+#include "goblin_speech.h"
 #include <SDL_image.h>
 
 Goblin::Goblin()
@@ -26,10 +27,11 @@ Goblin::Goblin()
 
     frameTime = 0;
     moveTime = 0;
-    nextMoveTime = rand() % maxNextMovetime + minNextMovetime;
+    nextMoveTime = 0;
 
     speakTime = 0;
-    okayToSpeak = false;
+    nextSpeakTime = rand() % maxNextSpeakTime + minNextSpeakTime;
+    eraseSpeechTime = 0;
 
     toRight = false;
     //Default attack left
@@ -176,10 +178,9 @@ void Goblin::renderCurrentAction(SDL_Renderer* renderer) {
 //////////////////////////////////////////// Auto control NPC character functions /////////////////////////////////////////////////////
 
 void Goblin::randomSpeech() {
-    std::string speech = "";
-
-    
-    speechTexture = loadFromText(speech, &renderSpeech, textWrapLength);
+    std::string speech = informSpeech[rand() % informSpeech.size()];
+    eraseSpeechTime = speech.size() * timeToReadOneCharacter;
+    speechTexture = loadFromText(speech, &renderSpeech, black, textWrapLength);
 }
 
 void Goblin::moveRandom() {
@@ -217,18 +218,23 @@ void Goblin::moveRandom() {
 
 void Goblin::move()
 {
-    if (okayToSpeak && SDL_GetTicks() > speakTime + nextSpeakTime) {
-        randomSpeech();
-        goblinVelX = 0;
-        goblinVelY = 0;
-        moveTime = SDL_GetTicks() + nextSpeakTime;
-        speakTime = SDL_GetTicks();
-    }
-
     if (SDL_GetTicks() > moveTime + nextMoveTime) {
         moveRandom();
         speechTexture = NULL;
-        nextMoveTime = rand() % maxNextMovetime + minNextMovetime;
+
+        moveTime = SDL_GetTicks();
+        nextMoveTime = rand() % maxNextMoveTime + minNextMoveTime;
+    }
+
+    if (SDL_GetTicks() > speakTime + nextSpeakTime) {
+        randomSpeech();
+        goblinVelX = 0;
+        goblinVelY = 0;
+
+        nextMoveTime += eraseSpeechTime;
+
+        speakTime = SDL_GetTicks();
+        nextSpeakTime = rand() % maxNextSpeakTime + minNextSpeakTime;
     }
 
     //If not walking anywhere
@@ -310,11 +316,6 @@ void Goblin::setPlusVelocity(int bgVelocity) {
     rightmostGoblinPos += plusVelocity;
 }
 
-void Goblin::setRightLimit(int bgLeftMostPos) {
-    rightmostGoblinPos = -bgLeftMostPos;
-    //leftmostGoblinPos=
-}
-
 int Goblin::getGoblinVelX() {
     return goblinVelX;
 }
@@ -323,9 +324,9 @@ int Goblin::getGoblinVelY() {
     return goblinVelY;
 }
 
-void Goblin::setVelocity(int BgoblinWalkVelocity) {
-    goblinWalkVelocity = BgoblinWalkVelocity + 2;
-    goblinJumpVelocity = goblinWalkVelocity * 4;
+void Goblin::setVelocity(int bgVelocity) {
+    goblinWalkVelocity = bgVelocity + 2;
+    goblinJumpVelocity = bgVelocity * 4;
 }
 
 int Goblin::getGoblinWidth() {

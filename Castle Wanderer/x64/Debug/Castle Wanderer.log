@@ -1,7 +1,10 @@
-﻿  game.cpp
-C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\game.cpp(6,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+﻿  basic_init.cpp
+  character.cpp
+  game.cpp
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\game.cpp(7,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   guard.cpp
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\guard.cpp(247,59): warning C4267: '=': conversion from 'size_t' to 'Uint32', possible loss of data
+C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\guard.cpp(351,59): warning C4267: '=': conversion from 'size_t' to 'Uint32', possible loss of data
   main.cpp
-  basic_init.cpp
   Generating Code...
   Castle Wanderer.vcxproj -> C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\x64\Debug\Castle Wanderer.exe

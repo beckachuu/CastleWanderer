@@ -160,9 +160,11 @@
     <ClInclude Include="character.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="goblin.h" />
+    <ClInclude Include="goblin_speech.h" />
     <ClInclude Include="guard.h" />
     <ClInclude Include="guard_speech.h" />
     <ClInclude Include="spell_fire.h" />
+    <ClInclude Include="start_screen.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

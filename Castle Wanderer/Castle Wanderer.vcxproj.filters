@@ -65,5 +65,11 @@
     <ClInclude Include="guard_speech.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="goblin_speech.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="start_screen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -10,6 +10,9 @@ class Fire
 {
 public:
 
+	const int maxFireDamage = 17;
+	const int minFireDamage = 4;
+
 	//Initializes variables
 	Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity);
 
