@@ -4,28 +4,8 @@
 
 Goblin::Goblin()
 {
-    //Initialize
-    goblinTexture = NULL;
-    goblinWidth = 0;
-    goblinHeight = 0;
-
-    //Initialize the offsets
-    ground = baseGround;
-    rightmostGoblinPos = SCREEN_WIDTH * 4;
-    leftmostGoblinPos = 0;
-    goblinPosX = rand() % (rightmostGoblinPos - leftmostGoblinPos) + leftmostGoblinPos;
-    goblinPosY = rand() % (baseGround - walkLimit) + walkLimit;
-
-    //Initialize the velocity
-    goblinWalkVelocity = 8;
-    goblinJumpVelocity = 32;
-    goblinVelX = 0;
-    goblinVelY = 0;
-
-    frame = walk0;
-    nextOrBackFrame = -1;
-
     frameTime = 0;
+
     moveTime = 0;
     nextMoveTime = 0;
 
@@ -33,31 +13,58 @@ Goblin::Goblin()
     nextSpeakTime = rand() % maxNextSpeakTime + minNextSpeakTime;
     eraseSpeechTime = 0;
 
-    toRight = false;
-    //Default attack left
-    toLeft = true;
-    walking = false;
-    jumped = false;
 
-    renderSpeech = { NULL };
-    speechTexture = NULL;
-
-    health = rand() % 20 + 50;
-
-    //Load textures
-    goblinTexture = loadFromFile("image/goblinSheet.png");
+    goblinTexture = loadFromImage("image/goblinSheet.png");
     setSpriteClips();
 
-    bubbleSpeechTexture = loadFromFile("image/speechBubble.png");
+    bubbleSpeechTexture = loadFromImage("image/speechBubble.png");
+    bubbleSpeechRect = { NULL };
+
+    speechTexture = NULL;
+    speechRect = { NULL };
+
+
+    rightmostGoblinPos = SCREEN_WIDTH * 4;
+    leftmostGoblinPos = 0;
+
+    reviveGoblin();
+
+    goblinWalkVelocity = 8;
+    plusVelocity = 0;
+
+    goblinWidth = 0;
+    goblinHeight = 0;
+
+    toRight = false;
+    toLeft = true;
+    walking = false;
+
+}
+
+void Goblin::reviveGoblin() {
+    frame = walk0;
+    nextOrBackFrame = 1;
+
+    do {
+        goblinPosX = rand() % (rightmostGoblinPos - leftmostGoblinPos) + leftmostGoblinPos;
+    } while (goblinPosX > -150 && goblinPosX < SCREEN_WIDTH);
+
+    goblinPosY = rand() % (baseGround - walkLimit) + walkLimit;
+
+    goblinVelX = 0;
+    goblinVelY = 0;
+
+    angry = false;
+    explodeDamage = 0;
+    exploded = false;
 }
 
 Goblin::~Goblin()
 {
-    //Deallocate
     free();
 }
 
-//////////////////////////////////// Character rendering functions /////////////////////////////////////////////
+
 
 void Goblin::setSpriteClips() {
     //Set sprite clips
@@ -86,75 +93,74 @@ void Goblin::setSpriteClips() {
     goblinSpriteClips[walk4].w = 78;
     goblinSpriteClips[walk4].h = 125;
 
-    goblinSpriteClips[angry1].x = 331;
-    goblinSpriteClips[angry1].y = 263;
-    goblinSpriteClips[angry1].w = 119;
-    goblinSpriteClips[angry1].h = 195;
+    goblinSpriteClips[angry1].x = 133;
+    goblinSpriteClips[angry1].y = 306;
+    goblinSpriteClips[angry1].w = 67;
+    goblinSpriteClips[angry1].h = 127;
 
-    goblinSpriteClips[angry2].x = 462;
-    goblinSpriteClips[angry2].y = 263;
-    goblinSpriteClips[angry2].w = 119;
-    goblinSpriteClips[angry2].h = 195;
+    goblinSpriteClips[angry2].x = 250;
+    goblinSpriteClips[angry2].y = 306;
+    goblinSpriteClips[angry2].w = 67;
+    goblinSpriteClips[angry2].h = 127;
 
-    goblinSpriteClips[angry3].x = 462;
-    goblinSpriteClips[angry3].y = 263;
-    goblinSpriteClips[angry3].w = 119;
-    goblinSpriteClips[angry3].h = 195;
+    goblinSpriteClips[angry3].x = 361;
+    goblinSpriteClips[angry3].y = 306;
+    goblinSpriteClips[angry3].w = 67;
+    goblinSpriteClips[angry3].h = 127;
 
-    goblinSpriteClips[angry4].x = 462;
-    goblinSpriteClips[angry4].y = 263;
-    goblinSpriteClips[angry4].w = 119;
-    goblinSpriteClips[angry4].h = 195;
+    goblinSpriteClips[angry4].x = 35;
+    goblinSpriteClips[angry4].y = 476;
+    goblinSpriteClips[angry4].w = 65;
+    goblinSpriteClips[angry4].h = 116;
 
-    goblinSpriteClips[angry5].x = 462;
-    goblinSpriteClips[angry5].y = 263;
-    goblinSpriteClips[angry5].w = 119;
-    goblinSpriteClips[angry5].h = 195;
+    goblinSpriteClips[angry5].x = 141;
+    goblinSpriteClips[angry5].y = 476;
+    goblinSpriteClips[angry5].w = 65;
+    goblinSpriteClips[angry5].h = 116;
 
-    goblinSpriteClips[explode].x = 462;
-    goblinSpriteClips[explode].y = 263;
-    goblinSpriteClips[explode].w = 119;
-    goblinSpriteClips[explode].h = 195;
+    goblinSpriteClips[explode].x = 241;
+    goblinSpriteClips[explode].y = 472;
+    goblinSpriteClips[explode].w = 112;
+    goblinSpriteClips[explode].h = 124;
 
 }
 
-void Goblin::render(SDL_Renderer* renderer, SDL_Rect* clip)
+void Goblin::renderGoblin(SDL_Renderer* renderer, SDL_Rect* clip)
 {
-    //Set rendering space and render to screen
-    SDL_Rect renderGoblin = { goblinPosX, goblinPosY, goblinWidth, goblinHeight };
-
-    //Set clip rendering dimensions
     if (clip != NULL)
     {
-        renderGoblin.w = clip->w;
-        renderGoblin.h = clip->h;
+        goblinWidth = clip->w;
+        goblinHeight = clip->h;
     }
+    SDL_Rect renderGoblin = { goblinPosX, goblinPosY, goblinWidth, goblinHeight };
 
-    //Render character to screen
     if (toLeft == true) {
         SDL_RenderCopyEx(renderer, goblinTexture, clip, &renderGoblin, 0, NULL, SDL_FLIP_HORIZONTAL);
     }
     else {
         SDL_RenderCopy(renderer, goblinTexture, clip, &renderGoblin);
     }
+}
 
+void Goblin::renderGoblinSpeech(SDL_Renderer* renderer) {
     if (speechTexture != NULL) {
-        //Render speech and bubble speech
-        renderSpeech.x = goblinPosX - renderSpeech.w / 7;
-        renderSpeech.y = goblinPosY - renderSpeech.h - 45;
-        SDL_Rect bubbleSpeechSpace = { NULL };
-        bubbleSpeechSpace.x = renderSpeech.x - 15;
-        bubbleSpeechSpace.y = renderSpeech.y - 20;
-        bubbleSpeechSpace.w = renderSpeech.w + 35;
-        bubbleSpeechSpace.h = renderSpeech.h + 70;
-        SDL_RenderCopy(renderer, bubbleSpeechTexture, NULL, &bubbleSpeechSpace);
-        SDL_RenderCopy(renderer, speechTexture, NULL, &renderSpeech);
+
+        speechRect.x = goblinPosX - 20;
+        speechRect.y = goblinPosY - speechRect.h - 50;
+
+        bubbleSpeechRect.x = speechRect.x - 17;
+        bubbleSpeechRect.y = speechRect.y - 20;
+        bubbleSpeechRect.w = speechRect.w + 50;
+        bubbleSpeechRect.h = (speechRect.h + 40) * 6 / 5;
+
+        SDL_RenderCopy(renderer, bubbleSpeechTexture, NULL, &bubbleSpeechRect);
+        SDL_RenderCopy(renderer, speechTexture, NULL, &speechRect);
     }
 }
 
-void Goblin::renderCurrentAction(SDL_Renderer* renderer) {
-    if (walking) {
-        if (SDL_GetTicks() > frameTime + nextFrameTime) {
+void Goblin::renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime) {
+    if (walking && frame < angry1) {
+        if (currentTime > frameTime + nextFrameTime) {
             if (frame >= walk4)
             {
                 nextOrBackFrame = -1;
@@ -163,27 +169,46 @@ void Goblin::renderCurrentAction(SDL_Renderer* renderer) {
                 nextOrBackFrame = 1;
             }
             frame += nextOrBackFrame;
-            frameTime = SDL_GetTicks();
+            frameTime = currentTime;
         }
     }
-    else {
+    else if (!walking && frame < angry1) {
         frame = walk0;
-        frameTime = SDL_GetTicks();
+        frameTime = currentTime;
+    }
+    else if (frame >= angry1 && frame != explode) {
+        if (currentTime > frameTime + nextFrameTime * 3) {
+            frame++;
+            frameTime = currentTime;
+
+            if (frame > angry5) {
+                angry = true;
+                frame = walk0;
+                frameTime = currentTime;
+            }
+        }
+    }
+    else if (frame == explode) {
+        if (currentTime > frameTime + nextFrameTime * 2) {
+            exploded = true;
+        }
     }
 
     SDL_Rect* currentClip = &goblinSpriteClips[frame];
-    render(renderer, currentClip);
+    renderGoblin(renderer, currentClip);
+
+    renderGoblinSpeech(renderer);
 }
 
-//////////////////////////////////////////// Auto control NPC character functions /////////////////////////////////////////////////////
+
 
 void Goblin::randomSpeech() {
     std::string speech = informSpeech[rand() % informSpeech.size()];
     eraseSpeechTime = speech.size() * timeToReadOneCharacter;
-    speechTexture = loadFromText(speech, &renderSpeech, black, textWrapLength);
+    speechTexture = loadFromText(speech, &speechRect, black, textWrapLength);
 }
 
-void Goblin::moveRandom() {
+void Goblin::moveRandom(unsigned int currentTime) {
 
     //Random right or left or neither (stand still)
     int moveX = rand() % 3;
@@ -213,99 +238,137 @@ void Goblin::moveRandom() {
         goblinVelY = 0;
     }
 
-    moveTime = SDL_GetTicks();
+    moveTime = currentTime;
 }
 
-void Goblin::move()
+void Goblin::move(int targetPosX, int targetPosY, int targetWidth, int targetHeight, unsigned int currentTime)
 {
-    if (SDL_GetTicks() > moveTime + nextMoveTime) {
-        moveRandom();
+    if (!angry && frame < angry1) {
+        if (currentTime > moveTime + nextMoveTime) {
+            moveRandom(currentTime);
+            moveTime = currentTime;
+            nextMoveTime = rand() % maxNextMoveTime + minNextMoveTime;
+        }
+
+        if (currentTime > speakTime + nextSpeakTime) {
+            randomSpeech();
+            goblinVelX = 0;
+            goblinVelY = 0;
+
+            nextMoveTime += eraseSpeechTime;
+
+            speakTime = currentTime;
+            nextSpeakTime = rand() % maxNextSpeakTime + minNextSpeakTime;
+        }
+    }
+    else if (angry) {
+        chaseTarget(targetPosX, targetPosY, targetWidth, targetHeight);
+    }
+
+    if (currentTime > speakTime + eraseSpeechTime) {
         speechTexture = NULL;
-
-        moveTime = SDL_GetTicks();
-        nextMoveTime = rand() % maxNextMoveTime + minNextMoveTime;
     }
 
-    if (SDL_GetTicks() > speakTime + nextSpeakTime) {
-        randomSpeech();
-        goblinVelX = 0;
-        goblinVelY = 0;
-
-        nextMoveTime += eraseSpeechTime;
-
-        speakTime = SDL_GetTicks();
-        nextSpeakTime = rand() % maxNextSpeakTime + minNextSpeakTime;
-    }
-
-    //If not walking anywhere
-    if (goblinVelX == 0 && goblinVelY == 0) {
+    if (goblinVelX == 0 && goblinVelY == 0 && frame < angry1) {
         walking = false;
         frame = walk0;
     }
     else walking = true;
 
-    //Move right or left
     goblinPosX += (goblinVelX + plusVelocity);
 
+    if (goblinVelY != 0) {
+        goblinPosY += goblinVelY;
+    }
+
+    checkGoblinLimits();
+}
+
+void Goblin::checkGoblinLimits() {
     //If went too far to the right or left
     if ((goblinPosX < leftmostGoblinPos) || (goblinPosX > rightmostGoblinPos))
     {
         goblinPosX -= goblinVelX;
     }
 
-    //Move up or down
-    if (goblinVelY != 0) {
-        goblinPosY += goblinVelY;
-    }
-
-    //If jumped too far up
-    if (jumped && goblinPosY < ground - jumpHeight) {
-        goblinVelY += goblinJumpVelocity;
-    }
-    //If jumped and fell back to where standing
-    if (jumped && goblinPosY > ground) {
-        goblinVelY = 0;
-        jumped = false;
-    }
-
     //If walked too far up
-    if (walking && !jumped && goblinPosY < walkLimit) {
+    if (walking && goblinPosY < walkLimit) {
         goblinPosY = walkLimit;
     }
     //If got too far down
     if (goblinPosY > baseGround) {
         goblinPosY = baseGround - 1;
     }
-
 }
 
-void Goblin::moveBackX(int vel) {
-    if (goblinVelX > 0) {
-        goblinPosX -= vel;
+void Goblin::getAngry(unsigned int currentTime) {
+    if (frame < angry1) {
+        frame = angry1;
+        frameTime = currentTime;
+
+        goblinVelX = 0;
+        goblinVelY = 0;
     }
-    else if (goblinVelX < 0) {
-        goblinPosX += vel;
+
+    std::string speech = angrySpeech[rand() % angrySpeech.size()];
+    speechTexture = loadFromText(speech, &speechRect, black, textWrapLength);
+
+    speakTime = currentTime;
+    eraseSpeechTime = speech.size() * timeToReadOneCharacter;
+}
+
+bool Goblin::isAngry() {
+    return angry;
+}
+
+void Goblin::chaseTarget(int targetPosX, int targetPosY, int targetWidth, int targetHeight) {
+    if (goblinPosX + goblinWidth < targetPosX + approxDistant) {
+        goblinVelX = goblinWalkVelocity;
+        toLeft = false;
+        toRight = true;
+    }
+    else if (goblinPosX > targetPosX + targetWidth - approxDistant) {
+        goblinVelX = -goblinWalkVelocity;
+        toLeft = true;
+        toRight = false;
+    }
+    else {
+        goblinVelX = 0;
+    }
+
+    if (goblinPosY + goblinHeight < targetPosY + targetHeight - approxDistant) {
+        goblinVelY = goblinWalkVelocity;
+    }
+    else if (goblinPosY + goblinHeight > targetPosY + targetHeight + approxDistant) {
+        goblinVelY = -goblinWalkVelocity;
+    }
+    else {
+        goblinVelY = 0;
+    }
+
+    if (goblinVelX == 0 && goblinVelY == 0 && frame != explode) {
+        frame = explode;
+        explodeDamage = rand() % (maxExplodeDamage - minExplodeDamage) + minExplodeDamage;
     }
 }
 
-void Goblin::moveBackY(int vel) {
-    if (goblinVelY > 0) {
-        goblinPosY -= vel;
-    }
-    else if (goblinVelY < 0) {
-        goblinPosY += vel;
-    }
+int Goblin::getExplodeDamage() {
+    int tempExpDamage = explodeDamage;
+    explodeDamage = 0;
+    return tempExpDamage;
 }
 
-void Goblin::free()
-{
-    freeTexture(goblinTexture);
+
+
+bool Goblin::isDead() {
+    return exploded;
 }
+
+
 
 int Goblin::getGoblinPosX() {
     return goblinPosX;
 }
-
 int Goblin::getGoblinPosY() {
     return goblinPosY;
 }
@@ -319,20 +382,20 @@ void Goblin::setPlusVelocity(int bgVelocity) {
 int Goblin::getGoblinVelX() {
     return goblinVelX;
 }
-
 int Goblin::getGoblinVelY() {
     return goblinVelY;
 }
 
-void Goblin::setVelocity(int bgVelocity) {
-    goblinWalkVelocity = bgVelocity + 2;
-    goblinJumpVelocity = bgVelocity * 4;
-}
-
 int Goblin::getGoblinWidth() {
-    return goblinSpriteClips[frame].w;
+    return goblinWidth;
+}
+int Goblin::getGoblinHeight() {
+    return goblinHeight;
 }
 
-int Goblin::getGoblinHeight() {
-    return goblinSpriteClips[frame].h;
+void Goblin::free()
+{
+    freeTexture(goblinTexture);
+    freeTexture(speechTexture);
+    freeTexture(bubbleSpeechTexture);
 }

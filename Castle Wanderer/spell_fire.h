@@ -3,69 +3,57 @@
 #include <iostream>
 #include <string>
 
-const int leftMostFirePos = -100;
-const int rightMostFirePos = 1400;
+const int leftMostFirePos = 10;
+const int rightMostFirePos = 1150;
 
 class Fire
 {
 public:
 
-	const int maxFireDamage = 17;
-	const int minFireDamage = 4;
+	const int maxFireDamage = 21;
+	const int minFireDamage = 7;
 
-	//Initializes variables
 	Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity);
+	void shoot(bool toRight, int wizPosX, int wizPosY, int characterVelocity);
+	void reload();
+	~Fire();
 
-	//Set color modulation
 	void setColor(Uint8 red, Uint8 green, Uint8 blue);
-	//Set blending
 	void setBlendMode(SDL_BlendMode blending);
-	//Set alpha modulation
 	void setAlpha(Uint8 alpha);
 
-	//Renders texture at given point
 	void setSpriteClips();
 	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void renderSpellPosition(SDL_Renderer* renderer);
 
+	bool isAvailable();
+	int getFireDamage();
 	void move();
-	//Check if out of screen
 	bool outOfRange();
 
-	void setVelocity(int characterVelocity);
-
-	//Gets image dimensions
-	int getWidth();
-	int getHeight();
-
-	//Gets image offsets
 	int getPosX();
 	int getPosY();
 
-	int getFireDamage();
+	void setVelocity(int characterVelocity);
+
+	int getWidth();
+	int getHeight();
 
 	void free();
 
 private:
-	//Axis velocity
-	int fVelocity;
+	int frame;
 
-	//Scene textures
+	SDL_Texture* fTexture;
 	SDL_Rect fireSpriteClips[3] = { NULL };
 
-	//The actual hardware texture
-	SDL_Texture* fTexture;
-
-	//The X and Y offsets
 	int fPosX, fPosY;
-	//Velocity
+
+	int fVelocity;
 	int fVelX;
 
-	//Image dimensions
 	int fWidth;
 	int fHeight;
 
-	int frame;
-
-	int fireDamage;
+	bool available;
 };

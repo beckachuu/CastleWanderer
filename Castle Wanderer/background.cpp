@@ -4,12 +4,12 @@
 
 Background::Background()
 {
-	cloudsTexture = loadFromFile("image/clouds.png");
-    castleTexture = loadFromFile("image/castle.png");
-	backgroundForestTexture = loadFromFile("image/background forest.png");
-	treeAndBushesTexture = loadFromFile("image/tree and bushes.png");
-	tavernTexture = loadFromFile("image/tavern.png");
-	roadTexture = loadFromFile("image/road.png");
+	cloudsTexture = loadFromImage("image/clouds.png");
+    castleTexture = loadFromImage("image/castle.png");
+	backgroundForestTexture = loadFromImage("image/background forest.png");
+	treeAndBushesTexture = loadFromImage("image/tree and bushes.png");
+	tavernTexture = loadFromImage("image/tavern.png");
+	roadTexture = loadFromImage("image/road.png");
 
     clouds_X = 0;
     castle_X = 0;

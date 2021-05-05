@@ -4,16 +4,21 @@
 
 Fire::Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity)
 {
-    //Initialize
-    fTexture = NULL;
+    frame = 0;
+
+    fTexture = loadFromImage("image/wizardSheet.png");
+    setSpriteClips();
+
     fWidth = 0;
     fHeight = 0;
 
-    fVelocity = 0;
+    shoot(toRight, wizPosX, wizPosY, characterVelocity);
+    available = true;
+}
 
+void Fire::shoot(bool toRight, int wizPosX, int wizPosY, int characterVelocity) {
     setVelocity(characterVelocity);
 
-    //Set fire flying direction and initial position at the end of wizard's staff
     if (toRight) {
         fPosX = wizPosX + 150;
         fVelX = fVelocity;
@@ -24,35 +29,32 @@ Fire::Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity)
     }
     fPosY = wizPosY + 100;
 
-    frame = 0;
+    available = false;
+}
+void Fire::reload() {
+    available = true;
+}
 
-    fTexture = loadFromFile("image/wizardSheet.png");
-    setSpriteClips();
-
-    fireDamage = rand() % (maxFireDamage - minFireDamage) + minFireDamage;
+Fire::~Fire() {
+    free();
 }
 
 
 void Fire::setColor(Uint8 red, Uint8 green, Uint8 blue)
 {
-    //Modulate texture rgb
     SDL_SetTextureColorMod(fTexture, red, green, blue);
 }
 void Fire::setBlendMode(SDL_BlendMode blending)
 {
-    //Set blending function
     SDL_SetTextureBlendMode(fTexture, blending);
 }
 void Fire::setAlpha(Uint8 alpha)
 {
-    //Modulate texture alpha
     SDL_SetTextureAlphaMod(fTexture, alpha);
 }
 
-//////////////////////////////////// Spell rendering functions /////////////////////////////////////////////
 
 void Fire::setSpriteClips() {
-    //Set sprite clips
 
     fireSpriteClips[0].x = 643;
     fireSpriteClips[0].y = 12;
@@ -68,22 +70,17 @@ void Fire::setSpriteClips() {
     fireSpriteClips[2].y = 76;
     fireSpriteClips[2].w = 111;
     fireSpriteClips[2].h = 24;
-
 }
 
 void Fire::render(SDL_Renderer* renderer, SDL_Rect* clip)
 {
-    //Set rendering space and render to screen
-    SDL_Rect renderQuad = { fPosX, fPosY, fWidth, fHeight };
-
-    //Set clip rendering dimensions
     if (clip != NULL)
     {
-        renderQuad.w = clip->w;
-        renderQuad.h = clip->h;
+        fWidth = clip->w;
+        fHeight = clip->h;
     }
+    SDL_Rect renderQuad = { fPosX, fPosY, fWidth, fHeight };
 
-    //Render to screen
     if (fVelX < 0) {
         SDL_RenderCopyEx(renderer, fTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
     }
@@ -106,13 +103,22 @@ void Fire::renderSpellPosition(SDL_Renderer* renderer) {
 }
 
 
+bool Fire::isAvailable() {
+    return available;
+}
+
+int Fire::getFireDamage() {
+    return rand() % (maxFireDamage - minFireDamage) + minFireDamage;
+}
+
 void Fire::move()
 {
     fPosX += fVelX;
 }
 
 bool Fire::outOfRange() {
-    if (this != nullptr && (fPosX<leftMostFirePos || fPosX>rightMostFirePos)) {
+    if (fPosX < leftMostFirePos || fPosX > rightMostFirePos) {
+        available = true;
         return true;
     }
     else return false;
@@ -122,13 +128,6 @@ void Fire::setVelocity(int charactervelocity) {
     fVelocity = charactervelocity * 6;
 }
 
-int Fire::getWidth() {
-    return fireSpriteClips[frame].w;
-}
-int Fire::getHeight() {
-    return fireSpriteClips[frame].h;
-}
-
 int Fire::getPosX() {
     return fPosX;
 }
@@ -136,8 +135,11 @@ int Fire::getPosY() {
     return fPosY;
 }
 
-int Fire::getFireDamage() {
-    return fireDamage;
+int Fire::getWidth() {
+    return fWidth;
+}
+int Fire::getHeight() {
+    return fHeight;
 }
 
 void Fire::free()

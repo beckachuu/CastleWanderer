@@ -3,53 +3,46 @@
 
 MyCharacter::MyCharacter()
 {
-    //Initialize
-    charTexture = NULL;
-    charWidth = 0;
-    charHeight = 0;
+    frame = stand;
+    frameTime = 0;
 
-    //Initialize the offsets
+    charTexture = loadFromImage("image/wizardSheet.png");
+    setSpriteClips();
+
+    charNameTexture = loadFromText("Weedsycorn", &charNameRect, white);
+    charNameRect.x = 82;
+    charNameRect.y = 17;
+
+    healthTexture = loadFromImage("image/health.png");
+    healthRect.x = 40;
+    healthRect.y = 48;
+    healthRect.h = 15;
+
+    healthBarTexture = loadFromImage("image/wizard health bar.png");
+    healthBarRect.x = 10;
+    healthBarRect.y = 10;
+    healthBarRect.w = 420;
+    healthBarRect.h = 70;
+
     leftmostCharacterPos = 0;
     rightmostCharacterPos = 0;
     charPosX = rand() % SCREEN_WIDTH;
     charPosY = baseGround-1;
     ground = baseGround;
 
-    //Initialize the velocity
     charVelocity = 0;
     charVelocityJump = 0;
     charVelX = 0;
     charVelY = 0;
 
-    frame = stand;
-
-    frameTime = 0;
+    charWidth = 0;
+    charHeight = 0;
 
     toRight = false;
-    //Default attack left
     toLeft = true;
     walking = false;
     jumped = false;
-
     atEdgeOfScreen = false;
-
-    charNameTexture = loadFromText("Weedsycorn", &charNameRect, white);
-    charNameRect.x = 82;
-    charNameRect.y = 17;
-
-    charTexture = loadFromFile("image/wizardSheet.png");
-    setSpriteClips();
-
-    healthTexture = loadFromFile("image/health.png");
-    healthRect.x = 10;
-    healthRect.y = 10;
-    healthRect.h = 70;
-
-    healthBarTexture = loadFromFile("image/wizard health bar.png");
-    healthBarRect.x = healthRect.x;
-    healthBarRect.y = healthRect.y;
-    healthBarRect.w = 420;
-    healthBarRect.h = 70;
 
     damageReceived = 0;
     die = false;
@@ -61,7 +54,7 @@ MyCharacter::~MyCharacter()
     free();
 }
 
-//////////////////////////////////// Character rendering functions /////////////////////////////////////////////
+
 
 void MyCharacter::setSpriteClips() {
     //Set sprite clips
@@ -161,17 +154,17 @@ void MyCharacter::renderHealthBar(SDL_Renderer* renderer)
 {
     SDL_RenderCopy(renderer, charNameTexture, NULL, &charNameRect);
 
-    healthRect.w = healthBarRect.w - damageReceived * healthBarRect.w / health;
+    healthRect.w = 380 - damageReceived * 380 / health;
     SDL_RenderCopy(renderer, healthTexture, NULL, &healthRect);
 
     SDL_RenderCopy(renderer, healthBarTexture, NULL, &healthBarRect);
 }
 
-void MyCharacter::renderCurrentAction(SDL_Renderer* renderer) {
+void MyCharacter::renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime) {
     if (walking && toRight) {
-        if (SDL_GetTicks() > frameTime + nextFrame) {
+        if (currentTime > frameTime + nextFrameTime) {
             frame++;
-            frameTime = SDL_GetTicks();
+            frameTime = currentTime;
             if (frame > walkR6)
             {
                 frame = walkR1;
@@ -179,9 +172,9 @@ void MyCharacter::renderCurrentAction(SDL_Renderer* renderer) {
         }
     }
     else if (walking && toLeft) {
-        if (SDL_GetTicks() > frameTime + nextFrame) {
+        if (currentTime > frameTime + nextFrameTime) {
             frame++;
-            frameTime = SDL_GetTicks();
+            frameTime = currentTime;
             if (frame<walkL1 || frame>walkL6)
             {
                 frame = walkL1;
@@ -189,15 +182,15 @@ void MyCharacter::renderCurrentAction(SDL_Renderer* renderer) {
         }
     }
     else if (!walking && toLeft) {
-        if (SDL_GetTicks() > frameTime + nextFrame) {
+        if (currentTime > frameTime + nextFrameTime) {
             frame = walkL6;
-            frameTime = SDL_GetTicks();
+            frameTime = currentTime;
         }
     }
     else if (!walking && toRight) {
-        if (SDL_GetTicks() > frameTime + nextFrame) {
+        if (currentTime > frameTime + nextFrameTime) {
             frame = walkR6;
-            frameTime = SDL_GetTicks();
+            frameTime = currentTime;
         }
     }
 
@@ -208,9 +201,8 @@ void MyCharacter::renderCurrentAction(SDL_Renderer* renderer) {
 }
 
 
-//////////////////////////////////// Press and move functions /////////////////////////////////////////////////////
 
-void MyCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
+void MyCharacter::handleEvent(SDL_Event& e, unsigned int currentTime)
 {
     //If a key was pressed
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
@@ -231,17 +223,25 @@ void MyCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
             break;
 
         case SDLK_w:
-            charVelY -= charVelocity;
+            if (charVelY == 0) {
+                charVelY = -charVelocity;
+            }
             break;
         case SDLK_s:
-            charVelY += charVelocity;
+            if (charVelY == 0) {
+                charVelY = charVelocity;
+            }
             break;
 
         case SDLK_SPACE:
             if (!jumped) {
-                charVelY -= charVelocityJump;
+                charVelY =- charVelocityJump;
                 ground = charPosY;
                 jumped = true;
+            }
+            damageReceived -= 21;
+            if (damageReceived < 0) {
+                damageReceived = 0;
             }
             break;
 
@@ -249,7 +249,7 @@ void MyCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
 
             //Change to attack frame
             frame = attack;
-            frameTime = SDL_GetTicks() + nextFrame;
+            frameTime = currentTime + nextFrameTime;
 
             //Move back a bit because of the spell's rebound
             if (toRight) {
@@ -277,11 +277,15 @@ void MyCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
             break;
 
         case SDLK_w:
-            charVelY += charVelocity;
+            if (charVelY == -charVelocity) {
+                charVelY = 0;
+            }
             break;
 
         case SDLK_s:
-            charVelY -= charVelocity;
+            if (charVelY == charVelocity) {
+                charVelY = 0;
+            }
             break;
 
         case SDLK_f:
@@ -299,13 +303,20 @@ void MyCharacter::handleEvent(SDL_Event& e, SDL_Renderer* render)
 
 void MyCharacter::move()
 {
-    //"Jump" to posY > walk limit and "walk" up => result to character keep "walking" down unless "jump" again
-
-    //Move right or left
     if (charVelX != 0) {
         charPosX += charVelX;
         walking = true;
     }
+
+    if (charVelY != 0) {
+        charPosY += charVelY;
+        walking = true;
+    }
+
+    checkCharLimits();
+}
+
+void MyCharacter::checkCharLimits() {
     //If went too far to the right or left
     if (charPosX < leftmostCharacterPos)
     {
@@ -318,19 +329,14 @@ void MyCharacter::move()
     }
     else atEdgeOfScreen = false;
 
-    //Move up or down
-    if (charVelY != 0) {
-        charPosY += charVelY;
-        walking = true;
-    }
-
     //If jumped too far up
     if (jumped && charPosY < ground - jumpHeight) {
-        charVelY += charVelocityJump;
+        charVelY = charVelocityJump;
     }
     //If jumped and fell back to where standing
     if (jumped && charPosY > ground) {
-        charVelY -= charVelocityJump;
+        charVelY = 0;
+        charPosY = ground;
         jumped = false;
     }
 
@@ -338,9 +344,9 @@ void MyCharacter::move()
     if (walking && !jumped && charPosY < walkLimit) {
         charPosY = walkLimit;
     }
-    //If got too far down
+    //If walked too far down
     if (charPosY > baseGround) {
-        charPosY = baseGround-1;
+        charPosY = baseGround - 1;
     }
 
     //If not walking anywhere
@@ -349,28 +355,12 @@ void MyCharacter::move()
     }
 }
 
-void MyCharacter::moveBackX(int vel) {
-    if (charVelX > 0) {
-        charPosX -= vel;
-    }
-    else if (charVelX < 0) {
-        charPosX += vel;
-    }
-}
-
-void MyCharacter::moveBackY(int vel) {
-    if (charVelX > 0) {
-        charPosY -= vel;
-    }
-    else if (charVelY < 0) {
-        charPosY += vel;
-    }
-}
-
 void MyCharacter::setFurthestPoints(int furthestLeftPoint, int furthestRightPoint) {
     leftmostCharacterPos = furthestLeftPoint;
     rightmostCharacterPos = furthestRightPoint;
 }
+
+
 
 bool MyCharacter::isAtEdgeOfScreen() {
     return atEdgeOfScreen;
@@ -380,29 +370,29 @@ bool MyCharacter::isToRight() {
     return toRight;
 }
 
+
+
 void MyCharacter::receiveDamage(int damage) {
     damageReceived += damage;
 }
 
 
+
 int MyCharacter::getCharPosX() {
     return charPosX;
 }
-
 int MyCharacter::getCharPosY() {
     return charPosY;
 }
 
-
-void MyCharacter::setVelocity(int BguardWalkVelocity) {
-    charVelocity = BguardWalkVelocity;
+void MyCharacter::setVelocity(int BGVelocity) {
+    charVelocity = BGVelocity;
     charVelocityJump = charVelocity * 4;
 }
 
 int MyCharacter::getCharVelX() {
     return charVelX;
 }
-
 int MyCharacter::getCharVelY() {
     return charVelY;
 }
@@ -410,12 +400,15 @@ int MyCharacter::getCharVelY() {
 int MyCharacter::getWidth() {
     return charWidth;
 }
-
 int MyCharacter::getHeight() {
     return charHeight;
 }
 
+
 void MyCharacter::free()
 {
+    freeTexture(charNameTexture);
+    freeTexture(healthBarTexture);
+    freeTexture(healthTexture);
     freeTexture(charTexture);
 }

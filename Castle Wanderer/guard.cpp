@@ -4,6 +4,47 @@
 
 Guard::Guard(int* guardNameCount)
 {
+    rightmostGuardPos = SCREEN_WIDTH * 4 - 190; //Leave enough space to render whole bubble speech
+    leftmostGuardPos = 0;
+
+    reviveGuard(guardNameCount);
+
+    frameTime = 0;
+
+    moveTime = 0;
+    nextMoveTime = 0;
+
+    speakTime = 0;
+    nextSpeakTime = 0;
+
+    guardTexture = loadFromImage("image/guardSheet.png");
+    setSpriteClips();
+
+    bubbleSpeechTexture = loadFromImage("image/speechBubble.png");
+    bubbleSpeechRect = { NULL };
+
+    healthTexture = loadFromImage("image/health.png");
+    healthRect.h = 10;
+
+    healthBarTexture = loadFromImage("image/guard health bar.png");
+    healthBarRect.w = 210;
+    healthBarRect.h = 40;
+
+    guardWalkVelocity = 0;
+
+    guardWidth = 0;
+    guardHeight = 0;
+
+    toRight = false;
+    toLeft = true;
+    walking = false;
+
+    attackStrength = 0;
+    attackTime = 0;
+}
+
+void Guard::reviveGuard(int* guardNameCount) {
+
     while (guardName == "") {
         if (*guardNameCount >= guardNames.size()) {
             *guardNameCount = 0;
@@ -13,58 +54,25 @@ Guard::Guard(int* guardNameCount)
             *guardNameCount += 1;
         }
     }
+    guardNameTexture = loadFromText(guardName, &guardNameRect, white);
 
-    guardTexture = NULL;
-    guardWidth = 0;
-    guardHeight = 0;
-
-    //Initialize the offsets
-    rightmostGuardPos = SCREEN_WIDTH * 4;
-    leftmostGuardPos = 0;
-    guardPosX = rand() % (rightmostGuardPos - leftmostGuardPos) + leftmostGuardPos;
-    guardPosY = rand() % (baseGround - walkLimit) + walkLimit;
-
-    //Initialize the velocity
-    guardWalkVelocity = 0;
-    guardVelX = 0;
-    guardVelY = 0;
+    speechTexture = NULL;
+    speechRect = { NULL };
 
     frame = guardWalk0;
     nextOrBackFrame = -1;
 
-    frameTime = 0;
-
-    moveTime = 0;
-    nextMoveTime = 0;
-
     okayToSpeak = false;
-    speakTime = 0;
-    nextSpeakTime = 0;
-    speechLeftToSay = 3;
+    speechLeftToSay = 4;
 
-    toRight = false;
-    //Default turning left
-    toLeft = true;
-    walking = false;
+    do {
+        guardPosX = rand() % (rightmostGuardPos - leftmostGuardPos) + leftmostGuardPos;
+    } while (guardPosX > -150 && guardPosX < SCREEN_WIDTH);
 
-    guardNameRect = { NULL };
-    speechBubbleRect = { NULL };
+    guardPosY = rand() % (baseGround - walkLimit) + walkLimit;
 
-    //Load textures
-    guardNameTexture = loadFromText(guardName, &guardNameRect, white);
-
-    guardTexture = loadFromFile("image/guardSheet.png");
-    setSpriteClips();
-
-    speechTexture = NULL;
-    bubbleSpeechTexture = loadFromFile("image/speechBubble.png");
-
-    healthTexture = loadFromFile("image/health.png");
-    healthRect.h = 40;
-
-    healthBarTexture = loadFromFile("image/guard health bar.png");
-    healthBarRect.w = 210;
-    healthBarRect.h = 40;
+    guardVelX = 0;
+    guardVelY = 0;
 
     if (rand() % 2 == 0) {
         righteous = false;
@@ -75,8 +83,6 @@ Guard::Guard(int* guardNameCount)
     damageReceived = 0;
     die = false;
 
-    attackStrength = rand() % (maxAttackStrength - minAttackStrength) + minAttackStrength;
-    attackTime = 0;
     attacking = false;
 }
 
@@ -86,7 +92,6 @@ Guard::~Guard()
     free();
 }
 
-//////////////////////////////////// Character rendering functions /////////////////////////////////////////////
 
 void Guard::setSpriteClips() {
     //Set sprite clips
@@ -145,27 +150,27 @@ void Guard::renderGuard(SDL_Renderer* renderer, SDL_Rect* clip)
 }
 
 void Guard::renderSpeechBubble(SDL_Renderer* renderer) {
-    speechBubbleRect.x = guardPosX - speechBubbleRect.w / 7;
-    speechBubbleRect.y = guardPosY - speechBubbleRect.h - 70;
 
-    SDL_Rect bubbleSpeechSpace = { NULL };
-    bubbleSpeechSpace.x = speechBubbleRect.x - 15;
-    bubbleSpeechSpace.y = speechBubbleRect.y - 20;
-    bubbleSpeechSpace.w = speechBubbleRect.w + 35;
-    bubbleSpeechSpace.h = speechBubbleRect.h + 75;
+    speechRect.x = guardPosX - 20;
+    speechRect.y = guardPosY - speechRect.h - 70;
 
-    SDL_RenderCopy(renderer, bubbleSpeechTexture, NULL, &bubbleSpeechSpace);
-    SDL_RenderCopy(renderer, speechTexture, NULL, &speechBubbleRect);
+    bubbleSpeechRect.x = speechRect.x - 20;
+    bubbleSpeechRect.y = speechRect.y - 17;
+    bubbleSpeechRect.w = speechRect.w + 50;
+    bubbleSpeechRect.h = (speechRect.h + 40) * 6 / 5;
+
+    SDL_RenderCopy(renderer, bubbleSpeechTexture, NULL, &bubbleSpeechRect);
+    SDL_RenderCopy(renderer, speechTexture, NULL, &speechRect);
 }
 
 void Guard::renderHealthBar(SDL_Renderer* renderer) {
-    healthRect.x = guardPosX - 10;
-    healthRect.y = guardPosY - 32;
-    healthRect.w = healthBarRect.w - damageReceived * healthBarRect.w / health;
+    healthRect.x = guardPosX - 7;
+    healthRect.y = guardPosY - 12;
+    healthRect.w = 188 - damageReceived * 188 / health;
     SDL_RenderCopy(renderer, healthTexture, NULL, &healthRect);
 
-    healthBarRect.x = healthRect.x;
-    healthBarRect.y = healthRect.y;
+    healthBarRect.x = healthRect.x - 17;
+    healthBarRect.y = healthRect.y - 21;
     SDL_RenderCopy(renderer, healthBarTexture, NULL, &healthBarRect);
 
     guardNameRect.x = healthBarRect.x + healthBarRect.w / 2 - guardNameRect.w / 2;
@@ -173,13 +178,12 @@ void Guard::renderHealthBar(SDL_Renderer* renderer) {
     SDL_RenderCopy(renderer, guardNameTexture, NULL, &guardNameRect);
 }
 
-void Guard::renderCurrentAction(SDL_Renderer* renderer) {
-    //Set guard current frame
-    if (SDL_GetTicks() > frameTime + nextFrameTime) {
-        if (guardVelX == 0 && guardVelY == 0 && !attacking) {
+void Guard::renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime) {
+    if (currentTime > frameTime + nextFrameTime) {
+        if (!attacking && guardVelX == 0 && guardVelY == 0) {
             frame = guardWalk0;
         }
-        else if (walking && !attacking) {
+        else if (!attacking && walking) {
             if (frame >= guardWalk4)
             {
                 nextOrBackFrame = -1;
@@ -196,7 +200,7 @@ void Guard::renderCurrentAction(SDL_Renderer* renderer) {
             }
         }
 
-        frameTime = SDL_GetTicks();
+        frameTime = currentTime;
     }
     
     
@@ -211,7 +215,7 @@ void Guard::renderCurrentAction(SDL_Renderer* renderer) {
     renderHealthBar(renderer);
 }
 
-//////////////////////////////////////////// Auto control NPC character functions /////////////////////////////////////////////////////
+
 
 void Guard::randomSpeech() {
 
@@ -243,15 +247,14 @@ void Guard::randomSpeech() {
             speech += notgoodQuestion[rand() % notgoodQuestion.size()];
         }
     }
-    speechTexture = loadFromText(speech, &speechBubbleRect, black, textWrapLength);
+    speechTexture = loadFromText(speech, &speechRect, black, textWrapLength);
     nextSpeakTime = speech.size() * timeToReadOneCharacter;
 }
 
-void Guard::moveRandom() {
+void Guard::moveRandom(unsigned int currentTime) {
 
     speechTexture = NULL;
 
-    //Random right or left or neither (stand still)
     int moveX = rand() % 3;
     if (moveX == 0) {
         guardVelX = guardWalkVelocity;
@@ -269,7 +272,6 @@ void Guard::moveRandom() {
         guardVelX = 0;
     }
 
-    //Random up or down or neither
     int moveY = rand() % 3;
     if (moveY == 0) {
         guardVelY = guardWalkVelocity;
@@ -287,18 +289,18 @@ void Guard::moveRandom() {
         walking = false;
     }
 
-    moveTime = SDL_GetTicks();
+    moveTime = currentTime;
     nextMoveTime = rand() % (maxNextMovetime - minNextMovetime) + minNextMovetime;
 }
 
-void Guard::move(int targetPosX, int targetPosY, int targetWidth)
+void Guard::move(int targetPosX, int targetPosY, int targetWidth, unsigned int currentTime)
 {
-    if (okayToSpeak && speechLeftToSay > 0 && damageReceived <= 0 && SDL_GetTicks() > speakTime + nextSpeakTime) {
+    if (okayToSpeak && speechLeftToSay > 0 && damageReceived <= 0 && currentTime > speakTime + nextSpeakTime) {
         randomSpeech();
         guardVelX = 0;
         guardVelY = 0;
-        moveTime = SDL_GetTicks() + nextSpeakTime;
-        speakTime = SDL_GetTicks();
+        moveTime = currentTime + nextSpeakTime;
+        speakTime = currentTime;
         attacking = false;
     }
     else if (speechLeftToSay <= 0 || damageReceived > 0) {
@@ -306,13 +308,12 @@ void Guard::move(int targetPosX, int targetPosY, int targetWidth)
         chaseTarget(targetPosX, targetPosY, targetWidth);
         attacking = true;
     }
-    else if (SDL_GetTicks() > moveTime + nextMoveTime) {
+    else if (currentTime > moveTime + nextMoveTime) {
         guardWalkVelocity = rand() % (maxVelocity - minVelocity) + minVelocity;
-        moveRandom();
+        moveRandom(currentTime);
         attacking = false;
     }
 
-    //Move
     guardPosX += (guardVelX + plusVelocity);
 
     guardPosY += guardVelY;
@@ -339,20 +340,22 @@ void Guard::checkGuardLimits() {
     }
 }
 
-void Guard::receiveAttack(int damage) {
+
+
+void Guard::receiveAttack(int damage, int currentTime) {
     damageReceived += damage;
     if (damageReceived >= health) {
         die = true;
     }
 
-    std::string speech = angrySpeech[rand() % angrySpeech.size()];
-    speechTexture = loadFromText(speech, &speechBubbleRect, black, textWrapLength);
+    guardPosX -= guardVelX;
 
-    nextSpeakTime = speech.size() * timeToReadOneCharacter;
-}
-
-bool Guard::isDead() {
-    return die;
+    if (currentTime > speakTime + nextSpeakTime) {
+        std::string speech = angrySpeech[rand() % angrySpeech.size()];
+        speechTexture = loadFromText(speech, &speechRect, black, textWrapLength);
+        speakTime = currentTime;
+        nextSpeakTime = speech.size() * timeToReadOneCharacter;
+    }
 }
 
 void Guard::chaseTarget(int targetPosX, int targetPosY, int targetWidth) {
@@ -370,10 +373,10 @@ void Guard::chaseTarget(int targetPosX, int targetPosY, int targetWidth) {
         guardVelX = 0;
     }
 
-    if (guardPosY < targetPosY + approxDistant) {
+    if (guardPosY < targetPosY - approxDistant) {
         guardVelY = guardWalkVelocity;
     }
-    else if (guardPosY > targetPosY - approxDistant) {
+    else if (guardPosY > targetPosY + approxDistant) {
         guardVelY = -guardWalkVelocity;
     }
     else {
@@ -385,9 +388,10 @@ bool Guard::isAttacking() {
     return attacking;
 }
 
-int Guard::getAttackDamage() {
-    if (SDL_GetTicks() > attackTime + nextAttackTime) {
+int Guard::getAttackDamage(unsigned int currentTime) {
+    if (currentTime > attackTime + nextAttackTime) {
         attackStrength = rand() % (maxAttackStrength - minAttackStrength) + minAttackStrength;
+        attackTime = currentTime;
     }
     else {
         attackStrength = 0;
@@ -395,21 +399,15 @@ int Guard::getAttackDamage() {
     return attackStrength;
 }
 
-void Guard::free()
-{
-    freeTexture(guardNameTexture);
-    freeTexture(guardTexture);
-    freeTexture(speechTexture);
-    freeTexture(bubbleSpeechTexture);
-    freeTexture(healthTexture);
-    freeTexture(healthBarTexture);
-    guardName = { NULL };
+bool Guard::isDead() {
+    return die;
 }
+
+
 
 int Guard::getGuardPosX() {
     return guardPosX;
 }
-
 int Guard::getGuardPosY() {
     return guardPosY;
 }
@@ -423,16 +421,26 @@ void Guard::setPlusVelocity(int bgVelocity) {
 int Guard::getGuardVelX() {
     return guardVelX;
 }
-
 int Guard::getGuardVelY() {
     return guardVelY;
 }
 
+
 int Guard::getGuardWidth() {
     return guardSpriteClips[frame].w;
 }
-
 int Guard::getGuardHeight() {
     return guardSpriteClips[frame].h;
 }
 
+
+
+void Guard::free()
+{
+    freeTexture(guardNameTexture);
+    freeTexture(guardTexture);
+    freeTexture(speechTexture);
+    freeTexture(bubbleSpeechTexture);
+    freeTexture(healthTexture);
+    freeTexture(healthBarTexture);
+}

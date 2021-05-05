@@ -8,105 +8,97 @@ class Goblin
 {
 public:
 
+	const Uint32 nextFrameTime = 200;
+
+	const Uint32 maxNextMoveTime = 4000;
+	const Uint32 minNextMoveTime = 1000;
+
+	const Uint32 maxNextSpeakTime = 15000;
+	const Uint32 minNextSpeakTime = 10000;
+
 	//Limit for position
 	const int walkLimit = SCREEN_HEIGHT - 170 - 125;
 	const int baseGround = SCREEN_HEIGHT - 125;
 	const int jumpHeight = 180;
 
-	//Time to change to next frame
-	const int nextFrameTime = 200;
+	const int maxExplodeDamage = 140;
+	const int minExplodeDamage = 70;
 
-	const int maxNextMoveTime = 4000; //5 secs actually
-	const int minNextMoveTime = 1000;
 
-	const int maxNextSpeakTime = 15000; //25 secs actually
-	const int minNextSpeakTime = 10000;
-
-	//Attack strength
-	const int attackStrength = 10;
-
-	//Speech settings
-	const Uint32 textWrapLength = 250;
-
-	//Initializes variables
 	Goblin();
+	void reviveGoblin();
 
-	//Deallocates memory
 	~Goblin();
 
-	//Renders texture at given point
+
 	void setSpriteClips();
-	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
-	void renderCurrentAction(SDL_Renderer* renderer);
+	void renderGoblin(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
+	void renderGoblinSpeech(SDL_Renderer* renderer);
+	void renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime);
 
-	//Auto control NPC character
 	void randomSpeech();
+	void moveRandom(unsigned int currentTime);
+	void move(int targetPosX, int targetPosY, int targetWidth, int targetHeight, unsigned int currentTime);
+	void checkGoblinLimits();
 
-	void moveRandom();
-	void move();
-	void moveBackX(int vel);
-	void moveBackY(int vel);
+	void getAngry(unsigned int currentTime);
+	bool isAngry();
+	void chaseTarget(int targetPosX, int targetPosY, int targetWidth, int targetHeight);
+	int getExplodeDamage();
 
-	//Deallocates texture
-	void free();
+	bool isDead();
 
-	//Gets image dimensions
-	int getGoblinWidth();
-	int getGoblinHeight();
 
-	//Gets image offsets
 	int getGoblinPosX();
 	int getGoblinPosY();
 
-	//Gets image velocity
 	void setPlusVelocity(int bgVelocity);
 	int getGoblinVelX();
 	int getGoblinVelY();
-	void setVelocity(int bgVelocity);
+
+	int getGoblinWidth();
+	int getGoblinHeight();
+
+	void free();
 
 private:
-	//Maximum axis velocity
-	int goblinWalkVelocity;
-	int goblinJumpVelocity;
 
-	//Goblin and speech render spaces
-	SDL_Rect goblinSpriteClips[totalGoblinPoses];
-	SDL_Rect renderSpeech;
-
-	//The actual hardware texture
-	SDL_Texture* goblinTexture;
-	SDL_Texture* speechTexture;
-	SDL_Texture* bubbleSpeechTexture;
-
-	//The X and Y offsets
-	int goblinPosX, goblinPosY;
-	int ground;
-	int rightmostGoblinPos, leftmostGoblinPos;
-
-	//Velocity
-	int plusVelocity;
-	int goblinVelX, goblinVelY;
-
-	//Image dimensions
-	int goblinWidth;
-	int goblinHeight;
-
-	//Frame order and time
+	Uint32 frameTime;
 	int frame;
 	int nextOrBackFrame;
 
-	Uint32 frameTime;
 	Uint32 moveTime;
 	Uint32 nextMoveTime;
+
 	Uint32 speakTime;
 	Uint32 nextSpeakTime;
 	Uint32 eraseSpeechTime;
 
-	//Moving status
+	SDL_Texture* goblinTexture;
+	SDL_Rect goblinSpriteClips[totalGoblinPoses];
+
+	SDL_Texture* bubbleSpeechTexture;
+	SDL_Rect bubbleSpeechRect;
+
+	SDL_Texture* speechTexture;
+	SDL_Rect speechRect;
+
+
+	int rightmostGoblinPos, leftmostGoblinPos;
+	int goblinPosX, goblinPosY;
+
+	int goblinWalkVelocity;
+	int plusVelocity;
+	int goblinVelX, goblinVelY;
+
+	int goblinWidth;
+	int goblinHeight;
+
 	bool toLeft;
 	bool toRight;
 	bool walking;
-	bool jumped;
 
-	int health;
+	bool angry;
+	int explodeDamage;
+	bool exploded;
 };

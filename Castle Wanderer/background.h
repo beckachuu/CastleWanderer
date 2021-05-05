@@ -40,18 +40,14 @@ public:
 	void speedDown();
 
 private:
-	//Axis velocity
 	int foreBG_Velocity, bgForest_velocity, castle_velocity, clouds_Velocity;
 
-	//The actual hardware texture
 	SDL_Texture* cloudsTexture, *castleTexture, *backgroundForestTexture, *treeAndBushesTexture, *tavernTexture, *roadTexture;
 
-	//The X and Y offsets
 	int clouds_X, castle_X, bgForest_X, foreBG_X;
 	//int clouds_Y, castle_Y, bgForest_Y, foreBG_Y;
 	int road_Y;
 
-	//Velocity
 	int clouds_VelX, castle_VelX, bgForest_VelX, foreBG_VelX;
 	//int clouds_VelY, castle_VelY, bgForest_VelY, foreBG_VelY;
 

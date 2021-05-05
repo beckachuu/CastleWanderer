@@ -4,18 +4,34 @@
 
 Game::Game()
 {
+
     srand(time(0));
 
     gameTime = 0;
+    currentTime = SDL_GetTicks();
 
     render = initSDL();
     font = initTTF();
 
+    startScreen = new StartScreen;
+
+
     background = new Background();
 
     guardNameCount = rand() % guardNames.size();
+    for (int i = 0; i < guardNum; i++) {
+        guard[i] = new Guard(&guardNameCount);
+    }
 
-    wizard = new MyCharacter();
+    for (int i = 0; i < goblinNum; i++) {
+        goblin[i] = new Goblin;
+    }
+
+    wizard = new MyCharacter;
+
+    for (int i = 0; i < fireSpellNum; i++) {
+        fire[i] = new Fire(wizard->isToRight(), wizard->getCharPosX(), wizard->getCharPosY(), background->getBGspeed());
+    }
 }
 
 Game::~Game()
@@ -32,9 +48,20 @@ void Game::run() {
         return;
     }
     else {
-        while (handlingKeyboardEvents()) {
+        //Run start screen
+        startScreen->runStartScreen(render,&e);
+        startScreen->deleteStartScreen();
+        if (startScreen->isQuittingGame()) {
+            return;
+        }
 
-            if (SDL_GetTicks() > gameTime + nextFrameTime) {
+        //Game
+        gameMusic = loadFromMusic("music/gameMusic.mp3");
+        Mix_PlayMusic(gameMusic, -1);
+
+        while (handlingKeyboardEvents()) {
+            currentTime = SDL_GetTicks();
+            if (currentTime > gameTime + nextFrameTime) {
                 
                 moveObjects();
 
@@ -42,7 +69,7 @@ void Game::run() {
                 
                 updateScreen();
 
-                gameTime = SDL_GetTicks();
+                gameTime = currentTime;
             }
         }
     }
@@ -56,31 +83,11 @@ bool Game::handlingKeyboardEvents() {
             case SDLK_ESCAPE:
                 close();
                 return false;
-                /*case SDLK_UP:
-                    background->speedUp();
-                    wizard->setVelocity(background->getBGspeed());
-                    for (int i = 0; i < guardNum; i++) {
-                        if (guard[i] == nullptr) {
-                            guard[i] = new Guard(render);
-                        }
-                        else guard[i]->setVelocity(background->getBGspeed());
-                    }
-                    break;
-                case SDLK_DOWN:
-                    background->speedDown();
-                    wizard->setVelocity(background->getBGspeed());
-                    for (int i = 0; i < guardNum; i++) {
-                        if (guard[i] == nullptr) {
-                            guard[i] = new Guard(render);
-                        }
-                        else guard[i]->setVelocity(background->getBGspeed());
-                    }
-                    break;*/
             case SDLK_f:
                 for (int i = 0; i < fireSpellNum; i++)
                 {
-                    if (fire[i] == nullptr) {
-                        fire[i] = new Fire(wizard->isToRight(), wizard->getCharPosX(), wizard->getCharPosY(), background->getBGspeed());
+                    if (fire[i]->isAvailable()) {
+                        fire[i]->shoot(wizard->isToRight(), wizard->getCharPosX(), wizard->getCharPosY(), background->getBGspeed());
                         break;
                     }
                 }
@@ -89,7 +96,7 @@ bool Game::handlingKeyboardEvents() {
         else if (e.type == SDL_QUIT) {
             return false;
         }
-        wizard->handleEvent(e, render);
+        wizard->handleEvent(e, currentTime);
         background->handledEvent(e, render);
     }
     return true;
@@ -98,7 +105,7 @@ bool Game::handlingKeyboardEvents() {
 void Game::moveObjects() {
 
     if (background->isAtFurthestLeftX()) {
-        wizard->setFurthestPoints(characterFurthestLeft, SCREEN_WIDTH);
+        wizard->setFurthestPoints(characterFurthestLeft, SCREEN_WIDTH - 100);
     }
     else if (background->isAtFurthestRightX()) {
         wizard->setFurthestPoints(0, characterFurthestRight);
@@ -117,12 +124,12 @@ void Game::moveObjects() {
         background->move();
         if (!background->isAtFurthestLeftX() || !background->isAtFurthestRightX()) {
             for (int i = 0; i < guardNum; i++) {
-                if (guard[i] != nullptr) {
+                if (!guard[i]->isDead()) {
                     guard[i]->setPlusVelocity(background->getBGVelX());
                 }
             }
             for (int i = 0; i < goblinNum; i++) {
-                if (goblin[i] != nullptr) {
+                if (!goblin[i]->isDead()) {
                     goblin[i]->setPlusVelocity(background->getBGVelX());
                 }
             }
@@ -130,22 +137,22 @@ void Game::moveObjects() {
     }
     if (!wizard->isAtEdgeOfScreen() || background->isAtFurthestLeftX() || background->isAtFurthestRightX()) {
         for (int i = 0; i < guardNum; i++) {
-            if (guard[i] != nullptr) {
+            if (!guard[i]->isDead()) {
                 guard[i]->setPlusVelocity(0);
             }
         }
         for (int i = 0; i < goblinNum; i++) {
-            if (goblin[i] != nullptr) {
+            if (!goblin[i]->isDead()) {
                 goblin[i]->setPlusVelocity(0);
             }
         }
     }
 
     for (int i = 0; i < guardNum; i++) {
-        if (guard[i] == nullptr) {
-            guard[i] = new Guard(&guardNameCount);
+        if (guard[i]->isDead()) {
+            guard[i]->reviveGuard(&guardNameCount);
         }
-        guard[i]->move(tempCharPosX, tempCharPosY, tempCharWidth);
+        guard[i]->move(tempCharPosX, tempCharPosY, tempCharWidth, currentTime);
 
         tempGuardPosX[i] = guard[i]->getGuardPosX();
         tempGuardPosY[i] = guard[i]->getGuardPosY();
@@ -153,37 +160,35 @@ void Game::moveObjects() {
         tempGuardHeight[i] = guard[i]->getGuardHeight();
     }
     for (int i = 0; i < goblinNum; i++) {
-        if (goblin[i] == nullptr) {
-            goblin[i] = new Goblin();
+        if (goblin[i]->isDead()) {
+            goblin[i]->reviveGoblin();
         }
-        goblin[i]->move();
+        goblin[i]->move(tempCharPosX, tempCharPosY, tempCharWidth, tempCharHeight, currentTime);
+
+        tempGoblinPosX[i] = goblin[i]->getGoblinPosX();
+        tempGoblinPosY[i] = goblin[i]->getGoblinPosY();
+        tempGoblinWidth[i] = goblin[i]->getGoblinWidth();
+        tempGoblinHeight[i] = goblin[i]->getGoblinHeight();
     }
 
     for (int i = 0; i < fireSpellNum; i++)
     {
-        if (fire[i] != nullptr && fire[i]->outOfRange()) {
-            fire[i]->free();
-            fire[i] = nullptr;
-        }
-        else if (fire[i] != nullptr) {
+        if (!fire[i]->isAvailable() && !fire[i]->outOfRange()) {
             fire[i]->move();
 
             tempFirePosX[i] = fire[i]->getPosX();
             tempFirePosY[i] = fire[i]->getPosY();
             tempFireWidth[i] = fire[i]->getWidth();
             tempFireHeight[i] = fire[i]->getHeight();
-
         }
     }
 }
 
 void Game::detectTouchingObjects() {
-
-    //Check character position VS guards position
+    //Guards vs wizard
     for (int i = 0; i < guardNum; i++) {
-        if (guard[i] != nullptr) {
+        if (!guard[i]->isDead()) {
 
-            //Guards vs wizard
             if (tempCharPosX + tempCharWidth > tempGuardPosX[i] &&
                 tempCharPosX < tempGuardPosX[i] + tempGuardWidth[i] &&
                 tempCharPosY + tempCharHeight > tempGuardPosY[i] + tempGuardHeight[i] - approxDistant &&
@@ -191,41 +196,65 @@ void Game::detectTouchingObjects() {
 
                 guard[i]->okayToSpeak = true;
                 if (guard[i]->isAttacking()) {
-                    wizard->receiveDamage(guard[i]->getAttackDamage());
+                    wizard->receiveDamage(guard[i]->getAttackDamage(currentTime));
                 }
 
             }
             else {
                 guard[i]->okayToSpeak = false;
             }
+        }
+    }
 
-            //Guards vs Fire
-            for (int j = 0; j < fireSpellNum; j++)
-            {
-                if (fire[j] != nullptr) {
+    //Fires vs goblins, guards
+    for (int j = 0; j < fireSpellNum; j++)
+    {
+        if (!fire[j]->isAvailable()) {
+            for (int i = 0; i < goblinNum; i++) {
+                if (!goblin[i]->isDead()) {
+
+                    if (tempFirePosX[j] + tempFireWidth[j] > tempGoblinPosX[i] &&
+                        tempFirePosX[j] < tempGoblinPosX[i] + tempGoblinWidth[i] &&
+                        tempFirePosY[j] > tempGoblinPosY[i] &&
+                        tempFirePosY[j] + tempFireHeight[j] < tempGoblinPosY[i] + tempGoblinHeight[i] / 2 + approxDistant) {
+
+                        goblin[i]->getAngry(currentTime);
+                        fire[j]->reload();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!fire[j]->isAvailable()) {
+            for (int i = 0; i < guardNum; i++) {
+                if (!guard[i]->isDead()) {
 
                     if (tempFirePosX[j] + tempFireWidth[j] > tempGuardPosX[i] &&
-                        tempFirePosX[j] < tempGuardPosX[j] + tempGuardWidth[i] &&
-                        tempFirePosY[j] + tempFireHeight[j] /2 > tempGuardPosY[i] + tempGuardHeight[i]/2 - approxDistant &&
-                        tempFirePosY[j] + tempFireHeight[j] /2 < tempGuardPosY[i] + tempGuardHeight[i]/2 + approxDistant) {
+                        tempFirePosX[j] < tempGuardPosX[i] + tempGuardWidth[i] &&
+                        tempFirePosY[j] + tempFireHeight[j] / 2 > tempGuardPosY[i] + tempGuardHeight[i] / 2 - approxDistant &&
+                        tempFirePosY[j] + tempFireHeight[j] / 2 < tempGuardPosY[i] + tempGuardHeight[i] / 2 + approxDistant) {
 
-                        guard[i]->receiveAttack(fire[j]->getFireDamage());
-                        fire[j]->free();
-                        fire[j] = nullptr;
-
-                        if (guard[i]->isDead()) {
-                            guard[i]->free();
-                            guard[i] = nullptr;
-                        }
+                        guard[i]->receiveAttack(fire[j]->getFireDamage(),currentTime);
+                        fire[j]->reload();
+                        break;
                     }
                 }
             }
         }
     }
 
-
-    //Check goblins position VS 7 fire position
-
+    //Goblins vs wizard
+    for (int i = 0; i < goblinNum; i++) {
+        if (!goblin[i]->isDead() && goblin[i]->isAngry()) {
+            if (tempGoblinPosX[i] < tempCharPosX + tempCharWidth &&
+                tempGoblinPosX[i] + tempGoblinWidth[i] > tempCharPosX &&
+                tempGoblinPosY[i] + tempGoblinHeight[i] > tempCharPosY + tempCharHeight - approxDistant &&
+                tempGoblinPosY[i] + tempGoblinHeight[i] < tempCharPosY + tempCharHeight + approxDistant) {
+                wizard->receiveDamage(goblin[i]->getExplodeDamage());
+            }
+        }
+    }
 }
 
 void Game::updateScreen() {
@@ -234,28 +263,27 @@ void Game::updateScreen() {
 
     background->renderCurrentFrame(render);
 
-    wizard->renderCurrentAction(render);
+    wizard->renderCurrentAction(render, currentTime);
 
     for (int i = 0; i < goblinNum; i++)
     {
-        if (goblin[i] != nullptr) {
-            goblin[i]->renderCurrentAction(render);
+        if (!goblin[i]->isDead()) {
+            goblin[i]->renderCurrentAction(render, currentTime);
         }
     }
 
     for (int i = 0; i < guardNum; i++) {
-        if (guard[i] != nullptr) {
-            guard[i]->renderCurrentAction(render);
+        if (!guard[i]->isDead()) {
+            guard[i]->renderCurrentAction(render, currentTime);
         }
     }
 
     for (int i = 0; i < fireSpellNum; i++)
     {
-        if (fire[i] != nullptr) {
+        if (!fire[i]->isAvailable()) {
             fire[i]->renderSpellPosition(render);
         }
     }
 
     SDL_RenderPresent(render);
-
 }

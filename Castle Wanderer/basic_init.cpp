@@ -5,6 +5,7 @@
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
+
 TTF_Font* font = NULL;
 
 
@@ -39,6 +40,13 @@ SDL_Renderer* initSDL() {
                     logError(std::cerr, "Init PNG", false);
                     return nullptr;
                 }
+                else {
+                    //Initialize SDL_mixer
+                    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                    {
+                        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+                    }
+                }
             }
         }
     }
@@ -64,7 +72,7 @@ TTF_Font* initTTF() {
     return font;
 }
 
-SDL_Texture* loadFromFile(std::string path)
+SDL_Texture* loadFromImage(std::string path)
 {
     //The final texture
     SDL_Texture* newTexture = NULL;
@@ -98,7 +106,6 @@ SDL_Texture* loadFromText(std::string textureText, SDL_Rect* renderText, SDL_Col
 {
     SDL_Texture* text = nullptr;
 
-    //Render text surface
     SDL_Surface* textSurface;
     if (textWrapLength > 0) {
         textSurface = TTF_RenderText_Blended_Wrapped(font, textureText.c_str(), textColor, textWrapLength);
@@ -135,6 +142,17 @@ SDL_Texture* loadFromText(std::string textureText, SDL_Rect* renderText, SDL_Col
     return text;
 }
 
+Mix_Music* loadFromMusic(std::string path) {
+    Mix_Music* music = nullptr;
+    music = Mix_LoadMUS(path.c_str());
+    if (music == NULL)
+    {
+        std::cerr << "Failed to load music! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        std::cerr << "Music path:  " << path << std::endl;
+    }
+    return music;
+}
+
 
 void logError(std::ostream& out, const std::string& ms, bool fatal) {
     out << ms << " Error: " << SDL_GetError() << std::endl;
@@ -149,6 +167,14 @@ void freeTexture(SDL_Texture* texture) {
     {
         SDL_DestroyTexture(texture);
         texture = NULL;
+    }
+}
+
+void freeMusic(Mix_Music* music) {
+    if (music != NULL)
+    {
+        Mix_FreeMusic(music);
+        music = NULL;
     }
 }
 

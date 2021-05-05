@@ -9,33 +9,27 @@ class MyCharacter
 {
 public:
 
-	//Time to change to next frame
-	const int nextFrame = 170;
+	const Uint32 nextFrameTime = 170;
 
-	//Limit for position
 	const int walkLimit = 350;
 	const int baseGround = SCREEN_HEIGHT - 200;
 	const int jumpHeight = 210;
 
 	const int health = 210;
 
-	//Initializes variables
-	MyCharacter();
 
-	//Deallocates memory
+	MyCharacter();
 	~MyCharacter();
 
-	//Renders texture at given point
+
 	void setSpriteClips();
 	void renderCharacter(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void renderHealthBar(SDL_Renderer* renderer);
-	void renderCurrentAction(SDL_Renderer* renderer);
+	void renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime);
 
-	//Move
-	void handleEvent(SDL_Event& e, SDL_Renderer* renderer);
+	void handleEvent(SDL_Event& e, unsigned int currentTime);
 	void move();
-	void moveBackX(int vel);
-	void moveBackY(int vel);
+	void checkCharLimits();
 	void setFurthestPoints(int furthestLeftPoint, int furthestRightPoint);
 
 	bool isAtEdgeOfScreen();
@@ -43,52 +37,46 @@ public:
 
 	void receiveDamage(int damage);
 	
-	//Gets image offsets
+
 	int getCharPosX();
 	int getCharPosY();
 
-	//Gets image velocity
-	void setVelocity(int BguardWalkVelocity);
+	void setVelocity(int BGVelocity);
 	int getCharVelX();
 	int getCharVelY();
 
-	//Gets image dimensions
 	int getWidth();
 	int getHeight();
 
-	//Deallocates texture
 	void free();
 
 private:
-	//Axis velocity
-	int charVelocity;
-	int charVelocityJump;
-
-	//Scene textures
-	SDL_Rect charNameRect;
-	SDL_Rect characterSpriteClips[totalCharacterPoses];
-	SDL_Rect healthBarRect;
-	SDL_Rect healthRect;
-
-	//The actual hardware texture
-	SDL_Texture* charNameTexture;
-	SDL_Texture* charTexture;
-	SDL_Texture* healthBarTexture;
-	SDL_Texture* healthTexture;
-
-	//The X and Y offsets
-	int charPosX, charPosY, ground;
-	int leftmostCharacterPos;
-	int rightmostCharacterPos;
-	//Velocity
-	int charVelX, charVelY;
-	//Image dimensions
-	int charWidth;
-	int charHeight;
-
-	int frame;
 
 	Uint32 frameTime;
+	int frame;
+
+	SDL_Texture* charTexture;
+	SDL_Rect characterSpriteClips[totalCharacterPoses];
+
+	SDL_Texture* charNameTexture;
+	SDL_Rect charNameRect;
+
+	SDL_Texture* healthTexture;
+	SDL_Rect healthRect;
+
+	SDL_Texture* healthBarTexture;
+	SDL_Rect healthBarRect;
+
+	int leftmostCharacterPos;
+	int rightmostCharacterPos;
+	int charPosX, charPosY, ground;
+
+	int charVelocity;
+	int charVelocityJump;
+	int charVelX, charVelY;
+
+	int charWidth;
+	int charHeight;
 
 	bool toLeft;
 	bool toRight;
@@ -99,4 +87,3 @@ private:
 	int damageReceived;
 	bool die;
 };
-
