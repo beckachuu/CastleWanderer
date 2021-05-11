@@ -16,16 +16,16 @@ public:
 	const int baseGround = SCREEN_HEIGHT - 200;
 	const int jumpHeight = 210;
 
-	const int maxVelocity = 8;
+	const int maxVelocity = 7;
 	const int minVelocity = 4;
 
-	const int maxHealth = 150;
-	const int minHealth = 100;
+	const int maxHealth = 120;
+	const int minHealth = 70;
 
 	const int maxAttackStrength = 7;
 	const int minAttackStrength = 1;
 	const Uint32 nextAttackTime = 200;
-
+	const int getAngryTime = 500;
 
 	Guard(int* guardNameCount);
 	void reviveGuard(int* guardNameCount);
@@ -50,7 +50,7 @@ public:
 	int getAttackDamage(unsigned int currentTime);
 
 	bool isDead();
-
+	bool isGood();
 
 	int getGuardPosX();
 	int getGuardPosY();

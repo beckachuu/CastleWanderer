@@ -10,32 +10,47 @@
 #include "character.h"
 #include "spell_fire.h"
 
+#include "final_boss.h"
+
 #include "start_screen.h"
 
 const int fireSpellNum = 4;
-const int guardNum = 7;
-const int goblinNum = 5;
+const int guardNum = 6;
+const int goblinNum = 4;
 
 class Game
 {
 public:
 	const unsigned int nextFrameTime = 17;
 
-	const int characterFurthestLeft = 300;
-	const int characterFurthestRight = 900;
+	const int badGuardDieLimit = 4;
+	const int goodGuardDieLimit = 2;
 
 	Game();
 	~Game();
 
-	void run();
+	bool startGameScreen();
+	void showInstructScreen();
 	bool handlingKeyboardEvents();
+
+	void setObjectPlusVelocity();
 	void moveObjects();
+
 	void detectTouchingObjects();
+	void checkDefeatedGuards();
+
 	void updateScreen();
+
+	void runGameLoop();
+
+	void playGame();
 
 private:
 
 	Mix_Music* gameMusic;
+	int volume;
+
+	bool choseInstruct1, choseInstruct2;
 
 	SDL_Event e = { NULL };
 	unsigned int gameTime;
@@ -44,10 +59,11 @@ private:
 	SDL_Renderer* render = nullptr;
 	TTF_Font* font = nullptr;
 
-	StartScreen* startScreen;
+	StartScreen* startScreen = nullptr;
+	SDL_Texture* instruct1;
+	SDL_Texture* instruct2;
 
-
-	Background* background;
+	Background* background = nullptr;
 
 	Guard* guard[guardNum] = { nullptr };
 	int tempGuardPosX[guardNum], tempGuardPosY[guardNum], tempGuardWidth[guardNum], tempGuardHeight[guardNum];
@@ -56,10 +72,15 @@ private:
 	Goblin* goblin[goblinNum] = { nullptr };
 	int tempGoblinPosX[goblinNum], tempGoblinPosY[goblinNum], tempGoblinWidth[goblinNum], tempGoblinHeight[goblinNum];
 
-	MyCharacter* wizard;
+	MyCharacter* wizard = nullptr;
 	int tempCharPosX, tempCharPosY, tempCharWidth, tempCharHeight;
 
 	Fire* fire[fireSpellNum] = { nullptr };
 	int tempFirePosX[fireSpellNum], tempFirePosY[fireSpellNum], tempFireWidth[fireSpellNum], tempFireHeight[fireSpellNum];
+
+	FinalBoss* boss = nullptr;
+	bool showFinalBoss;
+
+	int defeatBadGuard, defeatGoodGuard;
 };
 

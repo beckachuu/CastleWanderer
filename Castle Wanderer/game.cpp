@@ -4,8 +4,13 @@
 
 Game::Game()
 {
-
     srand(time(0));
+
+    volume = 50;
+    Mix_VolumeMusic(volume);
+
+    choseInstruct1 = false;
+    choseInstruct2 = false;
 
     gameTime = 0;
     currentTime = SDL_GetTicks();
@@ -14,7 +19,8 @@ Game::Game()
     font = initTTF();
 
     startScreen = new StartScreen;
-
+    instruct1 = loadFromImage("image/instruct1.png");
+    instruct2 = loadFromImage("image/instruct2.png");
 
     background = new Background();
 
@@ -30,76 +36,185 @@ Game::Game()
     wizard = new MyCharacter;
 
     for (int i = 0; i < fireSpellNum; i++) {
-        fire[i] = new Fire(wizard->isToRight(), wizard->getCharPosX(), wizard->getCharPosY(), background->getBGspeed());
+        fire[i] = new Fire(wizard->isToRight(), wizard->getCharPosX(), wizard->getCharPosY(), background->getBGVelocity());
     }
+
+    boss = new FinalBoss;
+    showFinalBoss = false;
+
+    defeatBadGuard = 0;
+    defeatGoodGuard = 0;
 }
 
 Game::~Game()
 {
+    freeTexture(instruct1);
+    freeTexture(instruct2);
     close();
 }
 
-void Game::run() {
 
-    wizard->setVelocity(background->getBGspeed());
 
+bool Game::startGameScreen() {
     if (render == nullptr || font == nullptr) {
         std::cerr << "Failed to initialize!\n";
-        return;
+        return false;
     }
     else {
         //Run start screen
-        startScreen->runStartScreen(render,&e);
+        startScreen->runStartScreen(render, &e);
         startScreen->deleteStartScreen();
         if (startScreen->isQuittingGame()) {
-            return;
+            return false;
         }
-
-        //Game
-        gameMusic = loadFromMusic("music/gameMusic.mp3");
-        Mix_PlayMusic(gameMusic, -1);
-
-        while (handlingKeyboardEvents()) {
-            currentTime = SDL_GetTicks();
-            if (currentTime > gameTime + nextFrameTime) {
-                
-                moveObjects();
-
-                detectTouchingObjects();
-                
-                updateScreen();
-
-                gameTime = currentTime;
-            }
-        }
+        return true;
     }
 }
 
+void Game::showInstructScreen() {
+    while (SDL_PollEvent(&e) != 0) {
+        if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
+            switch (e.key.keysym.sym) {
+            case SDLK_a:
+                choseInstruct1 = true;
+                choseInstruct2 = false;
+                break;
+            case SDLK_d:
+                choseInstruct1 = false;
+                choseInstruct2 = true;
+                break;
+
+            case SDLK_ESCAPE:
+                choseInstruct1 = false;
+                choseInstruct2 = false;
+                break;
+            }
+        }
+        if (e.type == SDL_KEYDOWN) {
+            switch (e.key.keysym.sym) {
+            case SDLK_LEFT:
+                if (volume > 0) {
+                    volume -= volumeChangeAmount;
+                }
+                Mix_VolumeMusic(volume);
+                break;
+            case SDLK_RIGHT:
+                if (volume < MIX_MAX_VOLUME) {
+                    volume += volumeChangeAmount;
+                }
+                Mix_VolumeMusic(volume);
+                break;
+            }
+        }
+
+        if (e.type == SDL_QUIT) {
+            choseInstruct1 = false;
+            choseInstruct2 = false;
+            close();
+        }
+    }
+
+    if (choseInstruct1) {
+        SDL_RenderClear(render);
+        SDL_RenderCopy(render, instruct1, NULL, NULL);
+        SDL_RenderPresent(render);
+    }
+    else if (choseInstruct2) {
+        SDL_RenderClear(render);
+        SDL_RenderCopy(render, instruct2, NULL, NULL);
+        SDL_RenderPresent(render);
+    }
+}
 
 bool Game::handlingKeyboardEvents() {
     while (SDL_PollEvent(&e) != 0) {
-        if (e.type == SDL_KEYDOWN) {
+        if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
             switch (e.key.keysym.sym) {
-            case SDLK_ESCAPE:
-                close();
-                return false;
             case SDLK_f:
                 for (int i = 0; i < fireSpellNum; i++)
                 {
                     if (fire[i]->isAvailable()) {
-                        fire[i]->shoot(wizard->isToRight(), wizard->getCharPosX(), wizard->getCharPosY(), background->getBGspeed());
+                        fire[i]->shoot(wizard->isToRight(), wizard->getCharPosX(), wizard->getCharPosY(), background->getBGVelocity());
                         break;
                     }
                 }
+                break;
+            case SDLK_i:
+                choseInstruct1 = true;
+                while (choseInstruct1 || choseInstruct2) {
+                    showInstructScreen();
+                }
+                break;
+            case SDLK_ESCAPE:
+                close();
+                return false;
             }
         }
-        else if (e.type == SDL_QUIT) {
+        if (e.type == SDL_KEYDOWN) {
+            switch (e.key.keysym.sym) {
+            case SDLK_LEFT:
+                if (volume > 0) {
+                    volume -= volumeChangeAmount;
+                }
+                Mix_VolumeMusic(volume);
+                break;
+            case SDLK_RIGHT:
+                if (volume < MIX_MAX_VOLUME) {
+                    volume += volumeChangeAmount;
+                }
+                Mix_VolumeMusic(volume);
+                break;
+            }
+        }
+
+        if (e.type == SDL_QUIT) {
             return false;
         }
         wizard->handleEvent(e, currentTime);
         background->handledEvent(e, render);
     }
     return true;
+}
+
+void Game::setObjectPlusVelocity() {
+    if (wizard->isAtEdgeOfScreen()) {
+        background->move();
+        if (!background->isAtFurthestLeftX() || !background->isAtFurthestRightX()) {
+            for (int i = 0; i < guardNum; i++) {
+                if (!guard[i]->isDead()) {
+                    guard[i]->setPlusVelocity(background->getObjectPlusVelocity());
+                }
+            }
+
+            for (int i = 0; i < goblinNum; i++) {
+                if (!goblin[i]->isDead()) {
+                    goblin[i]->setPlusVelocity(background->getObjectPlusVelocity());
+                }
+            }
+
+            if (defeatBadGuard >= badGuardDieLimit) {
+
+            }
+            boss->setPlusVelocity(background->getObjectPlusVelocity());
+        }
+    }
+    if (!wizard->isAtEdgeOfScreen() || background->isAtFurthestLeftX() || background->isAtFurthestRightX()) {
+        for (int i = 0; i < guardNum; i++) {
+            if (!guard[i]->isDead()) {
+                guard[i]->setPlusVelocity(0);
+            }
+        }
+        for (int i = 0; i < goblinNum; i++) {
+            if (!goblin[i]->isDead()) {
+                goblin[i]->setPlusVelocity(0);
+            }
+        }
+
+        if (defeatBadGuard >= badGuardDieLimit) {
+
+        }
+        boss->setPlusVelocity(0);
+    }
 }
 
 void Game::moveObjects() {
@@ -120,36 +235,17 @@ void Game::moveObjects() {
     tempCharWidth = wizard->getWidth();
     tempCharHeight = wizard->getHeight();
 
-    if (wizard->isAtEdgeOfScreen()) {
-        background->move();
-        if (!background->isAtFurthestLeftX() || !background->isAtFurthestRightX()) {
-            for (int i = 0; i < guardNum; i++) {
-                if (!guard[i]->isDead()) {
-                    guard[i]->setPlusVelocity(background->getBGVelX());
-                }
-            }
-            for (int i = 0; i < goblinNum; i++) {
-                if (!goblin[i]->isDead()) {
-                    goblin[i]->setPlusVelocity(background->getBGVelX());
-                }
-            }
-        }
-    }
-    if (!wizard->isAtEdgeOfScreen() || background->isAtFurthestLeftX() || background->isAtFurthestRightX()) {
-        for (int i = 0; i < guardNum; i++) {
-            if (!guard[i]->isDead()) {
-                guard[i]->setPlusVelocity(0);
-            }
-        }
-        for (int i = 0; i < goblinNum; i++) {
-            if (!goblin[i]->isDead()) {
-                goblin[i]->setPlusVelocity(0);
-            }
-        }
-    }
+    setObjectPlusVelocity();
 
     for (int i = 0; i < guardNum; i++) {
         if (guard[i]->isDead()) {
+            if (guard[i]->isGood()) {
+                defeatGoodGuard++;
+            }
+            else {
+                defeatBadGuard++;
+                wizard->heal(defeatBadGuard);
+            }
             guard[i]->reviveGuard(&guardNameCount);
         }
         guard[i]->move(tempCharPosX, tempCharPosY, tempCharWidth, currentTime);
@@ -182,6 +278,11 @@ void Game::moveObjects() {
             tempFireHeight[i] = fire[i]->getHeight();
         }
     }
+
+    if (defeatBadGuard >= badGuardDieLimit) {
+        
+    }
+    boss->move(tempCharPosX, tempCharWidth, tempCharPosY + tempCharHeight, currentTime);
 }
 
 void Game::detectTouchingObjects() {
@@ -257,6 +358,17 @@ void Game::detectTouchingObjects() {
     }
 }
 
+void Game::checkDefeatedGuards() {
+    if (defeatGoodGuard == goodGuardDieLimit) {
+        for (int i = 0; i < goblinNum; i++) {
+            if (!goblin[i]->isDead()) {
+                goblin[i]->getAngry(currentTime);
+            }
+        }
+        defeatGoodGuard = 0;
+    }
+}
+
 void Game::updateScreen() {
 
     SDL_RenderClear(render);
@@ -285,5 +397,38 @@ void Game::updateScreen() {
         }
     }
 
+    if (defeatBadGuard >= badGuardDieLimit) {
+        
+    }
+    boss->renderCurrentAction(render, currentTime);
+
     SDL_RenderPresent(render);
+}
+
+void Game::runGameLoop() {
+    while (handlingKeyboardEvents()) {
+        currentTime = SDL_GetTicks();
+        if (currentTime > gameTime + nextFrameTime) {
+
+            moveObjects();
+
+            detectTouchingObjects();
+            checkDefeatedGuards();
+
+            updateScreen();
+
+            gameTime = currentTime;
+        }
+    }
+}
+
+
+void Game::playGame() {
+    if (startGameScreen()) {
+
+        gameMusic = loadFromMusic("music/gameMusic.mp3");
+        Mix_PlayMusic(gameMusic, -1);
+
+        runGameLoop();
+    }
 }

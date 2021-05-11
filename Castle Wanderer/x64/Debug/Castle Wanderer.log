@@ -1,4 +1,2 @@
-﻿  goblin.cpp
-C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\goblin.cpp(207,61): warning C4267: '=': conversion from 'size_t' to 'Uint32', possible loss of data
-C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\goblin.cpp(317,61): warning C4267: '=': conversion from 'size_t' to 'Uint32', possible loss of data
+﻿  start_screen.cpp
   Castle Wanderer.vcxproj -> C:\Users\ADMIN\Desktop\bigProject\Castle Wanderer\x64\Debug\Castle Wanderer.exe

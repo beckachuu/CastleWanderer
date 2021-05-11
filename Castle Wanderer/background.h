@@ -32,12 +32,10 @@ public:
 	bool isAtFurthestLeftX();
 	bool isAtFurthestRightX();
 
-	int getBGVelX();
-	int getBGspeed();
+	int getObjectPlusVelocity();
+	int getBGVelocity();
 	int getFurthestLeftPoint();
 
-	void speedUp();
-	void speedDown();
 
 private:
 	int foreBG_Velocity, bgForest_velocity, castle_velocity, clouds_Velocity;
@@ -55,4 +53,6 @@ private:
 
 	bool atFurthestLeftX;
 	bool atFurthestRightX;
+
+	int objectPlusVelocity;
 };

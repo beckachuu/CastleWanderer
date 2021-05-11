@@ -6,7 +6,7 @@ MyCharacter::MyCharacter()
     frame = stand;
     frameTime = 0;
 
-    charTexture = loadFromImage("image/wizardSheet.png");
+    charTexture = loadFromImage("image/Sprite sheets/wizardSheet.png");
     setSpriteClips();
 
     charNameTexture = loadFromText("Weedsycorn", &charNameRect, white);
@@ -25,13 +25,13 @@ MyCharacter::MyCharacter()
     healthBarRect.h = 70;
 
     leftmostCharacterPos = 0;
-    rightmostCharacterPos = 0;
-    charPosX = rand() % SCREEN_WIDTH;
+    rightmostCharacterPos = characterFurthestRight;
+    charPosX = rand() % rightmostCharacterPos;
     charPosY = baseGround-1;
     ground = baseGround;
 
-    charVelocity = 0;
-    charVelocityJump = 0;
+    charVelocity = 6;
+    charVelocityJump = 24;
     charVelX = 0;
     charVelY = 0;
 
@@ -50,14 +50,12 @@ MyCharacter::MyCharacter()
 
 MyCharacter::~MyCharacter()
 {
-    //Deallocate
     free();
 }
 
 
 
 void MyCharacter::setSpriteClips() {
-    //Set sprite clips
 
     characterSpriteClips[walkR1].x = 24;
     characterSpriteClips[walkR1].y = 218;
@@ -99,9 +97,9 @@ void MyCharacter::setSpriteClips() {
     characterSpriteClips[walkL5].w = 107;
     characterSpriteClips[walkL5].h = 195;
 
-    characterSpriteClips[walkL4].x = 235;
+    characterSpriteClips[walkL4].x = 220;
     characterSpriteClips[walkL4].y = 420;
-    characterSpriteClips[walkL4].w = 115;
+    characterSpriteClips[walkL4].w = 130;
     characterSpriteClips[walkL4].h = 195;
 
     characterSpriteClips[walkL3].x = 358;
@@ -141,7 +139,6 @@ void MyCharacter::renderCharacter(SDL_Renderer* renderer, SDL_Rect* clip)
 
     SDL_Rect renderQuad = { charPosX, charPosY, charWidth, charHeight };
 
-    //Render character to screen
     if (frame == attack && toLeft == true) {
         SDL_RenderCopyEx(renderer, charTexture, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
     }
@@ -204,10 +201,8 @@ void MyCharacter::renderCurrentAction(SDL_Renderer* renderer, unsigned int curre
 
 void MyCharacter::handleEvent(SDL_Event& e, unsigned int currentTime)
 {
-    //If a key was pressed
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
     {
-        //Adjust the velocity
         switch (e.key.keysym.sym) {
 
         case SDLK_d:
@@ -239,10 +234,6 @@ void MyCharacter::handleEvent(SDL_Event& e, unsigned int currentTime)
                 ground = charPosY;
                 jumped = true;
             }
-            damageReceived -= 21;
-            if (damageReceived < 0) {
-                damageReceived = 0;
-            }
             break;
 
         case SDLK_f:
@@ -262,10 +253,8 @@ void MyCharacter::handleEvent(SDL_Event& e, unsigned int currentTime)
         }
     }
 
-    //If a key was released
     else if (e.type == SDL_KEYUP && e.key.repeat == 0)
     {
-        //Adjust the velocity
         switch (e.key.keysym.sym) {
 
         case SDLK_d:
@@ -376,7 +365,12 @@ void MyCharacter::receiveDamage(int damage) {
     damageReceived += damage;
 }
 
-
+void MyCharacter::heal(int guard) {
+    damageReceived -= guard * 7;
+    if (damageReceived < 0) {
+        damageReceived = 0;
+    }
+}
 
 int MyCharacter::getCharPosX() {
     return charPosX;

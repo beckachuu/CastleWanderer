@@ -1,7 +1,7 @@
 #include "final_boss.h"
 #include <SDL_image.h>
 
-FinalBoss::FinalBoss(int* bossNameCount)
+FinalBoss::FinalBoss()
 {
     frameTime = 0;
 
@@ -11,7 +11,9 @@ FinalBoss::FinalBoss(int* bossNameCount)
     speakTime = 0;
     nextSpeakTime = 0;
 
-    bossTexture = loadFromImage("image/bossSheet.png");
+    bossNameTexture = loadFromText(bossName, &bossNameRect, white);
+
+    bossTexture = loadFromImage("image/Sprite sheets/bossSheet.png");
     setSpriteClips();
 
     bubbleSpeechTexture = loadFromImage("image/speechBubble.png");
@@ -24,7 +26,7 @@ FinalBoss::FinalBoss(int* bossNameCount)
     healthBarRect.w = 210;
     healthBarRect.h = 40;
 
-    bossWalkVelocity = 0;
+    bossWalkVelocity = 4;
 
     bossWidth = 0;
     bossHeight = 0;
@@ -36,24 +38,22 @@ FinalBoss::FinalBoss(int* bossNameCount)
     attackStrength = 0;
     attackTime = 0;
 
-    bossNameTexture = loadFromText(bossName, &bossNameRect, white);
-
     speechTexture = NULL;
     speechRect = { NULL };
 
     frame = closeAttack1;
 
-    bossPosX = 1000;
-    bossPosY = baseGround;
+    bossLeftPoint = 0;
+    bossPosY = 0;
+    bossRightPoint = 1200;
+    bossFeetPoint = baseGround;
 
     bossVelX = 0;
     bossVelY = 0;
 
-    health = rand() % (maxHealth - minHealth) + minHealth;
     damageReceived = 0;
     die = false;
-
-    attacking = false;
+    attackClose = false;
 }
 
 FinalBoss::~FinalBoss()
@@ -64,13 +64,13 @@ FinalBoss::~FinalBoss()
 
 void FinalBoss::setSpriteClips() {
     bossSpriteClips[closeAttack1].x = 6;
-    bossSpriteClips[closeAttack1].y = 76;
-    bossSpriteClips[closeAttack1].w = 204;
+    bossSpriteClips[closeAttack1].y = 77;
+    bossSpriteClips[closeAttack1].w = 205;
     bossSpriteClips[closeAttack1].h = 276;
 
-    bossSpriteClips[closeAttack2].x = 401;
-    bossSpriteClips[closeAttack2].y = 34;
-    bossSpriteClips[closeAttack2].w = 199;
+    bossSpriteClips[closeAttack2].x = 402;
+    bossSpriteClips[closeAttack2].y = 35;
+    bossSpriteClips[closeAttack2].w = 198;
     bossSpriteClips[closeAttack2].h = 318;
 
     bossSpriteClips[closeAttack3].x = 749;
@@ -78,35 +78,35 @@ void FinalBoss::setSpriteClips() {
     bossSpriteClips[closeAttack3].w = 242;
     bossSpriteClips[closeAttack3].h = 351;
 
-    bossSpriteClips[closeAttack4].x = 347;
-    bossSpriteClips[closeAttack4].y = 47;
-    bossSpriteClips[closeAttack4].w = 86;
-    bossSpriteClips[closeAttack4].h = 195;
+    bossSpriteClips[closeAttack4].x = 1072;
+    bossSpriteClips[closeAttack4].y = 41;
+    bossSpriteClips[closeAttack4].w = 295;
+    bossSpriteClips[closeAttack4].h = 311;
 
-    bossSpriteClips[closeAttack5].x = 456;
-    bossSpriteClips[closeAttack5].y = 47;
-    bossSpriteClips[closeAttack5].w = 102;
-    bossSpriteClips[closeAttack5].h = 195;
+    bossSpriteClips[closeAttack5].x = 1462;
+    bossSpriteClips[closeAttack5].y = 93;
+    bossSpriteClips[closeAttack5].w = 278;
+    bossSpriteClips[closeAttack5].h = 259;
 
-    bossSpriteClips[distantAttack1].x = 331;
-    bossSpriteClips[distantAttack1].y = 400;
-    bossSpriteClips[distantAttack1].w = 119;
-    bossSpriteClips[distantAttack1].h = 195;
+    bossSpriteClips[distantAttack1].x = 6;
+    bossSpriteClips[distantAttack1].y = 462;
+    bossSpriteClips[distantAttack1].w = 204;
+    bossSpriteClips[distantAttack1].h = 274;
 
-    bossSpriteClips[distantAttack2].x = 462;
-    bossSpriteClips[distantAttack2].y = 400;
-    bossSpriteClips[distantAttack2].w = 119;
-    bossSpriteClips[distantAttack2].h = 195;
+    bossSpriteClips[distantAttack2].x = 399;
+    bossSpriteClips[distantAttack2].y = 446;
+    bossSpriteClips[distantAttack2].w = 194;
+    bossSpriteClips[distantAttack2].h = 290;
 
-    bossSpriteClips[distantAttack3].x = 462;
-    bossSpriteClips[distantAttack3].y = 400;
-    bossSpriteClips[distantAttack3].w = 119;
-    bossSpriteClips[distantAttack3].h = 195;
+    bossSpriteClips[distantAttack3].x = 790;
+    bossSpriteClips[distantAttack3].y = 435;
+    bossSpriteClips[distantAttack3].w = 192;
+    bossSpriteClips[distantAttack3].h = 301;
 
-    bossSpriteClips[distantAttack4].x = 462;
-    bossSpriteClips[distantAttack4].y = 400;
-    bossSpriteClips[distantAttack4].w = 119;
-    bossSpriteClips[distantAttack4].h = 195;
+    bossSpriteClips[distantAttack4].x = 1121;
+    bossSpriteClips[distantAttack4].y = 462;
+    bossSpriteClips[distantAttack4].w = 241;
+    bossSpriteClips[distantAttack4].h = 274;
 
     bossSpriteClips[die1].x = 462;
     bossSpriteClips[die1].y = 263;
@@ -132,30 +132,27 @@ void FinalBoss::setSpriteClips() {
     bossSpriteClips[die5].y = 263;
     bossSpriteClips[die5].w = 119;
     bossSpriteClips[die5].h = 195;
+
+    teleportTime = 0;
 }
 
-void FinalBoss::renderBoss(SDL_Renderer* renderer, SDL_Rect* clip)
+void FinalBoss::renderBoss(SDL_Renderer* renderer)
 {
-    if (clip != NULL)
-    {
-        bossWidth = clip->w;
-        bossHeight = clip->h;
-    }
 
-    SDL_Rect renderBoss = { bossPosX, bossPosY, bossWidth, bossHeight };
+    SDL_Rect renderBoss = { bossLeftPoint, bossPosY, bossWidth, bossHeight };
 
-    if (toLeft == true) {
-        SDL_RenderCopyEx(renderer, bossTexture, clip, &renderBoss, 0, NULL, SDL_FLIP_HORIZONTAL);
+    if (toRight == true) {
+        SDL_RenderCopyEx(renderer, bossTexture, &bossSpriteClips[frame], &renderBoss, 0, NULL, SDL_FLIP_HORIZONTAL);
     }
     else {
-        SDL_RenderCopy(renderer, bossTexture, clip, &renderBoss);
+        SDL_RenderCopy(renderer, bossTexture, &bossSpriteClips[frame], &renderBoss);
     }
 }
 
 void FinalBoss::renderSpeechBubble(SDL_Renderer* renderer) {
 
-    speechRect.x = bossPosX - 20;
-    speechRect.y = bossPosY - speechRect.h - 70;
+    speechRect.x = bossLeftPoint - 20;
+    speechRect.y = bossFeetPoint - bossApproxHeight - speechRect.h - 70;
 
     bubbleSpeechRect.x = speechRect.x - 20;
     bubbleSpeechRect.y = speechRect.y - 17;
@@ -167,9 +164,9 @@ void FinalBoss::renderSpeechBubble(SDL_Renderer* renderer) {
 }
 
 void FinalBoss::renderHealthBar(SDL_Renderer* renderer) {
-    healthRect.x = bossPosX - 7;
-    healthRect.y = bossPosY - 12;
-    healthRect.w = 188 - damageReceived * 188 / health;
+    healthRect.x = bossLeftPoint - 7;
+    healthRect.y = bossFeetPoint - bossApproxHeight - 12;
+    healthRect.w = healthRectLength - damageReceived * healthRectLength / health;
     SDL_RenderCopy(renderer, healthTexture, NULL, &healthRect);
 
     healthBarRect.x = healthRect.x - 17;
@@ -183,15 +180,34 @@ void FinalBoss::renderHealthBar(SDL_Renderer* renderer) {
 
 void FinalBoss::renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime) {
     if (currentTime > frameTime + nextFrameTime) {
-        
+        if (attackClose) {
+            if (frame < closeAttack1 || frame >= closeAttack5) {
+                frame = closeAttack1;
+            }
+            else frame++;
+        }
+        else {
+            if (frame < distantAttack1 || frame >= distantAttack4) {
+                frame = distantAttack1;
+            }
+            else frame++;
+        }
+
+        bossWidth = bossSpriteClips[frame].w;
+        bossHeight = bossSpriteClips[frame].h;
 
         frameTime = currentTime;
     }
 
+    if (toLeft) {
+        bossLeftPoint = bossRightPoint - bossWidth;
+    }
+    else {
+        bossLeftPoint = bossRightPoint - bossApproxWidth;
+    }
+    bossPosY = bossFeetPoint - bossHeight;
 
-    SDL_Rect* currentClip = &bossSpriteClips[frame];
-
-    renderBoss(renderer, currentClip);
+    renderBoss(renderer);
 
     if (speechTexture != NULL) {
         renderSpeechBubble(renderer);
@@ -200,80 +216,111 @@ void FinalBoss::renderCurrentAction(SDL_Renderer* renderer, unsigned int current
     renderHealthBar(renderer);
 }
 
+void FinalBoss::attackTarget(int targetPosX, int targetWidth, int targetFeetPosY, int currentTime) {
+    attackClose = true;
 
-void FinalBoss::move(int targetPosX, int targetPosY, int targetWidth, unsigned int currentTime)
-{
-    if (damageReceived > 0) {
-        chaseTarget(targetPosX, targetPosY, targetWidth);
-        attacking = true;
+    //Teleport
+    if (currentTime > teleportTime + nextTeleportTime && rand() % chanceOfTeleport == 0) {
+        bossFeetPoint = targetFeetPosY;
+        if (rand() % 2 == 0) {
+            bossRightPoint = targetPosX;
+            toLeft = false;
+            toRight = true;
+        }
+        else {
+            bossRightPoint = targetPosX + targetWidth + bossApproxWidth;
+            toLeft = true;
+            toRight = false;
+        }
+        frameTime += nextFrameTime;
+        teleportTime = currentTime;
+        return;
     }
 
-
-    bossPosX += (bossVelX + plusVelocity);
-
-    bossPosY += bossVelY;
-
-    checkBossLimits();
-}
-
-void FinalBoss::checkBossLimits() {
-
-    //If walked too far up
-    if (walking && bossPosY < walkLimit) {
-        bossPosY = walkLimit;
-    }
-
-    //If got too far down
-    if (bossPosY > baseGround) {
-        bossPosY = baseGround - 1;
-    }
-}
-
-
-
-void FinalBoss::receiveAttack(int damage, int currentTime) {
-    damageReceived += damage;
-    if (damageReceived >= health) {
-        die = true;
-    }
-
-    bossPosX -= bossVelX;
-}
-
-void FinalBoss::chaseTarget(int targetPosX, int targetPosY, int targetWidth) {
-    if (bossPosX + bossWidth < targetPosX + approxDistant) {
-        bossVelX = bossWalkVelocity;
+    if (bossRightPoint + bossAttackDistant < targetPosX + approxDistant) {
+        //bossVelX = bossWalkVelocity;
         toLeft = false;
         toRight = true;
+
+        attackClose = false;
     }
-    else if (bossPosX > targetPosX + targetWidth - approxDistant) {
-        bossVelX = -bossWalkVelocity;
+    else if (bossLeftPoint - bossAttackDistant > targetPosX + targetWidth - approxDistant) {
+        //bossVelX = -bossWalkVelocity;
         toLeft = true;
         toRight = false;
+
+        attackClose = false;
     }
     else {
         bossVelX = 0;
     }
 
-    if (bossPosY < targetPosY - approxDistant) {
+    if (bossFeetPoint < targetFeetPosY - approxDistant) {
         bossVelY = bossWalkVelocity;
+
+        attackClose = false;
     }
-    else if (bossPosY > targetPosY + approxDistant) {
+    else if (bossFeetPoint > targetFeetPosY + approxDistant) {
         bossVelY = -bossWalkVelocity;
+
+        attackClose = false;
     }
     else {
         bossVelY = 0;
     }
 }
 
-bool FinalBoss::isAttacking() {
-    return attacking;
+void FinalBoss::checkBossLimits() {
+
+    //If out of screen
+    if (bossRightPoint < maxLeftPos) {
+        bossRightPoint += bossWalkVelocity;
+        toRight = true;
+        toLeft = false;
+    }
+    else if (bossRightPoint > maxRightPos) {
+        bossRightPoint -= bossWalkVelocity;
+        toRight = false;
+        toLeft = true;
+    }
+
+    if (bossFeetPoint > baseGround) {
+        bossFeetPoint = baseGround - 1;
+    }
+    if (bossFeetPoint < walkLimit) {
+        bossFeetPoint = walkLimit;
+    }
+}
+
+void FinalBoss::move(int targetPosX, int targetWidth, int targetFeetPosY, unsigned int currentTime)
+{
+    attackTarget(targetPosX, targetWidth, targetFeetPosY, currentTime);
+
+    bossRightPoint += plusVelocity;
+    bossFeetPoint += bossVelY;
+    checkBossLimits();
+}
+
+void FinalBoss::receiveAttack(int damage, int currentTime) {
+    damageReceived += damage;
+    if (damageReceived >= health) {
+        frame = die1;
+    }
+
+    if (toRight) {
+        bossRightPoint -= bossVelocity;
+    }
+    else {
+        bossRightPoint += bossVelocity;
+    }
 }
 
 int FinalBoss::getAttackDamage(unsigned int currentTime) {
     if (currentTime > attackTime + nextAttackTime) {
-        attackStrength = rand() % (maxAttackStrength - minAttackStrength) + minAttackStrength;
-        attackTime = currentTime;
+        if (frame == closeAttack4) {
+            attackStrength = rand() % (maxAttackStrength - minAttackStrength) + minAttackStrength;
+            attackTime = currentTime;
+        }
     }
     else {
         attackStrength = 0;
@@ -288,7 +335,7 @@ bool FinalBoss::isDead() {
 
 
 int FinalBoss::getBossPosX() {
-    return bossPosX;
+    return bossLeftPoint;
 }
 int FinalBoss::getBossPosY() {
     return bossPosY;

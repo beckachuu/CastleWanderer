@@ -19,15 +19,18 @@ public:
 	~StartScreen();
 
 	void runStartScreen(SDL_Renderer* renderer, SDL_Event* e);
-	bool handlingMouseEvents(SDL_Event* e);
+	bool handlingMouseEvents(SDL_Event* e, SDL_Renderer* renderer);
 	void renderButtons(SDL_Renderer* renderer);
 	void renderStartScreen(SDL_Renderer* renderer);
+
+	void renderInstruct(SDL_Event* e, SDL_Renderer* renderer);
 
 	bool isQuittingGame();
 
 	void deleteStartScreen();
 
 private:
+	int volume;
 
 	Mix_Music* startScreenMusic;
 
@@ -42,11 +45,16 @@ private:
 
 	SDL_Texture* textTexture;
 
+	SDL_Texture* instruct1;
+	SDL_Texture* instruct2;
+
 	int mouseX;
 	int mouseY;
 
 	bool mouseOnStart;
 	bool mouseOnInstruct;
+	bool choseInstruct1;
+	bool choseInstruct2;
 
 	bool quitGame;
 };

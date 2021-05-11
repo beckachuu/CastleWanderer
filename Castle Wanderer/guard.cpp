@@ -17,7 +17,7 @@ Guard::Guard(int* guardNameCount)
     speakTime = 0;
     nextSpeakTime = 0;
 
-    guardTexture = loadFromImage("image/guardSheet.png");
+    guardTexture = loadFromImage("image/Sprite sheets/guardSheet.png");
     setSpriteClips();
 
     bubbleSpeechTexture = loadFromImage("image/speechBubble.png");
@@ -224,27 +224,19 @@ void Guard::randomSpeech() {
     std::string speech = "";
 
     if (righteous) {
-        if (rand() % 2 == 0) {
-            speech = goodCall[rand() % goodCall.size()];
-        }
-
-        if (rand() % 2 == 0) {
-            speech += goodSentence[rand() % goodSentence.size()];
+        if (rand() % 4 == 0) {
+            speech = goodQuestion[rand() % goodQuestion.size()];
         }
         else {
-            speech += goodQuestion[rand() % goodQuestion.size()];
+            speech = goodSentence[rand() % goodSentence.size()];
         }
     }
     else {
-        if (rand() % 2 == 0) {
-            speech = notgoodCall[rand() % notgoodCall.size()];
-        }
-
-        if (rand() % 2 == 0) {
-            speech += notgoodSentence[rand() % notgoodSentence.size()];
+        if (rand() % 4 == 0) {
+            speech = notgoodQuestion[rand() % notgoodQuestion.size()];
         }
         else {
-            speech += notgoodQuestion[rand() % notgoodQuestion.size()];
+            speech = notgoodSentence[rand() % notgoodSentence.size()];
         }
     }
     speechTexture = loadFromText(speech, &speechRect, black, textWrapLength);
@@ -252,6 +244,8 @@ void Guard::randomSpeech() {
 }
 
 void Guard::moveRandom(unsigned int currentTime) {
+
+    guardWalkVelocity = rand() % (maxVelocity - minVelocity) + minVelocity;
 
     speechTexture = NULL;
 
@@ -304,19 +298,18 @@ void Guard::move(int targetPosX, int targetPosY, int targetWidth, unsigned int c
         attacking = false;
     }
     else if (speechLeftToSay <= 0 || damageReceived > 0) {
-        guardWalkVelocity = rand() % (maxVelocity - minVelocity) + minVelocity;
         chaseTarget(targetPosX, targetPosY, targetWidth);
         attacking = true;
     }
     else if (currentTime > moveTime + nextMoveTime) {
-        guardWalkVelocity = rand() % (maxVelocity - minVelocity) + minVelocity;
         moveRandom(currentTime);
         attacking = false;
     }
 
     guardPosX += (guardVelX + plusVelocity);
-
-    guardPosY += guardVelY;
+    if (guardVelY != 0) {
+        guardPosY += guardVelY;
+    }
 
     checkGuardLimits();
 }
@@ -350,12 +343,8 @@ void Guard::receiveAttack(int damage, int currentTime) {
 
     guardPosX -= guardVelX;
 
-    if (currentTime > speakTime + nextSpeakTime) {
-        std::string speech = angrySpeech[rand() % angrySpeech.size()];
-        speechTexture = loadFromText(speech, &speechRect, black, textWrapLength);
-        speakTime = currentTime;
-        nextSpeakTime = speech.size() * timeToReadOneCharacter;
-    }
+    std::string speech = angrySpeech[rand() % angrySpeech.size()];
+    speechTexture = loadFromText(speech, &speechRect, black, textWrapLength);
 }
 
 void Guard::chaseTarget(int targetPosX, int targetPosY, int targetWidth) {
@@ -403,7 +392,9 @@ bool Guard::isDead() {
     return die;
 }
 
-
+bool Guard::isGood() {
+    return righteous;
+}
 
 int Guard::getGuardPosX() {
     return guardPosX;

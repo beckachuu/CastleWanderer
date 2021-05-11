@@ -6,7 +6,7 @@ Fire::Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity)
 {
     frame = 0;
 
-    fTexture = loadFromImage("image/wizardSheet.png");
+    fTexture = loadFromImage("image/Sprite sheets/wizardSheet.png");
     setSpriteClips();
 
     fWidth = 0;

@@ -14,7 +14,7 @@ Goblin::Goblin()
     eraseSpeechTime = 0;
 
 
-    goblinTexture = loadFromImage("image/goblinSheet.png");
+    goblinTexture = loadFromImage("image/Sprite sheets/goblinSheet.png");
     setSpriteClips();
 
     bubbleSpeechTexture = loadFromImage("image/speechBubble.png");
@@ -29,7 +29,7 @@ Goblin::Goblin()
 
     reviveGoblin();
 
-    goblinWalkVelocity = 8;
+    goblinWalkVelocity = 5;
     plusVelocity = 0;
 
     goblinWidth = 0;

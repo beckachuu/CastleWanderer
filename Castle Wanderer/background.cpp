@@ -34,6 +34,8 @@ Background::Background()
     renderBushes = { NULL };
     renderTavern = { NULL };
     renderRoad = { NULL };
+
+    objectPlusVelocity = 0;
 }
 
 Background::~Background()
@@ -44,71 +46,60 @@ Background::~Background()
 void Background::render(SDL_Renderer* renderer) {
     //Render and repeat
     renderClouds = { clouds_X, 0,SCREEN_WIDTH,SCREEN_HEIGHT };
+    while (renderClouds.x <= -SCREEN_WIDTH) {
+        renderClouds.x += SCREEN_WIDTH;
+    }
     SDL_RenderCopy(renderer, cloudsTexture, NULL, &renderClouds);
-    if (clouds_X < 0) {
+    if (renderClouds.x < 0) {
         renderClouds.x += SCREEN_WIDTH;
         SDL_RenderCopy(renderer, cloudsTexture, NULL, &renderClouds);
-        if (clouds_X < -SCREEN_WIDTH) {
-            renderClouds.x += SCREEN_WIDTH;
-            SDL_RenderCopy(renderer, cloudsTexture, NULL, &renderClouds);
-        }
     }
 
     //Render without repeat
-    renderCastle = { castle_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
-    SDL_RenderCopy(renderer, castleTexture, NULL, &renderCastle);
-
-    //Render and repeat
-    renderbgForest = { bgForest_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
-    SDL_RenderCopy(renderer, backgroundForestTexture, NULL, &renderbgForest);
-    if (bgForest_X < 0) {
-        renderbgForest.x += SCREEN_WIDTH;
-        SDL_RenderCopy(renderer, backgroundForestTexture, NULL, &renderbgForest);
-        if (bgForest_X < -SCREEN_WIDTH) {
-            renderbgForest.x += SCREEN_WIDTH;
-            SDL_RenderCopy(renderer, backgroundForestTexture, NULL, &renderbgForest);
-            if (bgForest_X < -SCREEN_WIDTH) {
-                renderbgForest.x += SCREEN_WIDTH;
-                SDL_RenderCopy(renderer, backgroundForestTexture, NULL, &renderbgForest);
-            }
-        }
+    if (castle_X <= 0 && castle_X > -SCREEN_WIDTH) {
+        renderCastle = { castle_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
+        SDL_RenderCopy(renderer, castleTexture, NULL, &renderCastle);
     }
 
     //Render and repeat
+    renderbgForest = { bgForest_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
+    while (renderbgForest.x <= -SCREEN_WIDTH) {
+        renderbgForest.x += SCREEN_WIDTH;
+    }
+    SDL_RenderCopy(renderer, backgroundForestTexture, NULL, &renderbgForest);
+    if (renderbgForest.x < 0) {
+        renderbgForest.x += SCREEN_WIDTH;
+        SDL_RenderCopy(renderer, backgroundForestTexture, NULL, &renderbgForest);
+    }
+
+
+    //Render and repeat
     renderRoad = { foreBG_X,road_Y,SCREEN_WIDTH,roadWidth };
+    while (renderRoad.x <= -SCREEN_WIDTH) {
+        renderRoad.x += SCREEN_WIDTH;
+    }
     SDL_RenderCopy(renderer, roadTexture, NULL, &renderRoad);
-    if (foreBG_X < 0) {
+    if (renderRoad.x < 0) {
         renderRoad.x += SCREEN_WIDTH;
         SDL_RenderCopy(renderer, roadTexture, NULL, &renderRoad);
-        if (foreBG_X < -SCREEN_WIDTH) {
-            renderRoad.x += SCREEN_WIDTH;
-            SDL_RenderCopy(renderer, roadTexture, NULL, &renderRoad);
-            if (foreBG_X < -SCREEN_WIDTH) {
-                renderRoad.x += SCREEN_WIDTH;
-                SDL_RenderCopy(renderer, roadTexture, NULL, &renderRoad);
-            }
-        }
     }
 
     //Render and repeat
     renderBushes = { foreBG_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
+    while (renderBushes.x <= -SCREEN_WIDTH) {
+        renderBushes.x += SCREEN_WIDTH;
+    }
     SDL_RenderCopy(renderer, treeAndBushesTexture, NULL, &renderBushes);
-    if (foreBG_X < 0) {
+    if (renderBushes.x < 0) {
         renderBushes.x += SCREEN_WIDTH;
         SDL_RenderCopy(renderer, treeAndBushesTexture, NULL, &renderBushes);
-        if (foreBG_X < -SCREEN_WIDTH) {
-            renderBushes.x += SCREEN_WIDTH;
-            SDL_RenderCopy(renderer, treeAndBushesTexture, NULL, &renderBushes);
-            if (foreBG_X < -SCREEN_WIDTH) {
-                renderBushes.x += SCREEN_WIDTH;
-                SDL_RenderCopy(renderer, treeAndBushesTexture, NULL, &renderBushes);
-            }
-        }
     }
 
     //Render without repeat
-    renderTavern = { foreBG_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
-    SDL_RenderCopy(renderer, tavernTexture, NULL, &renderTavern);
+    if (foreBG_X <= 0 && foreBG_X > -SCREEN_WIDTH) {
+        renderTavern = { foreBG_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
+        SDL_RenderCopy(renderer, tavernTexture, NULL, &renderTavern);
+    }
 
 }
 
@@ -118,10 +109,8 @@ void Background::renderCurrentFrame(SDL_Renderer* renderer) {
 
 void Background::handledEvent(SDL_Event& e, SDL_Renderer* render)
 {
-    //If a key was pressed
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
     {
-        //Adjust the velocity
         switch (e.key.keysym.sym)
         {
         case SDLK_d:
@@ -139,11 +128,8 @@ void Background::handledEvent(SDL_Event& e, SDL_Renderer* render)
             break;
         }
     }
-
-    //If a key was released
     else if (e.type == SDL_KEYUP && e.key.repeat == 0)
     {
-        //Adjust the velocity
         switch (e.key.keysym.sym)
         {
         case SDLK_d:
@@ -170,25 +156,32 @@ void Background::move()
     bgForest_X += bgForest_VelX;
     foreBG_X += foreBG_VelX;
 
+
     if (foreBG_X < BGleftMostX) {
         clouds_X += clouds_Velocity;
         castle_X += castle_velocity;
         bgForest_X += bgForest_velocity;
         foreBG_X += foreBG_Velocity;
 
+        objectPlusVelocity = 0;
+
         atFurthestLeftX = true;
         atFurthestRightX = false;
     }
-    else if (foreBG_X > BGrightMostX) {
+    else if (foreBG_X >= BGrightMostX) {
         clouds_X -= clouds_Velocity;
         castle_X -= castle_velocity;
         bgForest_X -= bgForest_velocity;
         foreBG_X -= foreBG_Velocity;
 
+        objectPlusVelocity = 0;
+
         atFurthestLeftX = false;
         atFurthestRightX = true;
     }
     else {
+        objectPlusVelocity = foreBG_VelX;
+
         atFurthestLeftX = false;
         atFurthestRightX = false;
     }
@@ -214,11 +207,11 @@ bool Background::isAtFurthestRightX() {
     return atFurthestRightX;
 }
 
-int Background::getBGVelX() {
-    return foreBG_VelX;
+int Background::getObjectPlusVelocity() {
+    return objectPlusVelocity;
 }
 
-int Background::getBGspeed() {
+int Background::getBGVelocity() {
     return foreBG_Velocity;
 }
 
@@ -226,28 +219,3 @@ int Background::getFurthestLeftPoint() {
     return BGleftMostX;
 }
 
-void Background::speedUp() {
-    foreBG_Velocity++;
-    bgForest_velocity++;
-    castle_velocity++;
-    clouds_Velocity++;
-}
-
-void Background::speedDown() {
-
-    if (foreBG_Velocity >= 2) {
-        foreBG_Velocity--;
-    }
-
-    if (bgForest_velocity >= 2) {
-        bgForest_velocity--;
-    }
-
-    if (castle_velocity >= 2) {
-        castle_velocity--;
-    }
-
-    if (clouds_Velocity >= 2) {
-        clouds_Velocity--;
-    }
-}

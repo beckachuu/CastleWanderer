@@ -19,9 +19,12 @@ const int timeToReadOneCharacter = 45;
 const SDL_Color white = { 255,255,255 };
 const SDL_Color black = { 0, 0, 0 };
 
-const int approxDistant = 20;
+const int volumeChangeAmount = 2;
 
-//init
+const int characterFurthestLeft = 300;
+const int characterFurthestRight = 900;
+const int approxDistant = 30;
+
 SDL_Renderer* initSDL();
 TTF_Font* initTTF();
 

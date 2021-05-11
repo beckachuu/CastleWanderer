@@ -4,7 +4,6 @@
 enum characterPoses { walkR1, walkR2, walkR3, walkR4, walkR5, walkR6,
 	walkL1, walkL2, walkL3, walkL4, walkL5, walkL6, stand, attack, totalCharacterPoses};
 
-//Texture wrapper class
 class MyCharacter
 {
 public:
@@ -36,7 +35,7 @@ public:
 	bool isToRight();
 
 	void receiveDamage(int damage);
-	
+	void heal(int guard);
 
 	int getCharPosX();
 	int getCharPosY();

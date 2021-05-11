@@ -8,43 +8,49 @@ class FinalBoss
 {
 public:
 
-	const std::string bossName="Commander Pharaoh from far far away";
+	const std::string bossName = "Commander Pharaoh from far far away";
+	const int bossAttackDistant = 110;
 
-	const Uint32 nextFrameTime = 200;
+	const int bossApproxWidth = 220;
+	const int bossApproxHeight = 350;
+
+	const Uint32 nextFrameTime = 120;
 
 	const Uint32 maxNextMovetime = 6000;
 	const Uint32 minNextMovetime = 2000;
 
-	const int walkLimit = 350;
-	const int baseGround = SCREEN_HEIGHT - 200;
-	const int jumpHeight = 210;
+	const int walkLimit = 570;
+	const int baseGround = SCREEN_HEIGHT - 5;
+	const int maxLeftPos = 215;
+	const int maxRightPos = SCREEN_WIDTH - 15;
 
-	const int bossVelocity = 5;
+	const int bossVelocity = 4;
 
-	const int maxHealth = 150;
-	const int minHealth = 100;
+	const int health = 400;
+	const int healthRectLength = 188;
 
 	const int maxAttackStrength = 7;
 	const int minAttackStrength = 1;
-	const Uint32 nextAttackTime = 200;
+	const Uint32 nextAttackTime = 250;
 
+	const int nextTeleportTime = 5000;
+	const int chanceOfTeleport = 5;
 
-	FinalBoss(int* bossNameCount);
+	FinalBoss();
 	~FinalBoss();
 
 
 	void setSpriteClips();
-	void renderBoss(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
+	void renderBoss(SDL_Renderer* renderer);
 	void renderSpeechBubble(SDL_Renderer* renderer);
 	void renderHealthBar(SDL_Renderer* renderer);
 	void renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime);
 
-	void move(int targetPosX, int targetPosY, int targetWidth, unsigned int currentTime);
+	void attackTarget(int targetPosX, int targetWidth, int targetFeetPosY, int currentTime);
 	void checkBossLimits();
+	void move(int targetPosX, int targetWidth, int targetFeetPosY, unsigned int currentTime);
 
 	void receiveAttack(int damage, int currentTime);
-	void chaseTarget(int targetPosX, int targetPosY, int targetWidth);
-	bool isAttacking();
 	int getAttackDamage(unsigned int currentTime);
 
 	bool isDead();
@@ -91,7 +97,8 @@ private:
 	SDL_Texture* healthBarTexture;
 	SDL_Rect healthBarRect;
 
-	int bossPosX, bossPosY;
+	int bossLeftPoint, bossPosY;
+	int bossRightPoint, bossFeetPoint;
 
 	int bossWalkVelocity;
 	int plusVelocity;
@@ -104,11 +111,12 @@ private:
 	bool toRight;
 	bool walking;
 
-	int health;
 	int damageReceived;
 	bool die;
 
 	int attackStrength;
 	Uint32 attackTime;
-	bool attacking;
+	bool attackClose;
+
+	Uint32 teleportTime;
 };
