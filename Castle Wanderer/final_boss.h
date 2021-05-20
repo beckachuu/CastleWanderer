@@ -2,7 +2,7 @@
 #include "basic_init.h"
 
 enum bossPoses { closeAttack1, closeAttack2, closeAttack3, closeAttack4, closeAttack5,
-	distantAttack1, distantAttack2, distantAttack3, distantAttack4, die1, die2, die3, die4, die5, totalBossPoses };
+	healing1, healing2, healing3, healing4, die1, die2, die3, die4, die5, totalBossPoses };
 
 class FinalBoss
 {
@@ -26,38 +26,43 @@ public:
 
 	const int bossVelocity = 4;
 
-	const int health = 400;
-	const int healthRectLength = 188;
+	const int health = 300;
+	const int healthRectLength = 345;
+	const int minHealing = 7;
+	const int nextHealTime = nextFrameTime * 4;
 
-	const int maxAttackStrength = 7;
-	const int minAttackStrength = 1;
-	const Uint32 nextAttackTime = 250;
+	const int maxAttackStrength = 30;
+	const int minAttackStrength = 12;
+	const Uint32 nextAttackTime = nextFrameTime * 4;
 
 	const int nextTeleportTime = 5000;
 	const int chanceOfTeleport = 5;
 
 	FinalBoss();
+	void resetBoss();
 	~FinalBoss();
 
 
 	void setSpriteClips();
 	void renderBoss(SDL_Renderer* renderer);
-	void renderSpeechBubble(SDL_Renderer* renderer);
 	void renderHealthBar(SDL_Renderer* renderer);
-	void renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime);
+	void setCurrentFrame(int currentTime);
+	void renderCurrentAction(SDL_Renderer* renderer);
 
 	void attackTarget(int targetPosX, int targetWidth, int targetFeetPosY, int currentTime);
+	bool isAttackingClose();
 	void checkBossLimits();
-	void move(int targetPosX, int targetWidth, int targetFeetPosY, unsigned int currentTime);
+	void move(int targetLeft, int targetRight, int targetFeetPoint, unsigned int currentTime);
 
 	void receiveAttack(int damage, int currentTime);
+	void selfHealing(int currentTime);
 	int getAttackDamage(unsigned int currentTime);
 
 	bool isDead();
 
 
 	int getBossPosX();
-	int getBossPosY();
+	int getBossFeetPoint();
 
 	void setPlusVelocity(int bgVelocity);
 	int getBossVelX();
@@ -65,6 +70,10 @@ public:
 
 	int getBossWidth();
 	int getBossHeight();
+
+	SDL_Texture* getBossTexture();
+	SDL_Rect* getBossSrcRect();
+	SDL_Rect* getBossDstRect();
 
 	void free();
 
@@ -74,22 +83,12 @@ private:
 	int frame;
 
 	Uint32 moveTime;
-	Uint32 nextMoveTime;
-
-	Uint32 speakTime;
-	Uint32 nextSpeakTime;
 
 	SDL_Texture* bossNameTexture;
 	SDL_Rect bossNameRect;
 
 	SDL_Texture* bossTexture;
 	SDL_Rect bossSpriteClips[totalBossPoses];
-
-	SDL_Texture* bubbleSpeechTexture;
-	SDL_Rect bubbleSpeechRect;
-
-	SDL_Texture* speechTexture;
-	SDL_Rect speechRect;
 
 	SDL_Texture* healthTexture;
 	SDL_Rect healthRect;
@@ -117,6 +116,8 @@ private:
 	int attackStrength;
 	Uint32 attackTime;
 	bool attackClose;
+
+	Uint32 healtime;
 
 	Uint32 teleportTime;
 };

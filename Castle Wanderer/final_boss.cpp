@@ -6,24 +6,18 @@ FinalBoss::FinalBoss()
     frameTime = 0;
 
     moveTime = 0;
-    nextMoveTime = 0;
 
-    speakTime = 0;
-    nextSpeakTime = 0;
 
     bossNameTexture = loadFromText(bossName, &bossNameRect, white);
 
     bossTexture = loadFromImage("image/Sprite sheets/bossSheet.png");
     setSpriteClips();
 
-    bubbleSpeechTexture = loadFromImage("image/speechBubble.png");
-    bubbleSpeechRect = { NULL };
-
     healthTexture = loadFromImage("image/health.png");
     healthRect.h = 10;
 
     healthBarTexture = loadFromImage("image/boss health bar.png");
-    healthBarRect.w = 210;
+    healthBarRect.w = 370;
     healthBarRect.h = 40;
 
     bossWalkVelocity = 4;
@@ -31,20 +25,32 @@ FinalBoss::FinalBoss()
     bossWidth = 0;
     bossHeight = 0;
 
-    toRight = false;
-    toLeft = true;
-    walking = false;
-
     attackStrength = 0;
     attackTime = 0;
-
-    speechTexture = NULL;
-    speechRect = { NULL };
 
     frame = closeAttack1;
 
     bossLeftPoint = 0;
     bossPosY = 0;
+
+    healtime = 0;
+    teleportTime = 0;
+
+    resetBoss();
+}
+
+void FinalBoss::resetBoss() {
+
+    bossWalkVelocity = 4;
+
+    toRight = false;
+    toLeft = true;
+    walking = false;
+
+    attackStrength = 0;
+
+    frame = closeAttack1;
+
     bossRightPoint = 1200;
     bossFeetPoint = baseGround;
 
@@ -54,6 +60,7 @@ FinalBoss::FinalBoss()
     damageReceived = 0;
     die = false;
     attackClose = false;
+
 }
 
 FinalBoss::~FinalBoss()
@@ -88,25 +95,25 @@ void FinalBoss::setSpriteClips() {
     bossSpriteClips[closeAttack5].w = 278;
     bossSpriteClips[closeAttack5].h = 259;
 
-    bossSpriteClips[distantAttack1].x = 6;
-    bossSpriteClips[distantAttack1].y = 462;
-    bossSpriteClips[distantAttack1].w = 204;
-    bossSpriteClips[distantAttack1].h = 274;
+    bossSpriteClips[healing1].x = 6;
+    bossSpriteClips[healing1].y = 462;
+    bossSpriteClips[healing1].w = 204;
+    bossSpriteClips[healing1].h = 274;
 
-    bossSpriteClips[distantAttack2].x = 399;
-    bossSpriteClips[distantAttack2].y = 446;
-    bossSpriteClips[distantAttack2].w = 194;
-    bossSpriteClips[distantAttack2].h = 290;
+    bossSpriteClips[healing2].x = 399;
+    bossSpriteClips[healing2].y = 446;
+    bossSpriteClips[healing2].w = 194;
+    bossSpriteClips[healing2].h = 290;
 
-    bossSpriteClips[distantAttack3].x = 790;
-    bossSpriteClips[distantAttack3].y = 435;
-    bossSpriteClips[distantAttack3].w = 192;
-    bossSpriteClips[distantAttack3].h = 301;
+    bossSpriteClips[healing3].x = 790;
+    bossSpriteClips[healing3].y = 435;
+    bossSpriteClips[healing3].w = 192;
+    bossSpriteClips[healing3].h = 301;
 
-    bossSpriteClips[distantAttack4].x = 1121;
-    bossSpriteClips[distantAttack4].y = 462;
-    bossSpriteClips[distantAttack4].w = 241;
-    bossSpriteClips[distantAttack4].h = 274;
+    bossSpriteClips[healing4].x = 1121;
+    bossSpriteClips[healing4].y = 462;
+    bossSpriteClips[healing4].w = 241;
+    bossSpriteClips[healing4].h = 274;
 
     bossSpriteClips[die1].x = 462;
     bossSpriteClips[die1].y = 263;
@@ -132,8 +139,6 @@ void FinalBoss::setSpriteClips() {
     bossSpriteClips[die5].y = 263;
     bossSpriteClips[die5].w = 119;
     bossSpriteClips[die5].h = 195;
-
-    teleportTime = 0;
 }
 
 void FinalBoss::renderBoss(SDL_Renderer* renderer)
@@ -149,22 +154,8 @@ void FinalBoss::renderBoss(SDL_Renderer* renderer)
     }
 }
 
-void FinalBoss::renderSpeechBubble(SDL_Renderer* renderer) {
-
-    speechRect.x = bossLeftPoint - 20;
-    speechRect.y = bossFeetPoint - bossApproxHeight - speechRect.h - 70;
-
-    bubbleSpeechRect.x = speechRect.x - 20;
-    bubbleSpeechRect.y = speechRect.y - 17;
-    bubbleSpeechRect.w = speechRect.w + 50;
-    bubbleSpeechRect.h = (speechRect.h + 40) * 6 / 5;
-
-    SDL_RenderCopy(renderer, bubbleSpeechTexture, NULL, &bubbleSpeechRect);
-    SDL_RenderCopy(renderer, speechTexture, NULL, &speechRect);
-}
-
 void FinalBoss::renderHealthBar(SDL_Renderer* renderer) {
-    healthRect.x = bossLeftPoint - 7;
+    healthRect.x = bossRightPoint - 300;
     healthRect.y = bossFeetPoint - bossApproxHeight - 12;
     healthRect.w = healthRectLength - damageReceived * healthRectLength / health;
     SDL_RenderCopy(renderer, healthTexture, NULL, &healthRect);
@@ -173,12 +164,12 @@ void FinalBoss::renderHealthBar(SDL_Renderer* renderer) {
     healthBarRect.y = healthRect.y - 21;
     SDL_RenderCopy(renderer, healthBarTexture, NULL, &healthBarRect);
 
-    bossNameRect.x = healthBarRect.x + healthBarRect.w / 2 - bossNameRect.w / 2;
+    bossNameRect.x = healthBarRect.x + 45;
     bossNameRect.y = healthBarRect.y - 7;
     SDL_RenderCopy(renderer, bossNameTexture, NULL, &bossNameRect);
 }
 
-void FinalBoss::renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime) {
+void FinalBoss::setCurrentFrame(int currentTime) {
     if (currentTime > frameTime + nextFrameTime) {
         if (attackClose) {
             if (frame < closeAttack1 || frame >= closeAttack5) {
@@ -187,8 +178,8 @@ void FinalBoss::renderCurrentAction(SDL_Renderer* renderer, unsigned int current
             else frame++;
         }
         else {
-            if (frame < distantAttack1 || frame >= distantAttack4) {
-                frame = distantAttack1;
+            if (frame < healing1 || frame >= healing4) {
+                frame = healing1;
             }
             else frame++;
         }
@@ -206,68 +197,16 @@ void FinalBoss::renderCurrentAction(SDL_Renderer* renderer, unsigned int current
         bossLeftPoint = bossRightPoint - bossApproxWidth;
     }
     bossPosY = bossFeetPoint - bossHeight;
+}
 
+void FinalBoss::renderCurrentAction(SDL_Renderer* renderer) {
     renderBoss(renderer);
-
-    if (speechTexture != NULL) {
-        renderSpeechBubble(renderer);
-    }
-
     renderHealthBar(renderer);
 }
 
-void FinalBoss::attackTarget(int targetPosX, int targetWidth, int targetFeetPosY, int currentTime) {
-    attackClose = true;
 
-    //Teleport
-    if (currentTime > teleportTime + nextTeleportTime && rand() % chanceOfTeleport == 0) {
-        bossFeetPoint = targetFeetPosY;
-        if (rand() % 2 == 0) {
-            bossRightPoint = targetPosX;
-            toLeft = false;
-            toRight = true;
-        }
-        else {
-            bossRightPoint = targetPosX + targetWidth + bossApproxWidth;
-            toLeft = true;
-            toRight = false;
-        }
-        frameTime += nextFrameTime;
-        teleportTime = currentTime;
-        return;
-    }
-
-    if (bossRightPoint + bossAttackDistant < targetPosX + approxDistant) {
-        //bossVelX = bossWalkVelocity;
-        toLeft = false;
-        toRight = true;
-
-        attackClose = false;
-    }
-    else if (bossLeftPoint - bossAttackDistant > targetPosX + targetWidth - approxDistant) {
-        //bossVelX = -bossWalkVelocity;
-        toLeft = true;
-        toRight = false;
-
-        attackClose = false;
-    }
-    else {
-        bossVelX = 0;
-    }
-
-    if (bossFeetPoint < targetFeetPosY - approxDistant) {
-        bossVelY = bossWalkVelocity;
-
-        attackClose = false;
-    }
-    else if (bossFeetPoint > targetFeetPosY + approxDistant) {
-        bossVelY = -bossWalkVelocity;
-
-        attackClose = false;
-    }
-    else {
-        bossVelY = 0;
-    }
+bool FinalBoss::isAttackingClose() {
+    return attackClose;
 }
 
 void FinalBoss::checkBossLimits() {
@@ -292,9 +231,44 @@ void FinalBoss::checkBossLimits() {
     }
 }
 
-void FinalBoss::move(int targetPosX, int targetWidth, int targetFeetPosY, unsigned int currentTime)
+void FinalBoss::attackTarget(int targetLeft, int targetRight, int targetFeetPoint, int currentTime) {
+    attackClose = true;
+
+    //Teleport
+    if (currentTime > teleportTime + nextTeleportTime && rand() % chanceOfTeleport == 0) {
+        bossFeetPoint = targetFeetPoint;
+        if (rand() % 2 == 0) {
+            bossRightPoint = targetLeft;
+            toLeft = false;
+            toRight = true;
+        }
+        else {
+            bossRightPoint = targetRight + bossApproxWidth;
+            toLeft = true;
+            toRight = false;
+        }
+        frameTime += nextFrameTime;
+        teleportTime = currentTime;
+        return;
+    }
+
+    if (bossRightPoint + bossAttackDistant < targetLeft + approxDistant) {
+        toLeft = false;
+        toRight = true;
+        attackClose = false;
+    }
+    else if (bossLeftPoint - bossAttackDistant > targetRight - approxDistant) {
+        toLeft = true;
+        toRight = false;
+        attackClose = false;
+    }
+}
+
+
+void FinalBoss::move(int targetLeft, int targetRight, int targetFeetPoint, unsigned int currentTime)
 {
-    attackTarget(targetPosX, targetWidth, targetFeetPosY, currentTime);
+    attackTarget(targetLeft, targetRight, targetFeetPoint, currentTime);
+    selfHealing(currentTime);
 
     bossRightPoint += plusVelocity;
     bossFeetPoint += bossVelY;
@@ -304,7 +278,7 @@ void FinalBoss::move(int targetPosX, int targetWidth, int targetFeetPosY, unsign
 void FinalBoss::receiveAttack(int damage, int currentTime) {
     damageReceived += damage;
     if (damageReceived >= health) {
-        frame = die1;
+        die = true;
     }
 
     if (toRight) {
@@ -315,15 +289,22 @@ void FinalBoss::receiveAttack(int damage, int currentTime) {
     }
 }
 
+void FinalBoss::selfHealing(int currentTime) {
+    if (frame == healing4 && damageReceived > minHealing) {
+        if (currentTime > attackTime + nextAttackTime) {
+            damageReceived -= minHealing;
+            healtime = currentTime;
+        }
+    }
+}
+
 int FinalBoss::getAttackDamage(unsigned int currentTime) {
-    if (currentTime > attackTime + nextAttackTime) {
-        if (frame == closeAttack4) {
+    attackStrength = 0;
+    if (frame == closeAttack4) {
+        if (currentTime > attackTime + nextAttackTime) {
             attackStrength = rand() % (maxAttackStrength - minAttackStrength) + minAttackStrength;
             attackTime = currentTime;
         }
-    }
-    else {
-        attackStrength = 0;
     }
     return attackStrength;
 }
@@ -337,8 +318,8 @@ bool FinalBoss::isDead() {
 int FinalBoss::getBossPosX() {
     return bossLeftPoint;
 }
-int FinalBoss::getBossPosY() {
-    return bossPosY;
+int FinalBoss::getBossFeetPoint() {
+    return bossFeetPoint;
 }
 
 void FinalBoss::setPlusVelocity(int bgVelocity) {
@@ -361,13 +342,19 @@ int FinalBoss::getBossHeight() {
 }
 
 
+SDL_Texture* FinalBoss::getBossTexture() {
+    return bossTexture;
+}
+SDL_Rect* FinalBoss::getBossSrcRect() {
+    return &bossSpriteClips[frame];
+}
+
+
 
 void FinalBoss::free()
 {
     freeTexture(bossNameTexture);
     freeTexture(bossTexture);
-    freeTexture(speechTexture);
-    freeTexture(bubbleSpeechTexture);
     freeTexture(healthTexture);
     freeTexture(healthBarTexture);
 }

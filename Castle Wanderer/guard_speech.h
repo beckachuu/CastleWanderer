@@ -2,9 +2,8 @@
 #include <vector>
 #include <string>
 
-
 const std::vector<std::string> guardNames = {"Max","Vendey","Daniel","Timmy","Beck","James","Steph",
-"Squire","Brass","Raymond","Steff","Buck","Tramble","Truffle","Hurtle","Spooken"};
+"Squire","Brass","Raymond","Steff","Buck","Tramble","Truffle","Hurtle","Spooken","Pickle"};
 
 
 
@@ -17,7 +16,8 @@ const std::vector<std::string> goodSentence = { "A simple hello wouldn't hurt ye
 "Sometimes I wonder if our world is real or it's just a fictional world in a game or something...",
 "There's a juicy fruit in the forest, it can help recover your wound really fast! But it's really hard to find...",
 "The pixies said we don't have the guts to pick a fight with them! They better take that back before I get to their tiny tree hole!",
-"Someday I'll get myself a real horse..."};
+"Someday I'll get myself a real horse...",
+"Timmy is a coward guard! Last time I offered him 7 Bogs to steal the king's crown, he couldn't even set his foot inside the castle!" };
 
 const std::vector<std::string> goodQuestion = { "Ye looking for something?","Are you lost or just looking for the king?",
 "Why are you wanderring around this village? Did you lose your keys?",
@@ -37,14 +37,18 @@ const std::vector<std::string> notgoodSentence = { "Who are you? Why do you look
 "I have a lot in common with ya, except for your taste in beer... I mean you REALLY think the beer in the tavern is good???",
 "Wow! The Hand Legob plant never had a second flower blooming before! What have you done???",
 "The code controlling me has so many bugs that they can feed a tarantula for a whole year...",
-"Violence is not the answer my fellow... It's a question, and the answer is \"YES\""};
+"Violence is not the answer my fellow... It's a question, and the answer is \"YES\"",
+"Pssst! Have you heard? They throw a whole dead rat into the beer barrel and only serve it when the poor rat body is rotten!"};
 
 const std::vector<std::string> notgoodQuestion = {
 "Uh... I just lost my salary in the tavern. Can you lend me something so I could get back to my bet?",
 "You seem lost... Do you need help?",
-"Are you the one they keep talking about...?","Are you new here? Want me to show you around?" };
+"Are you the one they keep talking about...?","Hey! Ye wanna join this game with our fellow?" };
+
+
 
 const std::vector<std::string> angrySpeech = {
 "Hey! Was that you Timmy? You better save your ass before I get to it!",
-"Somebody is planning to get rid of me!", "Yeah! You better run before I get my hand on your crappy stick!",
-"You never heard of my father did you!?"};
+"You better say sorry for THAT tree over there 'cause its life is wasted just to produce some oxygen for your dumb ass!",
+"Yeah! You better run before I get my hand on your crappy stick!",
+"How dare you???","Hey! Don't you dare do that again in MY TERRITORI!"};

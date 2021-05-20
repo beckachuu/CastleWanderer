@@ -16,13 +16,13 @@ const int fontSize = 20;
 const Uint32 textWrapLength = 250;
 const int timeToReadOneCharacter = 45;
 
+const int redColorKey = 77, greenColorKey = 79, blueColorKey = 86;
 const SDL_Color white = { 255,255,255 };
 const SDL_Color black = { 0, 0, 0 };
 
+const int initialVolume = 10;
 const int volumeChangeAmount = 2;
 
-const int characterFurthestLeft = 300;
-const int characterFurthestRight = 900;
 const int approxDistant = 30;
 
 SDL_Renderer* initSDL();

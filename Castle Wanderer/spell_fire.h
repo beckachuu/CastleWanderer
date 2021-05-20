@@ -18,10 +18,6 @@ public:
 	void reload();
 	~Fire();
 
-	void setColor(Uint8 red, Uint8 green, Uint8 blue);
-	void setBlendMode(SDL_BlendMode blending);
-	void setAlpha(Uint8 alpha);
-
 	void setSpriteClips();
 	void render(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void renderSpellPosition(SDL_Renderer* renderer);

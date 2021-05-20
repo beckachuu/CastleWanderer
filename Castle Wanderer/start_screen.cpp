@@ -2,7 +2,7 @@
 
 StartScreen::StartScreen() {
 
-	volume = 50;
+	volume = initialVolume;
 
 	startScreenMusic = loadFromMusic("music/startScreenMusic.mp3");
 	Mix_PlayMusic(startScreenMusic, -1);
@@ -186,6 +186,14 @@ void StartScreen::renderInstruct(SDL_Event* e, SDL_Renderer* renderer) {
 				choseInstruct2 = true;
 				break;
 
+			case SDLK_ESCAPE:
+				choseInstruct1 = false;
+				choseInstruct2 = false;
+				break;
+			}
+		}
+		if (e->type == SDL_KEYDOWN) {
+			switch (e->key.keysym.sym) {
 			case SDLK_LEFT:
 				if (volume > 0) {
 					volume -= volumeChangeAmount;
@@ -197,11 +205,6 @@ void StartScreen::renderInstruct(SDL_Event* e, SDL_Renderer* renderer) {
 					volume += volumeChangeAmount;
 				}
 				Mix_VolumeMusic(volume);
-				break;
-
-			case SDLK_ESCAPE:
-				choseInstruct1 = false;
-				choseInstruct2 = false;
 				break;
 			}
 		}

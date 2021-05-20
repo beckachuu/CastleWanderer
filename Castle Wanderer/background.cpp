@@ -10,23 +10,6 @@ Background::Background()
 	treeAndBushesTexture = loadFromImage("image/tree and bushes.png");
 	tavernTexture = loadFromImage("image/tavern.png");
 	roadTexture = loadFromImage("image/road.png");
-
-    clouds_X = 0;
-    castle_X = 0;
-    bgForest_X = 0;
-    foreBG_X = 0;
-    road_Y = SCREEN_HEIGHT - roadWidth;
-
-    atFurthestLeftX = false;
-    atFurthestRightX = true;
-
-    //Velocity
-    foreBG_Velocity = 6, bgForest_velocity = 5, castle_velocity = 2, clouds_Velocity = 1;
-
-    clouds_VelX = 0;
-    castle_VelX = 0;
-    bgForest_VelX = 0;
-    foreBG_VelX = 0;
     
     renderClouds = { NULL };
     renderCastle = { NULL };
@@ -34,6 +17,25 @@ Background::Background()
     renderBushes = { NULL };
     renderTavern = { NULL };
     renderRoad = { NULL };
+
+    resetBackGround();
+}
+
+void Background::resetBackGround() {
+    clouds_X = 0;
+    castle_X = 0;
+    bgForest_X = 0;
+    foreBG_X = 0;
+
+    atFurthestLeftX = false;
+    atFurthestRightX = true;
+
+    foreBG_Velocity = 6, bgForest_velocity = 5, castle_velocity = 2, clouds_Velocity = 1;
+
+    clouds_VelX = 0;
+    castle_VelX = 0;
+    bgForest_VelX = 0;
+    foreBG_VelX = 0;
 
     objectPlusVelocity = 0;
 }
@@ -44,7 +46,7 @@ Background::~Background()
 }
 
 void Background::render(SDL_Renderer* renderer) {
-    //Render and repeat
+
     renderClouds = { clouds_X, 0,SCREEN_WIDTH,SCREEN_HEIGHT };
     while (renderClouds.x <= -SCREEN_WIDTH) {
         renderClouds.x += SCREEN_WIDTH;
@@ -55,13 +57,11 @@ void Background::render(SDL_Renderer* renderer) {
         SDL_RenderCopy(renderer, cloudsTexture, NULL, &renderClouds);
     }
 
-    //Render without repeat
     if (castle_X <= 0 && castle_X > -SCREEN_WIDTH) {
         renderCastle = { castle_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
         SDL_RenderCopy(renderer, castleTexture, NULL, &renderCastle);
     }
 
-    //Render and repeat
     renderbgForest = { bgForest_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
     while (renderbgForest.x <= -SCREEN_WIDTH) {
         renderbgForest.x += SCREEN_WIDTH;
@@ -72,8 +72,6 @@ void Background::render(SDL_Renderer* renderer) {
         SDL_RenderCopy(renderer, backgroundForestTexture, NULL, &renderbgForest);
     }
 
-
-    //Render and repeat
     renderRoad = { foreBG_X,road_Y,SCREEN_WIDTH,roadWidth };
     while (renderRoad.x <= -SCREEN_WIDTH) {
         renderRoad.x += SCREEN_WIDTH;
@@ -84,7 +82,6 @@ void Background::render(SDL_Renderer* renderer) {
         SDL_RenderCopy(renderer, roadTexture, NULL, &renderRoad);
     }
 
-    //Render and repeat
     renderBushes = { foreBG_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
     while (renderBushes.x <= -SCREEN_WIDTH) {
         renderBushes.x += SCREEN_WIDTH;
@@ -95,7 +92,6 @@ void Background::render(SDL_Renderer* renderer) {
         SDL_RenderCopy(renderer, treeAndBushesTexture, NULL, &renderBushes);
     }
 
-    //Render without repeat
     if (foreBG_X <= 0 && foreBG_X > -SCREEN_WIDTH) {
         renderTavern = { foreBG_X,0,SCREEN_WIDTH,SCREEN_HEIGHT };
         SDL_RenderCopy(renderer, tavernTexture, NULL, &renderTavern);

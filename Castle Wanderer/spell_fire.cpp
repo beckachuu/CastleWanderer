@@ -9,8 +9,8 @@ Fire::Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity)
     fTexture = loadFromImage("image/Sprite sheets/wizardSheet.png");
     setSpriteClips();
 
-    fWidth = 0;
-    fHeight = 0;
+    fWidth = 111;
+    fHeight = 24;
 
     shoot(toRight, wizPosX, wizPosY, characterVelocity);
     available = true;
@@ -18,7 +18,7 @@ Fire::Fire(bool toRight, int wizPosX, int wizPosY, int characterVelocity)
 
 void Fire::shoot(bool toRight, int wizPosX, int wizPosY, int characterVelocity) {
     setVelocity(characterVelocity);
-
+    //Set fire offset
     if (toRight) {
         fPosX = wizPosX + 150;
         fVelX = fVelocity;
@@ -38,21 +38,6 @@ void Fire::reload() {
 Fire::~Fire() {
     free();
 }
-
-
-void Fire::setColor(Uint8 red, Uint8 green, Uint8 blue)
-{
-    SDL_SetTextureColorMod(fTexture, red, green, blue);
-}
-void Fire::setBlendMode(SDL_BlendMode blending)
-{
-    SDL_SetTextureBlendMode(fTexture, blending);
-}
-void Fire::setAlpha(Uint8 alpha)
-{
-    SDL_SetTextureAlphaMod(fTexture, alpha);
-}
-
 
 void Fire::setSpriteClips() {
 

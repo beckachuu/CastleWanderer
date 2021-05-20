@@ -3,13 +3,11 @@
 
 MyCharacter::MyCharacter()
 {
-    frame = stand;
-    frameTime = 0;
 
     charTexture = loadFromImage("image/Sprite sheets/wizardSheet.png");
     setSpriteClips();
 
-    charNameTexture = loadFromText("Weedsycorn", &charNameRect, white);
+    charNameTexture = loadFromText("Wanderer", &charNameRect, white);
     charNameRect.x = 82;
     charNameRect.y = 17;
 
@@ -24,19 +22,26 @@ MyCharacter::MyCharacter()
     healthBarRect.w = 420;
     healthBarRect.h = 70;
 
+    charWidth = 100;
+    charHeight = 200;
+
+    resetCharacter();
+}
+
+void MyCharacter::resetCharacter() {
+    frame = stand;
+    frameTime = 0;
+
     leftmostCharacterPos = 0;
-    rightmostCharacterPos = characterFurthestRight;
+    rightmostCharacterPos = 900;
     charPosX = rand() % rightmostCharacterPos;
-    charPosY = baseGround-1;
+    charPosY = rand() % (baseGround - walkLimit) + walkLimit;
     ground = baseGround;
 
     charVelocity = 6;
     charVelocityJump = 24;
     charVelX = 0;
     charVelY = 0;
-
-    charWidth = 0;
-    charHeight = 0;
 
     toRight = false;
     toLeft = true;
@@ -151,13 +156,13 @@ void MyCharacter::renderHealthBar(SDL_Renderer* renderer)
 {
     SDL_RenderCopy(renderer, charNameTexture, NULL, &charNameRect);
 
-    healthRect.w = 380 - damageReceived * 380 / health;
+    healthRect.w = healthbarLength - damageReceived * healthbarLength / health;
     SDL_RenderCopy(renderer, healthTexture, NULL, &healthRect);
 
     SDL_RenderCopy(renderer, healthBarTexture, NULL, &healthBarRect);
 }
 
-void MyCharacter::renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime) {
+void MyCharacter::setCurrentFrame(int currentTime) {
     if (walking && toRight) {
         if (currentTime > frameTime + nextFrameTime) {
             frame++;
@@ -190,10 +195,10 @@ void MyCharacter::renderCurrentAction(SDL_Renderer* renderer, unsigned int curre
             frameTime = currentTime;
         }
     }
+}
 
-    SDL_Rect* currentClip = &characterSpriteClips[frame];
-    renderCharacter(renderer, currentClip);
-
+void MyCharacter::renderCurrentAction(SDL_Renderer* renderer) {
+    renderCharacter(renderer, &characterSpriteClips[frame]);
     renderHealthBar(renderer);
 }
 
@@ -244,10 +249,10 @@ void MyCharacter::handleEvent(SDL_Event& e, unsigned int currentTime)
 
             //Move back a bit because of the spell's rebound
             if (toRight) {
-                charPosX -=3;
+                charPosX -= reboundEffectDistant;
             }
             else if (toLeft) {
-                charPosX +=3;
+                charPosX += reboundEffectDistant;
             }
             break;
         }
@@ -278,12 +283,11 @@ void MyCharacter::handleEvent(SDL_Event& e, unsigned int currentTime)
             break;
 
         case SDLK_f:
-            //Move back a bit because of the spell's rebound
             if (toRight) {
-                charPosX ++;
+                charPosX += reboundEffectDistant;
             }
             else if (toLeft) {
-                charPosX --;
+                charPosX -= reboundEffectDistant;
             }
             break;
         }
@@ -335,7 +339,7 @@ void MyCharacter::checkCharLimits() {
     }
     //If walked too far down
     if (charPosY > baseGround) {
-        charPosY = baseGround - 1;
+        charPosY = baseGround;
     }
 
     //If not walking anywhere
@@ -363,10 +367,17 @@ bool MyCharacter::isToRight() {
 
 void MyCharacter::receiveDamage(int damage) {
     damageReceived += damage;
+    if (damageReceived >= health) {
+        die = true;
+    }
 }
 
-void MyCharacter::heal(int guard) {
-    damageReceived -= guard * 7;
+bool MyCharacter::isDefeated() {
+    return die;
+}
+
+void MyCharacter::heal(int guardOrder) {
+    damageReceived -= guardOrder * minHealthAmount;
     if (damageReceived < 0) {
         damageReceived = 0;
     }
@@ -377,6 +388,9 @@ int MyCharacter::getCharPosX() {
 }
 int MyCharacter::getCharPosY() {
     return charPosY;
+}
+int MyCharacter::getCharFeetPoint() {
+    return charPosY + charHeight;
 }
 
 void MyCharacter::setVelocity(int BGVelocity) {

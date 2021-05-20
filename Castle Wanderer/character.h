@@ -14,17 +14,23 @@ public:
 	const int baseGround = SCREEN_HEIGHT - 200;
 	const int jumpHeight = 210;
 
+	const int reboundEffectDistant = 3;
+
+	const int healthbarLength = 380;
 	const int health = 210;
+	const int minHealthAmount = 21;
 
 
 	MyCharacter();
+	void resetCharacter();
 	~MyCharacter();
 
 
 	void setSpriteClips();
 	void renderCharacter(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void renderHealthBar(SDL_Renderer* renderer);
-	void renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime);
+	void setCurrentFrame(int currentTime);
+	void renderCurrentAction(SDL_Renderer* renderer);
 
 	void handleEvent(SDL_Event& e, unsigned int currentTime);
 	void move();
@@ -35,10 +41,12 @@ public:
 	bool isToRight();
 
 	void receiveDamage(int damage);
+	bool isDefeated();
 	void heal(int guard);
 
 	int getCharPosX();
 	int getCharPosY();
+	int getCharFeetPoint();
 
 	void setVelocity(int BGVelocity);
 	int getCharVelX();

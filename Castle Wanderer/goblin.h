@@ -3,7 +3,6 @@
 
 enum goblinPoses { walk0, walk1, walk2, walk3, walk4, angry1, angry2, angry3, angry4, angry5, explode, totalGoblinPoses };
 
-//Texture wrapper class
 class Goblin
 {
 public:
@@ -16,7 +15,6 @@ public:
 	const Uint32 maxNextSpeakTime = 15000;
 	const Uint32 minNextSpeakTime = 10000;
 
-	//Limit for position
 	const int walkLimit = SCREEN_HEIGHT - 170 - 125;
 	const int baseGround = SCREEN_HEIGHT - 125;
 	const int jumpHeight = 180;
@@ -34,23 +32,24 @@ public:
 	void setSpriteClips();
 	void renderGoblin(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void renderGoblinSpeech(SDL_Renderer* renderer);
-	void renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime);
+	void setCurrentFrame(int currentTime);
+	void renderCurrentAction(SDL_Renderer* renderer);
 
 	void randomSpeech();
 	void moveRandom(unsigned int currentTime);
-	void move(int targetPosX, int targetPosY, int targetWidth, int targetHeight, unsigned int currentTime);
+	void chaseTarget(int targetLeft, int targetRight, int targetFeetPoint);
+	void move(int targetLeft, int targetRight, int targetFeetPoint, unsigned int currentTime);
 	void checkGoblinLimits();
 
 	void getAngry(unsigned int currentTime);
 	bool isAngry();
-	void chaseTarget(int targetPosX, int targetPosY, int targetWidth, int targetHeight);
 	int getExplodeDamage();
 
 	bool isDead();
 
 
 	int getGoblinPosX();
-	int getGoblinPosY();
+	int getGoblinFeetPoint();
 
 	void setPlusVelocity(int bgVelocity);
 	int getGoblinVelX();

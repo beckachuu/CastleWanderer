@@ -85,8 +85,7 @@ SDL_Texture* loadFromImage(std::string path)
     }
     else
     {
-        //Color key image
-        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 77, 79, 86));
+        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, redColorKey, greenColorKey, blueColorKey));
 
         //Create texture from surface pixels
         newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);

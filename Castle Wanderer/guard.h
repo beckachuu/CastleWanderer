@@ -16,11 +16,12 @@ public:
 	const int baseGround = SCREEN_HEIGHT - 200;
 	const int jumpHeight = 210;
 
-	const int maxVelocity = 7;
-	const int minVelocity = 4;
+	const int maxVelocity = 5;
+	const int minVelocity = 3;
 
 	const int maxHealth = 120;
 	const int minHealth = 70;
+	const int healthbarLength = 188;
 
 	const int maxAttackStrength = 7;
 	const int minAttackStrength = 1;
@@ -36,16 +37,17 @@ public:
 	void renderGuard(SDL_Renderer* renderer, SDL_Rect* clip = NULL);
 	void renderSpeechBubble(SDL_Renderer* renderer);
 	void renderHealthBar(SDL_Renderer* renderer);
-	void renderCurrentAction(SDL_Renderer* renderer, unsigned int currentTime);
+	void setCurrentFrame(int currentTime);
+	void renderCurrentAction(SDL_Renderer* renderer);
 
 	bool okayToSpeak;
 	void randomSpeech();
 	void moveRandom(unsigned int currentTime);
-	void move(int targetPosX, int targetPosY, int targetWidth, unsigned int currentTime);
+	void chaseTarget(int targetLeft, int targetRight, int targetFeetPoint);
+	void move(int targetLeft, int targetRight, int targetFeetPoint, unsigned int currentTime);
 	void checkGuardLimits();
 
 	void receiveAttack(int damage, int currentTime);
-	void chaseTarget(int targetPosX, int targetPosY, int targetWidth);
 	bool isAttacking();
 	int getAttackDamage(unsigned int currentTime);
 
@@ -53,7 +55,7 @@ public:
 	bool isGood();
 
 	int getGuardPosX();
-	int getGuardPosY();
+	int getGuardFeetPoint();
 
 	void setPlusVelocity(int bgVelocity);
 	int getGuardVelX();
