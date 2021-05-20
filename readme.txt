@@ -13,11 +13,9 @@ xem đó có phải lính gác xấu không và tiêu diệt. Khi boss cuối xu
 https://lazyfoo.net/tutorials/SDL/index.php
 Em sử dụng code của các phần khởi tạo SDL, SDL_TTF, SDL_image và SDL_mixer trong hướng dẫn của lazyfoo (có sửa đổi 1 vài chỗ)
 Phần code điều khiển nhân vật lên xuống trái phải em copy từ bài 26, sau đó viết thêm tính năng nhảy và bắn cầu lửa cho nhân vật
-Phần code điều khiển các nhân vật NPC do em tự viết hoàn toàn
-Code check va chạm và cuộn màn hình cũng do em tự viết
 Những phần code em tự viết hoàn toàn:
 - Điều khiển nhân vật NPC:
-  + Cho lính gác, yêu tinh di chuyển ngãu nhiên
+  + Cho lính gác, yêu tinh di chuyển ngẫu nhiên
   + Cho lính gác nói chuyện sau khi chạm vào nhân vật chính hoặc sau khi bị tấn công
   + Cho yêu tinh nói chuyện sau khi bị tấn công
   + Cho lính gác và yêu tinh đuổi theo gây sát thương cho nhân vật chính
